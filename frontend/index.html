@@ -21,6 +21,7 @@
         <a href="#jogos">Jogos</a>
         <a href="#noticias">Noticias</a>
         <a href="#conta">Conta</a>
+        <a href="#admin">Admin</a>
       </nav>
     </header>
 
@@ -184,11 +185,59 @@
           <p class="form-message" id="form-message" role="status"></p>
         </div>
       </section>
+
+      <section class="section admin-section" id="admin">
+        <div class="section-heading">
+          <p class="eyebrow">Administracao</p>
+          <h2>Painel administrativo</h2>
+          <p id="admin-status">Entre com uma conta administradora para carregar o painel.</p>
+        </div>
+
+        <div class="admin-panel" id="admin-panel" hidden>
+          <div class="admin-stats" id="admin-stats"></div>
+
+          <div class="admin-layout">
+            <section class="admin-card">
+              <div class="admin-card-heading">
+                <div>
+                  <p class="eyebrow">Usuarios</p>
+                  <h3>Gerenciamento de acessos</h3>
+                </div>
+                <button class="button secondary" id="reload-admin" type="button">Atualizar</button>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Email</th>
+                      <th>Perfil</th>
+                      <th>Status</th>
+                      <th>Acao</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-users"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-card">
+              <div class="admin-card-heading">
+                <div>
+                  <p class="eyebrow">Moderacao</p>
+                  <h3>Comentarios</h3>
+                </div>
+              </div>
+              <div class="comment-list" id="admin-comments"></div>
+            </section>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 1</span>
+      <span>Ambiente de desenvolvimento da fase 2</span>
     </footer>
 
     <script src="/scripts/app.js"></script>

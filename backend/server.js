@@ -10,6 +10,7 @@ const DB_PATH = path.join(__dirname, "database", "db.json");
 
 const sessions = new Map();
 const USER_ROLES = ["usuario", "organizador", "fotografo", "administrador"];
+const COMMENT_STATUSES = ["pendente", "aprovado", "rejeitado"];
 
 function readDatabase() {
   const raw = fs.readFileSync(DB_PATH, "utf8");
@@ -80,9 +81,17 @@ function getPublicUser(user) {
     name: user.name,
     email: user.email,
     role: user.role,
+    status: user.status || "ativo",
     phone: user.phone || "",
     community: user.community || "",
     createdAt: user.createdAt || null
+  };
+}
+
+function getAdminUser(user) {
+  return {
+    ...getPublicUser(user),
+    resetRequestedAt: user.resetRequestedAt || null
   };
 }
 
@@ -110,8 +119,63 @@ function isValidRole(role) {
   return USER_ROLES.includes(role);
 }
 
+function isAdmin(user) {
+  return user && user.role === "administrador";
+}
+
+function requireAdmin(request, response) {
+  const user = getSessionUser(request);
+
+  if (!user) {
+    sendJson(response, 401, { message: "Entre como administrador para acessar o painel." });
+    return null;
+  }
+
+  if (!isAdmin(user)) {
+    sendJson(response, 403, { message: "Acesso restrito a administradores." });
+    return null;
+  }
+
+  return user;
+}
+
+function countUsersByRole(users, role) {
+  return users.filter((user) => user.role === role).length;
+}
+
+function buildDashboard(database) {
+  const pendingComments = database.comments.filter((comment) => {
+    return comment.status === "pendente";
+  }).length;
+
+  return {
+    totals: {
+      users: database.users.length,
+      organizers: countUsersByRole(database.users, "organizador"),
+      photographers: countUsersByRole(database.users, "fotografo"),
+      pendingComments
+    },
+    roleSummary: database.roles.map((role) => {
+      return {
+        id: role.id,
+        name: role.name,
+        users: role.id === "visitante" ? 0 : countUsersByRole(database.users, role.id)
+      };
+    }),
+    recentUsers: database.users
+      .slice()
+      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
+      .slice(0, 5)
+      .map(getAdminUser),
+    pendingComments: database.comments
+      .filter((comment) => comment.status === "pendente")
+      .slice(0, 5)
+  };
+}
+
 async function handleApi(request, response) {
   const database = readDatabase();
+  const url = new URL(request.url, "http://localhost");
 
   if (request.method === "GET" && request.url === "/api/health") {
     sendJson(response, 200, {
@@ -182,6 +246,7 @@ async function handleApi(request, response) {
         email,
         password,
         role,
+        status: "ativo",
         phone: normalizeText(body.phone),
         community: normalizeText(body.community),
         createdAt: new Date().toISOString()
@@ -215,6 +280,11 @@ async function handleApi(request, response) {
 
       if (!user) {
         sendJson(response, 401, { message: "Email ou senha invalidos." });
+        return;
+      }
+
+      if (user.status === "bloqueado") {
+        sendJson(response, 403, { message: "Usuario bloqueado pelo administrador." });
         return;
       }
 
@@ -314,6 +384,122 @@ async function handleApi(request, response) {
       });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel solicitar recuperacao." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/dashboard") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, buildDashboard(database));
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/users") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, {
+      users: database.users.map(getAdminUser),
+      roles: database.roles.filter((role) => role.id !== "visitante")
+    });
+    return;
+  }
+
+  if (request.method === "PATCH" && url.pathname.startsWith("/api/admin/users/")) {
+    const admin = requireAdmin(request, response);
+
+    if (!admin) {
+      return;
+    }
+
+    try {
+      const userId = Number(url.pathname.split("/").pop());
+      const user = findUserById(database, userId);
+      const body = await parseBody(request);
+
+      if (!user) {
+        sendJson(response, 404, { message: "Usuario nao encontrado." });
+        return;
+      }
+
+      const role = normalizeText(body.role || user.role);
+      const status = normalizeText(body.status || user.status || "ativo");
+
+      if (!isValidRole(role)) {
+        sendJson(response, 400, { message: "Perfil de usuario invalido." });
+        return;
+      }
+
+      if (!["ativo", "bloqueado"].includes(status)) {
+        sendJson(response, 400, { message: "Status de usuario invalido." });
+        return;
+      }
+
+      if (user.id === admin.id && role !== "administrador") {
+        sendJson(response, 400, { message: "Voce nao pode remover seu proprio acesso administrativo." });
+        return;
+      }
+
+      if (user.id === admin.id && status === "bloqueado") {
+        sendJson(response, 400, { message: "Voce nao pode bloquear sua propria conta." });
+        return;
+      }
+
+      user.role = role;
+      user.status = status;
+      writeDatabase(database);
+      updateSessionUser(user);
+
+      sendJson(response, 200, { user: getAdminUser(user) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar o usuario." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/comments") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, { comments: database.comments });
+    return;
+  }
+
+  if (request.method === "PATCH" && url.pathname.startsWith("/api/admin/comments/")) {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    try {
+      const commentId = Number(url.pathname.split("/").pop());
+      const comment = database.comments.find((item) => item.id === commentId);
+      const body = await parseBody(request);
+      const status = normalizeText(body.status);
+
+      if (!comment) {
+        sendJson(response, 404, { message: "Comentario nao encontrado." });
+        return;
+      }
+
+      if (!COMMENT_STATUSES.includes(status)) {
+        sendJson(response, 400, { message: "Status de comentario invalido." });
+        return;
+      }
+
+      comment.status = status;
+      comment.moderatedAt = new Date().toISOString();
+      writeDatabase(database);
+
+      sendJson(response, 200, { comment });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel moderar o comentario." });
     }
 
     return;

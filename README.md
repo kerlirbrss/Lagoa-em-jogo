@@ -37,6 +37,18 @@ Perfis disponiveis:
 - Fotografo
 - Administrador
 
+## Administracao
+
+A fase 2 inclui painel administrativo com dashboard, gerenciamento de usuarios, controle de perfis/permissoes e moderacao de comentarios.
+
+Rotas administrativas disponiveis para usuarios com perfil `administrador`:
+
+- `GET /api/admin/dashboard`
+- `GET /api/admin/users`
+- `PATCH /api/admin/users/:id`
+- `GET /api/admin/comments`
+- `PATCH /api/admin/comments/:id`
+
 ## Credenciais de desenvolvimento
 
 - Email: `admin@lagoaemjogo.local`

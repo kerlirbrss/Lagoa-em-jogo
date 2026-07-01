@@ -189,6 +189,18 @@ h3 {
   border-color: var(--color-line);
 }
 
+.button.compact {
+  min-height: 36px;
+  padding: 0 12px;
+  color: var(--color-white);
+  background: var(--color-blue);
+  font-size: 0.9rem;
+}
+
+.button.compact.danger {
+  background: #b42318;
+}
+
 .section {
   padding: 56px clamp(18px, 5vw, 72px);
 }
@@ -344,6 +356,138 @@ h3 {
   background: var(--color-blue-dark);
 }
 
+.admin-section {
+  background: var(--color-white);
+}
+
+.admin-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-stats article,
+.admin-card {
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-white);
+  box-shadow: 0 10px 30px rgba(18, 32, 51, 0.08);
+}
+
+.admin-stats article {
+  padding: 18px;
+}
+
+.admin-stats span,
+.comment-item span {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-stats strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--color-blue-dark);
+  font-size: 2rem;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.admin-card {
+  min-width: 0;
+  padding: 20px;
+}
+
+.admin-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-card-heading h3 {
+  margin-bottom: 0;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--color-line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  color: var(--color-blue-dark);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.admin-table select {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  color: var(--color-ink);
+  background: var(--color-white);
+  font: inherit;
+}
+
+.comment-list {
+  display: grid;
+  gap: 12px;
+}
+
+.comment-item {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.comment-item strong {
+  display: block;
+  margin: 4px 0 6px;
+}
+
+.comment-item p {
+  margin-bottom: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.comment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 @media (max-width: 860px) {
   .app-header,
   .split,
@@ -368,6 +512,11 @@ h3 {
   .cards-grid,
   .news-preview,
   .roles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stats,
+  .admin-layout {
     grid-template-columns: 1fr;
   }
 

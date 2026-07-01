@@ -16,6 +16,7 @@
       "email": "admin@lagoaemjogo.local",
       "password": "admin123",
       "role": "administrador",
+      "status": "ativo",
       "phone": "",
       "community": "Administracao",
       "createdAt": "2026-07-01T00:00:00.000Z"
@@ -25,27 +26,53 @@
     {
       "id": "visitante",
       "name": "Visitante",
-      "description": "Visualiza conteudos e pesquisa informacoes sem conta."
+      "description": "Visualiza conteudos e pesquisa informacoes sem conta.",
+      "permissions": [
+        "visualizar_conteudos",
+        "pesquisar"
+      ]
     },
     {
       "id": "usuario",
       "name": "Usuario",
-      "description": "Comenta, participa de palpites e acompanha favoritos."
+      "description": "Comenta, participa de palpites e acompanha favoritos.",
+      "permissions": [
+        "comentar",
+        "palpitar",
+        "favoritar"
+      ]
     },
     {
       "id": "organizador",
       "name": "Organizador",
-      "description": "Gerencia campeonatos, jogos, resultados e noticias autorizadas."
+      "description": "Gerencia campeonatos, jogos, resultados e noticias autorizadas.",
+      "permissions": [
+        "gerenciar_campeonatos",
+        "cadastrar_jogos",
+        "atualizar_resultados",
+        "publicar_noticias"
+      ]
     },
     {
       "id": "fotografo",
       "name": "Fotografo",
-      "description": "Publica galerias e vincula fotos a eventos esportivos."
+      "description": "Publica galerias e vincula fotos a eventos esportivos.",
+      "permissions": [
+        "criar_galerias",
+        "publicar_fotos",
+        "vincular_fotos"
+      ]
     },
     {
       "id": "administrador",
       "name": "Administrador",
-      "description": "Controla usuarios, permissoes, comentarios e publicacoes."
+      "description": "Controla usuarios, permissoes, comentarios e publicacoes.",
+      "permissions": [
+        "gerenciar_usuarios",
+        "gerenciar_permissoes",
+        "moderar_comentarios",
+        "publicar_noticias"
+      ]
     }
   ],
   "championships": [
@@ -81,6 +108,24 @@
       "awayTeam": "Unidos do Campo",
       "date": "A definir",
       "field": "Campo municipal"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "authorName": "Torcedor da Lagoa",
+      "context": "Noticia",
+      "content": "Vai ser uma grande temporada para o futebol local.",
+      "status": "pendente",
+      "createdAt": "2026-07-01T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "authorName": "Atleta Comunitario",
+      "context": "Palpite",
+      "content": "A final promete campo cheio e jogo disputado.",
+      "status": "aprovado",
+      "createdAt": "2026-07-01T09:00:00.000Z"
     }
   ]
 }
