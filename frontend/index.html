@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lagoa em Jogo</title>
+    <link rel="stylesheet" href="/styles/app.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="Lagoa em Jogo">
+        <span class="brand-mark">LJ</span>
+        <span>
+          <strong>Lagoa em Jogo</strong>
+          <small>Futebol amador e comunitario</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" aria-label="Navegacao principal">
+        <a href="#campeonatos">Campeonatos</a>
+        <a href="#jogos">Jogos</a>
+        <a href="#noticias">Noticias</a>
+        <a href="#conta">Conta</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Lagoa de Sao Francisco - PI</p>
+          <h1>Feito por quem joga. Acompanhado por quem torce.</h1>
+          <p>
+            A base digital para organizar campeonatos, times, jogos, noticias,
+            galerias e estatisticas do futebol local.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#campeonatos">Ver campeonatos</a>
+            <a class="button secondary" href="#conta">Entrar como admin</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="campeonatos">
+        <div class="section-heading">
+          <p class="eyebrow">Temporada 2026</p>
+          <h2>Campeonatos iniciais</h2>
+        </div>
+        <div class="cards-grid" id="championships"></div>
+      </section>
+
+      <section class="section split" id="jogos">
+        <div>
+          <p class="eyebrow">Proximos jogos</p>
+          <h2>Agenda pronta para receber partidas</h2>
+          <p>
+            A fase 0 deixa a estrutura preparada para cadastrar rodadas, campos,
+            horarios e placares nas proximas etapas.
+          </p>
+        </div>
+        <div class="match-panel" id="featured-match"></div>
+      </section>
+
+      <section class="section" id="noticias">
+        <div class="section-heading">
+          <p class="eyebrow">Comunicacao</p>
+          <h2>Layout base para noticias e galerias</h2>
+        </div>
+        <div class="news-preview">
+          <article>
+            <span>Noticias</span>
+            <h3>Espaco preparado para publicacoes oficiais</h3>
+            <p>Administradores e organizadores poderao destacar novidades dos campeonatos.</p>
+          </article>
+          <article>
+            <span>Galeria</span>
+            <h3>Area para fotos por jogo, evento ou campeonato</h3>
+            <p>Fotografos parceiros terao uma base visual consistente para as proximas fases.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section account-section" id="conta">
+        <div>
+          <p class="eyebrow">Autenticacao basica</p>
+          <h2>Acesso de desenvolvimento</h2>
+          <p id="session-status">Verificando sessao...</p>
+        </div>
+
+        <form class="login-form" id="login-form">
+          <label>
+            Email
+            <input name="email" type="email" value="admin@lagoaemjogo.local" autocomplete="email" required>
+          </label>
+          <label>
+            Senha
+            <input name="password" type="password" value="admin123" autocomplete="current-password" required>
+          </label>
+          <div class="form-actions">
+            <button class="button primary" type="submit">Entrar</button>
+            <button class="button secondary" id="logout-button" type="button">Sair</button>
+          </div>
+          <p class="form-message" id="form-message" role="status"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>Lagoa em Jogo</span>
+      <span>Ambiente de desenvolvimento da fase 0</span>
+    </footer>
+
+    <script src="/scripts/app.js"></script>
+  </body>
+</html>

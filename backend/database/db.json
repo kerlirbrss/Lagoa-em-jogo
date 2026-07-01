@@ -1,0 +1,56 @@
+{
+  "settings": {
+    "appName": "Lagoa em Jogo",
+    "slogan": "Feito por quem joga. Acompanhado por quem torce.",
+    "city": "Lagoa de Sao Francisco - PI",
+    "theme": {
+      "blue": "#1155cc",
+      "green": "#1f9d55",
+      "white": "#ffffff"
+    }
+  },
+  "users": [
+    {
+      "id": 1,
+      "name": "Administrador",
+      "email": "admin@lagoaemjogo.local",
+      "password": "admin123",
+      "role": "administrador"
+    }
+  ],
+  "championships": [
+    {
+      "id": 1,
+      "name": "Campeonato Rural",
+      "status": "Em preparacao",
+      "season": "2026"
+    },
+    {
+      "id": 2,
+      "name": "Copa Lagoa",
+      "status": "Em preparacao",
+      "season": "2026"
+    },
+    {
+      "id": 3,
+      "name": "Campeonato do Trabalhador",
+      "status": "Em preparacao",
+      "season": "2026"
+    },
+    {
+      "id": 4,
+      "name": "Campeonato do Trabalhador das Cabeceiras",
+      "status": "Em preparacao",
+      "season": "2026"
+    }
+  ],
+  "featuredMatches": [
+    {
+      "id": 1,
+      "homeTeam": "Time da Lagoa",
+      "awayTeam": "Unidos do Campo",
+      "date": "A definir",
+      "field": "Campo municipal"
+    }
+  ]
+}
