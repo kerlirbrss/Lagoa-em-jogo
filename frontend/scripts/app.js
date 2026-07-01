@@ -4,6 +4,7 @@ const state = {
     users: [],
     roles: [],
     comments: [],
+    championships: [],
     dashboard: null
   }
 };
@@ -29,6 +30,9 @@ elements.adminStats = document.querySelector("#admin-stats");
 elements.adminUsers = document.querySelector("#admin-users");
 elements.adminComments = document.querySelector("#admin-comments");
 elements.reloadAdmin = document.querySelector("#reload-admin");
+elements.championshipForm = document.querySelector("#championship-form");
+elements.adminChampionships = document.querySelector("#admin-championships");
+elements.clearChampionshipForm = document.querySelector("#clear-championship-form");
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -53,13 +57,33 @@ function renderChampionships(championships) {
     .map((championship) => {
       return `
         <article class="championship-card">
-          <span>${championship.season}</span>
+          <span>${championship.season} - ${formatChampionshipStatus(championship.status)}</span>
           <h3>${championship.name}</h3>
-          <p>${championship.status}</p>
+          <p>${championship.description || "Campeonato em preparacao."}</p>
+          <small>${formatChampionshipDates(championship)}</small>
         </article>
       `;
     })
     .join("");
+}
+
+function formatChampionshipStatus(status) {
+  const labels = {
+    rascunho: "Rascunho",
+    inscricoes: "Inscricoes",
+    em_andamento: "Em andamento",
+    encerrado: "Encerrado"
+  };
+
+  return labels[status] || status;
+}
+
+function formatChampionshipDates(championship) {
+  if (!championship.startDate && !championship.endDate) {
+    return "Datas a definir";
+  }
+
+  return `${championship.startDate || "A definir"} ate ${championship.endDate || "A definir"}`;
 }
 
 function renderFeaturedMatch(match) {
@@ -162,10 +186,47 @@ function renderAdminStats() {
       <strong>${totals.photographers}</strong>
     </article>
     <article>
+      <span>Campeonatos</span>
+      <strong>${totals.championships}</strong>
+    </article>
+    <article>
       <span>Pendentes</span>
       <strong>${totals.pendingComments}</strong>
     </article>
   `;
+}
+
+function renderAdminChampionships() {
+  elements.adminChampionships.innerHTML = state.admin.championships
+    .map((championship) => {
+      return `
+        <article class="admin-championship-item">
+          <div>
+            <span>${championship.season} - ${formatChampionshipStatus(championship.status)}</span>
+            <strong>${championship.name}</strong>
+            <p>${championship.description || "Sem descricao."}</p>
+            <small>${formatChampionshipDates(championship)}</small>
+          </div>
+          <div class="comment-actions">
+            <button class="button compact" type="button" data-edit-championship="${championship.id}">Editar</button>
+            <button class="button compact danger" type="button" data-delete-championship="${championship.id}">Excluir</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function fillChampionshipForm(championship) {
+  elements.championshipForm.elements.id.value = championship ? championship.id : "";
+  elements.championshipForm.elements.name.value = championship ? championship.name : "";
+  elements.championshipForm.elements.season.value = championship ? championship.season : "2026";
+  elements.championshipForm.elements.status.value = championship ? championship.status : "rascunho";
+  elements.championshipForm.elements.startDate.value = championship ? championship.startDate : "";
+  elements.championshipForm.elements.endDate.value = championship ? championship.endDate : "";
+  elements.championshipForm.elements.description.value = championship ? championship.description : "";
+  elements.championshipForm.elements.regulation.value = championship ? championship.regulation : "";
+  elements.championshipForm.elements.awards.value = championship ? championship.awards : "";
 }
 
 function getRoleOptions(selectedRole) {
@@ -239,17 +300,20 @@ async function refreshAdminPanel() {
       api("/api/admin/users"),
       api("/api/admin/comments")
     ]);
+    const championshipsData = await api("/api/admin/championships");
 
     state.admin.dashboard = dashboard;
     state.admin.users = usersData.users;
     state.admin.roles = usersData.roles;
     state.admin.comments = commentsData.comments;
+    state.admin.championships = championshipsData.championships;
 
     elements.adminPanel.hidden = false;
     elements.adminStatus.textContent = "Painel carregado para administradores.";
     renderAdminStats();
     renderAdminUsers();
     renderAdminComments();
+    renderAdminChampionships();
   } catch (error) {
     elements.adminStatus.textContent = error.message;
     elements.adminPanel.hidden = true;
@@ -260,6 +324,69 @@ elements.tabButtons.forEach((button) => {
   button.addEventListener("click", () => {
     openTab(button.dataset.tab);
   });
+});
+
+elements.championshipForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(elements.championshipForm);
+  const championshipId = formData.get("id");
+  const payload = {
+    name: formData.get("name"),
+    season: formData.get("season"),
+    status: formData.get("status"),
+    startDate: formData.get("startDate"),
+    endDate: formData.get("endDate"),
+    description: formData.get("description"),
+    regulation: formData.get("regulation"),
+    awards: formData.get("awards")
+  };
+
+  try {
+    await api(championshipId ? `/api/admin/championships/${championshipId}` : "/api/admin/championships", {
+      method: championshipId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    });
+    fillChampionshipForm(null);
+    const championshipsData = await api("/api/championships");
+    renderChampionships(championshipsData.championships);
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.clearChampionshipForm.addEventListener("click", () => {
+  fillChampionshipForm(null);
+});
+
+elements.adminChampionships.addEventListener("click", async (event) => {
+  const editButton = event.target.closest("[data-edit-championship]");
+  const deleteButton = event.target.closest("[data-delete-championship]");
+
+  if (editButton) {
+    const championship = state.admin.championships.find((item) => {
+      return item.id === Number(editButton.dataset.editChampionship);
+    });
+    fillChampionshipForm(championship);
+    return;
+  }
+
+  if (!deleteButton) {
+    return;
+  }
+
+  try {
+    await api(`/api/admin/championships/${deleteButton.dataset.deleteChampionship}`, {
+      method: "DELETE"
+    });
+    fillChampionshipForm(null);
+    const championshipsData = await api("/api/championships");
+    renderChampionships(championshipsData.championships);
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
 });
 
 elements.loginForm.addEventListener("submit", async (event) => {

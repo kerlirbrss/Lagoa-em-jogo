@@ -189,6 +189,12 @@ h3 {
   border-color: var(--color-line);
 }
 
+.admin-section .button.secondary {
+  color: var(--color-blue-dark);
+  background: var(--color-white);
+  border-color: var(--color-line);
+}
+
 .button.compact {
   min-height: 36px;
   padding: 0 12px;
@@ -232,6 +238,12 @@ h3 {
 .championship-card {
   min-height: 180px;
   padding: 20px;
+}
+
+.championship-card small {
+  display: block;
+  color: var(--color-muted);
+  font-weight: 700;
 }
 
 .role-card {
@@ -367,7 +379,7 @@ h3 {
 
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -471,6 +483,79 @@ h3 {
   background: var(--color-surface);
 }
 
+.championship-manager {
+  display: grid;
+  gap: 20px;
+}
+
+.championship-form {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.championship-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--color-blue-dark);
+  font-weight: 800;
+}
+
+.championship-form input,
+.championship-form select,
+.championship-form textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  color: var(--color-ink);
+  background: var(--color-white);
+  font: inherit;
+}
+
+.championship-form textarea {
+  resize: vertical;
+}
+
+.wide-field {
+  grid-column: span 5;
+}
+
+.championship-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-championship-item {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.admin-championship-item span,
+.admin-championship-item small {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-championship-item strong {
+  display: block;
+  margin: 5px 0 8px;
+}
+
+.admin-championship-item p {
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
 .comment-item strong {
   display: block;
   margin: 4px 0 6px;
@@ -516,8 +601,14 @@ h3 {
   }
 
   .admin-stats,
-  .admin-layout {
+  .admin-layout,
+  .championship-form,
+  .championship-list {
     grid-template-columns: 1fr;
+  }
+
+  .wide-field {
+    grid-column: auto;
   }
 
   .tabs {

@@ -11,6 +11,7 @@ const DB_PATH = path.join(__dirname, "database", "db.json");
 const sessions = new Map();
 const USER_ROLES = ["usuario", "organizador", "fotografo", "administrador"];
 const COMMENT_STATUSES = ["pendente", "aprovado", "rejeitado"];
+const CHAMPIONSHIP_STATUSES = ["rascunho", "inscricoes", "em_andamento", "encerrado"];
 
 function readDatabase() {
   const raw = fs.readFileSync(DB_PATH, "utf8");
@@ -95,11 +96,31 @@ function getAdminUser(user) {
   };
 }
 
+function getPublicChampionship(championship) {
+  return {
+    id: championship.id,
+    name: championship.name,
+    season: championship.season,
+    status: championship.status,
+    startDate: championship.startDate || "",
+    endDate: championship.endDate || "",
+    description: championship.description || "",
+    regulation: championship.regulation || "",
+    awards: championship.awards || "",
+    createdAt: championship.createdAt || null,
+    updatedAt: championship.updatedAt || null
+  };
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
 function normalizeText(value) {
+  return String(value || "").trim();
+}
+
+function normalizeDate(value) {
   return String(value || "").trim();
 }
 
@@ -153,6 +174,7 @@ function buildDashboard(database) {
       users: database.users.length,
       organizers: countUsersByRole(database.users, "organizador"),
       photographers: countUsersByRole(database.users, "fotografo"),
+      championships: database.championships.length,
       pendingComments
     },
     roleSummary: database.roles.map((role) => {
@@ -173,6 +195,37 @@ function buildDashboard(database) {
   };
 }
 
+function findChampionshipById(database, championshipId) {
+  return database.championships.find((championship) => championship.id === championshipId) || null;
+}
+
+function validateChampionshipPayload(body, currentChampionship = {}) {
+  const championship = {
+    name: normalizeText(body.name ?? currentChampionship.name),
+    season: normalizeText(body.season ?? currentChampionship.season),
+    status: normalizeText(body.status ?? currentChampionship.status ?? "rascunho"),
+    startDate: normalizeDate(body.startDate ?? currentChampionship.startDate),
+    endDate: normalizeDate(body.endDate ?? currentChampionship.endDate),
+    description: normalizeText(body.description ?? currentChampionship.description),
+    regulation: normalizeText(body.regulation ?? currentChampionship.regulation),
+    awards: normalizeText(body.awards ?? currentChampionship.awards)
+  };
+
+  if (championship.name.length < 3) {
+    return { error: "Informe o nome do campeonato com pelo menos 3 caracteres." };
+  }
+
+  if (!championship.season) {
+    return { error: "Informe a temporada do campeonato." };
+  }
+
+  if (!CHAMPIONSHIP_STATUSES.includes(championship.status)) {
+    return { error: "Status de campeonato invalido." };
+  }
+
+  return { championship };
+}
+
 async function handleApi(request, response) {
   const database = readDatabase();
   const url = new URL(request.url, "http://localhost");
@@ -190,9 +243,16 @@ async function handleApi(request, response) {
     sendJson(response, 200, {
       settings: database.settings,
       roles: database.roles,
-      championships: database.championships,
+      championships: database.championships.map(getPublicChampionship),
       featuredMatches: database.featuredMatches,
       user: getPublicUser(getSessionUser(request))
+    });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/championships") {
+    sendJson(response, 200, {
+      championships: database.championships.map(getPublicChampionship)
     });
     return;
   }
@@ -395,6 +455,92 @@ async function handleApi(request, response) {
     }
 
     sendJson(response, 200, buildDashboard(database));
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/championships") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, {
+      championships: database.championships.map(getPublicChampionship),
+      statuses: CHAMPIONSHIP_STATUSES
+    });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/admin/championships") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateChampionshipPayload(body);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const championship = {
+        id: database.championships.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        ...validation.championship,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      database.championships.push(championship);
+      writeDatabase(database);
+
+      sendJson(response, 201, { championship: getPublicChampionship(championship) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel criar o campeonato." });
+    }
+
+    return;
+  }
+
+  if (["PUT", "DELETE"].includes(request.method) && url.pathname.startsWith("/api/admin/championships/")) {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    const championshipId = Number(url.pathname.split("/").pop());
+    const championship = findChampionshipById(database, championshipId);
+
+    if (!championship) {
+      sendJson(response, 404, { message: "Campeonato nao encontrado." });
+      return;
+    }
+
+    if (request.method === "DELETE") {
+      database.championships = database.championships.filter((item) => item.id !== championshipId);
+      writeDatabase(database);
+      sendJson(response, 200, { message: "Campeonato excluido." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateChampionshipPayload(body, championship);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      Object.assign(championship, validation.championship, {
+        updatedAt: new Date().toISOString()
+      });
+
+      writeDatabase(database);
+      sendJson(response, 200, { championship: getPublicChampionship(championship) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar o campeonato." });
+    }
+
     return;
   }
 

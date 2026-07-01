@@ -79,26 +79,54 @@
     {
       "id": 1,
       "name": "Campeonato Rural",
-      "status": "Em preparacao",
-      "season": "2026"
+      "status": "inscricoes",
+      "season": "2026",
+      "startDate": "2026-08-01",
+      "endDate": "2026-10-12",
+      "description": "Competicao voltada para equipes das comunidades rurais.",
+      "regulation": "Formato inicial em grupos, com classificacao para mata-mata.",
+      "awards": "Trofeu, medalhas e premiacao para campeao, vice e artilheiro.",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
     },
     {
       "id": 2,
       "name": "Copa Lagoa",
-      "status": "Em preparacao",
-      "season": "2026"
+      "status": "rascunho",
+      "season": "2026",
+      "startDate": "",
+      "endDate": "",
+      "description": "Copa aberta para times locais de Lagoa de Sao Francisco.",
+      "regulation": "",
+      "awards": "",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
     },
     {
       "id": 3,
       "name": "Campeonato do Trabalhador",
-      "status": "Em preparacao",
-      "season": "2026"
+      "status": "rascunho",
+      "season": "2026",
+      "startDate": "",
+      "endDate": "",
+      "description": "Competicao tradicional em homenagem aos trabalhadores locais.",
+      "regulation": "",
+      "awards": "",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
     },
     {
       "id": 4,
       "name": "Campeonato do Trabalhador das Cabeceiras",
-      "status": "Em preparacao",
-      "season": "2026"
+      "status": "rascunho",
+      "season": "2026",
+      "startDate": "",
+      "endDate": "",
+      "description": "Torneio direcionado a equipes da regiao das Cabeceiras.",
+      "regulation": "",
+      "awards": "",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
     }
   ],
   "featuredMatches": [

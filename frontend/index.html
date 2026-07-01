@@ -231,13 +231,69 @@
               <div class="comment-list" id="admin-comments"></div>
             </section>
           </div>
+
+          <section class="admin-card championship-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Campeonatos</p>
+                <h3>Cadastro e temporada</h3>
+              </div>
+            </div>
+
+            <form class="championship-form" id="championship-form">
+              <input type="hidden" name="id">
+              <label>
+                Nome
+                <input name="name" type="text" required>
+              </label>
+              <label>
+                Temporada
+                <input name="season" type="text" value="2026" required>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="rascunho">Rascunho</option>
+                  <option value="inscricoes">Inscricoes</option>
+                  <option value="em_andamento">Em andamento</option>
+                  <option value="encerrado">Encerrado</option>
+                </select>
+              </label>
+              <label>
+                Inicio
+                <input name="startDate" type="date">
+              </label>
+              <label>
+                Fim
+                <input name="endDate" type="date">
+              </label>
+              <label class="wide-field">
+                Descricao
+                <textarea name="description" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Regulamento
+                <textarea name="regulation" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Premiacoes
+                <textarea name="awards" rows="3"></textarea>
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar campeonato</button>
+                <button class="button secondary" id="clear-championship-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="championship-list" id="admin-championships"></div>
+          </section>
         </div>
       </section>
     </main>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 2</span>
+      <span>Ambiente de desenvolvimento da fase 3</span>
     </footer>
 
     <script src="/scripts/app.js"></script>

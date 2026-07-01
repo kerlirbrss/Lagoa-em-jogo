@@ -81,21 +81,22 @@ Fase 1.
 
 ---
 
-# Fase 3 — Campeonatos
+## Fase 3 — Campeonatos
 
-## Objetivo
+### Objetivo
 
-Permitir gerenciamento completo dos campeonatos.
+Permitir o gerenciamento completo dos campeonatos cadastrados na plataforma.
 
 ### Funcionalidades
 
-* Criar campeonato
-* Editar campeonato
-* Excluir campeonato
-* Regulamento
-* Temporada
-* Status
-* Premiações
+- Criar campeonato
+- Editar campeonato
+- Excluir campeonato
+- Definir temporada
+- Definir status
+- Inserir descrição (opcional)
+- Inserir regulamento (opcional)
+- Registrar premiações coletivas e individuais
 
 ### Dependências
 
@@ -103,20 +104,26 @@ Fase 2.
 
 ---
 
-# Fase 4 — Times
+## Fase 4 — Times
 
-## Objetivo
+### Objetivo
 
-Gerenciar equipes participantes.
+Gerenciar os times participantes dos campeonatos.
 
 ### Funcionalidades
 
-* Cadastro de time
-* Escudo
-* Comunidade
-* Técnico
-* Cores
-* Estatísticas
+- Cadastro de times
+- Nome do time
+- Escudo
+- Comunidade
+- Ano de fundação (opcional)
+- Técnico (opcional)
+- Cores do time (opcional)
+- Estatísticas da equipe
+- Elenco
+- Próximos jogos
+- Últimos resultados
+- Galeria de imagens
 
 ### Dependências
 
@@ -124,20 +131,24 @@ Fase 3.
 
 ---
 
-# Fase 5 — Atletas
+## Fase 5 — Atletas
 
-## Objetivo
+### Objetivo
 
-Cadastrar atletas vinculados aos times.
+Cadastrar e gerenciar os atletas vinculados aos respectivos times.
 
 ### Funcionalidades
 
-* Cadastro
-* Foto
-* Time atual
-* Posição
-* Estatísticas
-* Histórico básico
+- Cadastro de atletas
+- Nome completo
+- Foto
+- Time atual
+- Posição
+- Idade (opcional)
+- Jogos disputados
+- Gols marcados
+- Cartões amarelos
+- Cartões vermelhos
 
 ### Dependências
 
@@ -145,21 +156,26 @@ Fase 4.
 
 ---
 
-# Fase 6 — Jogos
+## Fase 6 — Jogos
 
-## Objetivo
+### Objetivo
 
-Cadastrar partidas.
+Cadastrar e gerenciar as partidas dos campeonatos.
 
 ### Funcionalidades
 
-* Rodadas
-* Fases
-* Calendário
-* Local
-* Horário
-* Placar
-* Encerramento da partida
+- Cadastro de partidas
+- Campeonato
+- Fase
+- Rodada
+- Time mandante
+- Time visitante
+- Data
+- Horário
+- Campo
+- Localização
+- Placar
+- Encerramento da partida
 
 ### Dependências
 
@@ -167,20 +183,21 @@ Fases 3, 4 e 5.
 
 ---
 
-# Fase 7 — Classificações e Estatísticas
+## Fase 7 — Classificações e Estatísticas
 
-## Objetivo
+### Objetivo
 
-Automatizar estatísticas.
+Automatizar o cálculo das classificações e estatísticas dos campeonatos.
 
 ### Funcionalidades
 
-* Classificação automática
-* Artilharia
-* Jogos disputados
-* Saldo de gols
-* Cartões
-* Aproveitamento
+- Atualização automática da classificação
+- Artilharia
+- Jogos disputados
+- Saldo de gols
+- Cartões amarelos
+- Cartões vermelhos
+- Aproveitamento das equipes
 
 ### Dependências
 
@@ -188,19 +205,20 @@ Fase 6.
 
 ---
 
-# Fase 8 — Notícias
+## Fase 8 — Notícias
 
-## Objetivo
+### Objetivo
 
-Sistema completo de notícias.
+Implementar o sistema de gerenciamento e publicação de notícias.
 
 ### Funcionalidades
 
-* Publicação
-* Categorias
-* Galeria de imagens
-* Destaques
-* Comentários
+- Publicação de notícias
+- Categorias
+- Imagem principal
+- Galeria de imagens
+- Comentários
+- Publicação exclusiva para administradores e organizadores autorizados
 
 ### Dependências
 
@@ -208,20 +226,21 @@ Fase 2.
 
 ---
 
-# Fase 9 — Galeria
+## Fase 9 — Galeria
 
-## Objetivo
+### Objetivo
 
-Publicação de fotografias.
+Gerenciar a publicação de fotografias esportivas.
 
 ### Funcionalidades
 
-* Álbum por campeonato
-* Álbum por jogo
-* Álbum por evento
-* Upload
-* Organização
-* Link para venda das fotos
+- Galeria por campeonato
+- Galeria por jogo
+- Galeria por evento
+- Upload de imagens
+- Organização das galerias
+- Publicação por administradores e fotógrafos parceiros
+- Redirecionamento para a plataforma de venda das fotografias
 
 ### Dependências
 
@@ -229,20 +248,20 @@ Fases 6 e 8.
 
 ---
 
-# Fase 10 — Pesquisa
+## Fase 10 — Pesquisa
 
-## Objetivo
+### Objetivo
 
-Pesquisa global.
+Implementar uma pesquisa global para facilitar a localização de conteúdos.
 
 ### Funcionalidades
 
 Pesquisar:
 
-* Campeonatos
-* Times
-* Atletas
-* Notícias
+- Campeonatos
+- Times
+- Atletas
+- Notícias
 
 ### Dependências
 
@@ -250,17 +269,17 @@ Fases anteriores.
 
 ---
 
-# Fase 11 — Favoritos
+## Fase 11 — Favoritos
 
-## Objetivo
+### Objetivo
 
-Personalização da experiência.
+Personalizar a experiência do usuário autenticado.
 
 ### Funcionalidades
 
-* Favoritar time
-* Favoritar campeonato
-* Página personalizada
+- Favoritar times
+- Favoritar campeonatos
+- Exibição de conteúdos personalizados na página inicial
 
 ### Dependências
 
@@ -268,18 +287,18 @@ Fase 1.
 
 ---
 
-# Fase 12 — Notificações
+## Fase 12 — Notificações
 
-## Objetivo
+### Objetivo
 
-Informar usuários sobre novidades.
+Permitir que os usuários recebam notificações de acordo com suas preferências.
 
 ### Funcionalidades
 
-* Próximos jogos
-* Notícias
-* Times favoritos
-* Campeonatos favoritos
+- Notificações de times favoritos
+- Notificações de campeonatos favoritos
+- Notificações de notícias
+- Notificações de próximos jogos
 
 ### Dependências
 
@@ -287,17 +306,17 @@ Fase 11.
 
 ---
 
-# Fase 13 — Palpites
+## Fase 13 — Palpites
 
-## Objetivo
+### Objetivo
 
-Engajamento dos torcedores.
+Promover maior interação entre os torcedores por meio de palpites nas partidas.
 
 ### Funcionalidades
 
-* Palpite em partidas
-* Resultado da votação
-* Comentários
+- Registrar palpites para partidas futuras
+- Resultado da votação
+- Comentários após o envio do palpite
 
 ### Dependências
 
@@ -305,22 +324,22 @@ Fase 6.
 
 ---
 
-# Fase 14 — Página Inicial
+## Fase 14 — Página Inicial
 
-## Objetivo
+### Objetivo
 
-Construção da Home.
+Construir a página principal da plataforma reunindo as principais informações do sistema.
 
 ### Componentes
 
-* Banner
-* Próximos jogos
-* Últimos resultados
-* Notícias
-* Classificação
-* Artilheiros
-* Atleta da semana
-* Galeria
+- Banner principal
+- Próximos jogos
+- Últimos resultados
+- Classificação resumida
+- Artilheiros em destaque
+- Atleta da semana
+- Notícias em destaque
+- Prévia da galeria
 
 ### Dependências
 
@@ -328,19 +347,20 @@ Todas as funcionalidades principais.
 
 ---
 
-# Fase 15 — Responsividade
+## Fase 15 — Responsividade
 
-## Objetivo
+### Objetivo
 
-Otimizar experiência mobile.
+Adaptar toda a interface para diferentes tamanhos de tela, priorizando dispositivos móveis.
 
 ### Ajustes
 
-* Menu inferior
-* Navegação
-* Performance
-* Telas pequenas
-* Tablets
+- Barra inferior: Início, Campeonatos, Times, Notícias e Mais
+- Menu "Mais": Galeria, Contato, Pesquisa e Conta do Usuário
+- Ajustes de navegação
+- Compatibilidade com tablets
+- Otimização para telas pequenas
+- Melhorias de desempenho
 
 ### Dependências
 
@@ -348,54 +368,43 @@ Fase 14.
 
 ---
 
-# Fase 16 — Testes
+## Fase 16 — Testes
 
-## Objetivo
+### Objetivo
 
-Garantir qualidade.
+Garantir a qualidade, estabilidade e confiabilidade do sistema antes da publicação.
 
 ### Testes
 
-* Testes unitários
-* Testes de integração
-* Testes de autenticação
-* Testes de permissões
-* Testes de performance
-* Testes responsivos
+- Testes unitários
+- Testes de integração
+- Testes de autenticação
+- Testes de permissões
+- Testes de performance
+- Testes de responsividade
+- Correção de falhas identificadas
+
+### Dependências
+
+Fase 15.
 
 ---
 
-# Fase 17 — Deploy
+## Fase 17 — Deploy
 
-## Objetivo
+### Objetivo
 
-Publicação do sistema.
+Publicar o sistema em ambiente de produção e prepará-lo para utilização pelos usuários.
 
 ### Entregas
 
-* Banco de dados em produção
-* Backend publicado
-* Frontend publicado
-* HTTPS
-* Backup automático
-* Monitoramento
-* Logs
+- Banco de dados em produção
+- Backend publicado
+- Frontend publicado
+- Configuração de HTTPS
+- Backup automático
+- Monitoramento da aplicação
+- Registro de logs
+- Validação final do ambiente de produção
 
----
-
-# Roadmap de Evolução
-
-Após a primeira versão (MVP), poderão ser implementadas as seguintes funcionalidades:
-
-* Aplicativo Android e iOS
-* Ranking histórico
-* Hall da Fama
-* Estatísticas avançadas
-* Outras modalidades esportivas
-* Transmissões ao vivo
-* API pública
-* Integração com redes sociais
-* Sistema de patrocinadores
-* Área de anúncios
-* Gestão financeira de campeonatos
-* Ranking de jogadores por temporada
+### Dependências

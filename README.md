@@ -49,6 +49,18 @@ Rotas administrativas disponiveis para usuarios com perfil `administrador`:
 - `GET /api/admin/comments`
 - `PATCH /api/admin/comments/:id`
 
+## Campeonatos
+
+A fase 3 inclui gerenciamento de campeonatos com criacao, edicao, exclusao, temporada, status, datas, descricao, regulamento e premiacoes.
+
+Rotas de campeonatos:
+
+- `GET /api/championships`
+- `GET /api/admin/championships`
+- `POST /api/admin/championships`
+- `PUT /api/admin/championships/:id`
+- `DELETE /api/admin/championships/:id`
+
 ## Credenciais de desenvolvimento
 
 - Email: `admin@lagoaemjogo.local`
