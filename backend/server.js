@@ -9,10 +9,15 @@ const FRONTEND_DIR = path.join(ROOT_DIR, "frontend");
 const DB_PATH = path.join(__dirname, "database", "db.json");
 
 const sessions = new Map();
+const USER_ROLES = ["usuario", "organizador", "fotografo", "administrador"];
 
 function readDatabase() {
   const raw = fs.readFileSync(DB_PATH, "utf8");
   return JSON.parse(raw);
+}
+
+function writeDatabase(database) {
+  fs.writeFileSync(DB_PATH, `${JSON.stringify(database, null, 2)}\n`);
 }
 
 function sendJson(response, statusCode, payload) {
@@ -74,8 +79,35 @@ function getPublicUser(user) {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role
+    role: user.role,
+    phone: user.phone || "",
+    community: user.community || "",
+    createdAt: user.createdAt || null
   };
+}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function normalizeText(value) {
+  return String(value || "").trim();
+}
+
+function findUserById(database, userId) {
+  return database.users.find((user) => user.id === userId) || null;
+}
+
+function updateSessionUser(user) {
+  for (const [token, sessionUser] of sessions.entries()) {
+    if (sessionUser.id === user.id) {
+      sessions.set(token, user);
+    }
+  }
+}
+
+function isValidRole(role) {
+  return USER_ROLES.includes(role);
 }
 
 async function handleApi(request, response) {
@@ -93,6 +125,7 @@ async function handleApi(request, response) {
   if (request.method === "GET" && request.url === "/api/bootstrap") {
     sendJson(response, 200, {
       settings: database.settings,
+      roles: database.roles,
       championships: database.championships,
       featuredMatches: database.featuredMatches,
       user: getPublicUser(getSessionUser(request))
@@ -107,11 +140,77 @@ async function handleApi(request, response) {
     return;
   }
 
+  if (request.method === "POST" && request.url === "/api/register") {
+    try {
+      const body = await parseBody(request);
+      const name = normalizeText(body.name);
+      const email = normalizeEmail(body.email);
+      const password = String(body.password || "");
+      const requestedRole = normalizeText(body.role || "usuario");
+      const role = requestedRole === "administrador" ? "usuario" : requestedRole;
+
+      if (name.length < 3) {
+        sendJson(response, 400, { message: "Informe um nome com pelo menos 3 caracteres." });
+        return;
+      }
+
+      if (!email.includes("@")) {
+        sendJson(response, 400, { message: "Informe um email valido." });
+        return;
+      }
+
+      if (password.length < 6) {
+        sendJson(response, 400, { message: "A senha deve ter pelo menos 6 caracteres." });
+        return;
+      }
+
+      if (!isValidRole(role)) {
+        sendJson(response, 400, { message: "Perfil de usuario invalido." });
+        return;
+      }
+
+      const alreadyExists = database.users.some((user) => user.email === email);
+
+      if (alreadyExists) {
+        sendJson(response, 409, { message: "Ja existe uma conta com esse email." });
+        return;
+      }
+
+      const user = {
+        id: database.users.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        name,
+        email,
+        password,
+        role,
+        phone: normalizeText(body.phone),
+        community: normalizeText(body.community),
+        createdAt: new Date().toISOString()
+      };
+
+      database.users.push(user);
+      writeDatabase(database);
+
+      const token = crypto.randomBytes(24).toString("hex");
+      sessions.set(token, user);
+
+      response.writeHead(201, {
+        "Content-Type": "application/json; charset=utf-8",
+        "Set-Cookie": `lej_session=${token}; HttpOnly; Path=/; SameSite=Lax`
+      });
+      response.end(JSON.stringify({ user: getPublicUser(user) }));
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel criar a conta." });
+    }
+
+    return;
+  }
+
   if (request.method === "POST" && request.url === "/api/login") {
     try {
       const body = await parseBody(request);
+      const email = normalizeEmail(body.email);
       const user = database.users.find((item) => {
-        return item.email === body.email && item.password === body.password;
+        return item.email === email && item.password === body.password;
       });
 
       if (!user) {
@@ -129,6 +228,92 @@ async function handleApi(request, response) {
       response.end(JSON.stringify({ user: getPublicUser(user) }));
     } catch (error) {
       sendJson(response, 400, { message: "Requisicao invalida." });
+    }
+
+    return;
+  }
+
+  if (request.method === "PUT" && request.url === "/api/me") {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na conta para editar o perfil." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const user = findUserById(database, sessionUser.id);
+
+      if (!user) {
+        sendJson(response, 404, { message: "Usuario nao encontrado." });
+        return;
+      }
+
+      const name = normalizeText(body.name);
+      const email = normalizeEmail(body.email);
+      const password = String(body.password || "");
+
+      if (name.length < 3) {
+        sendJson(response, 400, { message: "Informe um nome com pelo menos 3 caracteres." });
+        return;
+      }
+
+      if (!email.includes("@")) {
+        sendJson(response, 400, { message: "Informe um email valido." });
+        return;
+      }
+
+      const emailTaken = database.users.some((item) => item.id !== user.id && item.email === email);
+
+      if (emailTaken) {
+        sendJson(response, 409, { message: "Esse email ja esta em uso." });
+        return;
+      }
+
+      if (password && password.length < 6) {
+        sendJson(response, 400, { message: "A nova senha deve ter pelo menos 6 caracteres." });
+        return;
+      }
+
+      user.name = name;
+      user.email = email;
+      user.phone = normalizeText(body.phone);
+      user.community = normalizeText(body.community);
+
+      if (password) {
+        user.password = password;
+      }
+
+      writeDatabase(database);
+      updateSessionUser(user);
+
+      sendJson(response, 200, { user: getPublicUser(user) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar o perfil." });
+    }
+
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/password-reset") {
+    try {
+      const body = await parseBody(request);
+      const email = normalizeEmail(body.email);
+      const user = database.users.find((item) => item.email === email);
+
+      if (user) {
+        user.resetToken = crypto.randomBytes(12).toString("hex");
+        user.resetRequestedAt = new Date().toISOString();
+        writeDatabase(database);
+      }
+
+      sendJson(response, 200, {
+        message: "Se o email existir, a instrucao de recuperacao sera registrada.",
+        resetToken: user ? user.resetToken : null
+      });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel solicitar recuperacao." });
     }
 
     return;

@@ -79,34 +79,116 @@
         </div>
       </section>
 
+      <section class="section" id="perfis">
+        <div class="section-heading">
+          <p class="eyebrow">Perfis</p>
+          <h2>Acessos preparados para cada papel</h2>
+        </div>
+        <div class="roles-grid" id="roles"></div>
+      </section>
+
       <section class="section account-section" id="conta">
         <div>
-          <p class="eyebrow">Autenticacao basica</p>
-          <h2>Acesso de desenvolvimento</h2>
+          <p class="eyebrow">Gestao de usuarios</p>
+          <h2>Conta, cadastro e perfil</h2>
           <p id="session-status">Verificando sessao...</p>
         </div>
 
-        <form class="login-form" id="login-form">
-          <label>
-            Email
-            <input name="email" type="email" value="admin@lagoaemjogo.local" autocomplete="email" required>
-          </label>
-          <label>
-            Senha
-            <input name="password" type="password" value="admin123" autocomplete="current-password" required>
-          </label>
-          <div class="form-actions">
-            <button class="button primary" type="submit">Entrar</button>
-            <button class="button secondary" id="logout-button" type="button">Sair</button>
+        <div class="account-panel">
+          <div class="tabs" role="tablist" aria-label="Conta">
+            <button class="tab-button active" type="button" data-tab="login">Entrar</button>
+            <button class="tab-button" type="button" data-tab="register">Cadastro</button>
+            <button class="tab-button" type="button" data-tab="profile">Perfil</button>
+            <button class="tab-button" type="button" data-tab="reset">Senha</button>
           </div>
+
+          <form class="account-form active" id="login-form" data-panel="login">
+            <label>
+              Email
+              <input name="email" type="email" value="admin@lagoaemjogo.local" autocomplete="email" required>
+            </label>
+            <label>
+              Senha
+              <input name="password" type="password" value="admin123" autocomplete="current-password" required>
+            </label>
+            <div class="form-actions">
+              <button class="button primary" type="submit">Entrar</button>
+              <button class="button secondary" id="logout-button" type="button">Sair</button>
+            </div>
+          </form>
+
+          <form class="account-form" id="register-form" data-panel="register">
+            <label>
+              Nome
+              <input name="name" type="text" autocomplete="name" required>
+            </label>
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+              Senha
+              <input name="password" type="password" minlength="6" autocomplete="new-password" required>
+            </label>
+            <label>
+              Perfil
+              <select name="role" required>
+                <option value="usuario">Usuario</option>
+                <option value="organizador">Organizador</option>
+                <option value="fotografo">Fotografo</option>
+              </select>
+            </label>
+            <label>
+              Comunidade
+              <input name="community" type="text" autocomplete="address-level3">
+            </label>
+            <label>
+              Telefone
+              <input name="phone" type="tel" autocomplete="tel">
+            </label>
+            <button class="button primary" type="submit">Criar conta</button>
+          </form>
+
+          <form class="account-form" id="profile-form" data-panel="profile">
+            <label>
+              Nome
+              <input name="name" type="text" autocomplete="name" required>
+            </label>
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+              Nova senha
+              <input name="password" type="password" minlength="6" autocomplete="new-password">
+            </label>
+            <label>
+              Comunidade
+              <input name="community" type="text" autocomplete="address-level3">
+            </label>
+            <label>
+              Telefone
+              <input name="phone" type="tel" autocomplete="tel">
+            </label>
+            <button class="button primary" type="submit">Salvar perfil</button>
+          </form>
+
+          <form class="account-form" id="reset-form" data-panel="reset">
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <button class="button primary" type="submit">Solicitar recuperacao</button>
+          </form>
+
           <p class="form-message" id="form-message" role="status"></p>
-        </form>
+        </div>
       </section>
     </main>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 0</span>
+      <span>Ambiente de desenvolvimento da fase 1</span>
     </footer>
 
     <script src="/scripts/app.js"></script>

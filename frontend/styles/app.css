@@ -199,16 +199,18 @@ h3 {
 }
 
 .cards-grid,
-.news-preview {
+.news-preview,
+.roles-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
 .championship-card,
+.role-card,
 .news-preview article,
 .match-panel,
-.login-form {
+.account-panel {
   border: 1px solid var(--color-line);
   border-radius: 8px;
   background: var(--color-white);
@@ -220,7 +222,13 @@ h3 {
   padding: 20px;
 }
 
+.role-card {
+  min-height: 150px;
+  padding: 18px;
+}
+
 .championship-card span,
+.role-card span,
 .news-preview span {
   color: var(--color-green-dark);
   font-size: 0.8rem;
@@ -240,7 +248,8 @@ h3 {
 .split p,
 .account-section p,
 .news-preview p,
-.championship-card p {
+.championship-card p,
+.role-card p {
   color: var(--color-muted);
   line-height: 1.65;
 }
@@ -264,11 +273,43 @@ h3 {
   padding: 24px;
 }
 
-.login-form {
+.account-panel {
   padding: 24px;
 }
 
-.login-form label {
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.tab-button {
+  min-height: 40px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  color: var(--color-muted);
+  background: var(--color-white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.tab-button.active {
+  color: var(--color-white);
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+}
+
+.account-form {
+  display: none;
+}
+
+.account-form.active {
+  display: grid;
+}
+
+.account-form label {
   display: grid;
   gap: 8px;
   margin-bottom: 14px;
@@ -276,7 +317,8 @@ h3 {
   font-weight: 800;
 }
 
-.login-form input {
+.account-form input,
+.account-form select {
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
@@ -324,8 +366,13 @@ h3 {
   }
 
   .cards-grid,
-  .news-preview {
+  .news-preview,
+  .roles-grid {
     grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .hero {

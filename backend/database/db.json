@@ -15,7 +15,37 @@
       "name": "Administrador",
       "email": "admin@lagoaemjogo.local",
       "password": "admin123",
-      "role": "administrador"
+      "role": "administrador",
+      "phone": "",
+      "community": "Administracao",
+      "createdAt": "2026-07-01T00:00:00.000Z"
+    }
+  ],
+  "roles": [
+    {
+      "id": "visitante",
+      "name": "Visitante",
+      "description": "Visualiza conteudos e pesquisa informacoes sem conta."
+    },
+    {
+      "id": "usuario",
+      "name": "Usuario",
+      "description": "Comenta, participa de palpites e acompanha favoritos."
+    },
+    {
+      "id": "organizador",
+      "name": "Organizador",
+      "description": "Gerencia campeonatos, jogos, resultados e noticias autorizadas."
+    },
+    {
+      "id": "fotografo",
+      "name": "Fotografo",
+      "description": "Publica galerias e vincula fotos a eventos esportivos."
+    },
+    {
+      "id": "administrador",
+      "name": "Administrador",
+      "description": "Controla usuarios, permissoes, comentarios e publicacoes."
     }
   ],
   "championships": [
