@@ -15,7 +15,9 @@ const CHAMPIONSHIP_STATUSES = ["rascunho", "inscricoes", "em_andamento", "encerr
 
 function readDatabase() {
   const raw = fs.readFileSync(DB_PATH, "utf8");
-  return JSON.parse(raw);
+  const database = JSON.parse(raw);
+  database.athletes = database.athletes || [];
+  return database;
 }
 
 function writeDatabase(database) {
@@ -147,6 +149,32 @@ function getPublicTeam(team, database) {
   };
 }
 
+function getDefaultAthleteStats(stats = {}) {
+  return {
+    matches: Number(stats.matches || 0),
+    goals: Number(stats.goals || 0),
+    yellowCards: Number(stats.yellowCards || 0),
+    redCards: Number(stats.redCards || 0)
+  };
+}
+
+function getPublicAthlete(athlete, database) {
+  const team = findTeamById(database, Number(athlete.teamId));
+
+  return {
+    id: athlete.id,
+    fullName: athlete.fullName,
+    photoUrl: athlete.photoUrl || "",
+    teamId: Number(athlete.teamId),
+    teamName: team ? team.name : "Time nao encontrado",
+    position: athlete.position,
+    age: athlete.age || "",
+    stats: getDefaultAthleteStats(athlete.stats),
+    createdAt: athlete.createdAt || null,
+    updatedAt: athlete.updatedAt || null
+  };
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -221,6 +249,7 @@ function buildDashboard(database) {
       photographers: countUsersByRole(database.users, "fotografo"),
       championships: database.championships.length,
       teams: database.teams.length,
+      athletes: database.athletes.length,
       pendingComments
     },
     roleSummary: database.roles.map((role) => {
@@ -247,6 +276,10 @@ function findChampionshipById(database, championshipId) {
 
 function findTeamById(database, teamId) {
   return database.teams.find((team) => team.id === teamId) || null;
+}
+
+function findAthleteById(database, athleteId) {
+  return database.athletes.find((athlete) => athlete.id === athleteId) || null;
 }
 
 function validateChampionshipPayload(body, currentChampionship = {}) {
@@ -308,6 +341,45 @@ function validateTeamPayload(database, body, currentTeam = {}) {
   return { team };
 }
 
+function validateAthletePayload(database, body, currentAthlete = {}) {
+  const teamId = Number(body.teamId ?? currentAthlete.teamId);
+  const age = normalizeText(body.age ?? currentAthlete.age);
+  const athlete = {
+    fullName: normalizeText(body.fullName ?? currentAthlete.fullName),
+    photoUrl: normalizeText(body.photoUrl ?? currentAthlete.photoUrl),
+    teamId,
+    position: normalizeText(body.position ?? currentAthlete.position),
+    age,
+    stats: getDefaultAthleteStats(body.stats ?? currentAthlete.stats)
+  };
+
+  if (athlete.fullName.length < 3) {
+    return { error: "Informe o nome completo do atleta com pelo menos 3 caracteres." };
+  }
+
+  if (!findTeamById(database, athlete.teamId)) {
+    return { error: "Time atual do atleta nao encontrado." };
+  }
+
+  if (!athlete.position) {
+    return { error: "Informe a posicao do atleta." };
+  }
+
+  if (age && (!Number.isInteger(Number(age)) || Number(age) < 10 || Number(age) > 80)) {
+    return { error: "Informe uma idade valida ou deixe o campo vazio." };
+  }
+
+  const invalidStat = Object.values(athlete.stats).some((value) => {
+    return !Number.isInteger(value) || value < 0;
+  });
+
+  if (invalidStat) {
+    return { error: "As estatisticas do atleta devem ser numeros inteiros nao negativos." };
+  }
+
+  return { athlete };
+}
+
 async function handleApi(request, response) {
   const database = readDatabase();
   const url = new URL(request.url, "http://localhost");
@@ -327,6 +399,7 @@ async function handleApi(request, response) {
       roles: database.roles,
       championships: database.championships.map(getPublicChampionship),
       teams: database.teams.map((team) => getPublicTeam(team, database)),
+      athletes: database.athletes.map((athlete) => getPublicAthlete(athlete, database)),
       featuredMatches: database.featuredMatches,
       user: getPublicUser(getSessionUser(request))
     });
@@ -343,6 +416,13 @@ async function handleApi(request, response) {
   if (request.method === "GET" && request.url === "/api/teams") {
     sendJson(response, 200, {
       teams: database.teams.map((team) => getPublicTeam(team, database))
+    });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/athletes") {
+    sendJson(response, 200, {
+      athletes: database.athletes.map((athlete) => getPublicAthlete(athlete, database))
     });
     return;
   }
@@ -692,6 +772,13 @@ async function handleApi(request, response) {
     }
 
     if (request.method === "DELETE") {
+      const hasAthletes = database.athletes.some((athlete) => Number(athlete.teamId) === teamId);
+
+      if (hasAthletes) {
+        sendJson(response, 400, { message: "Remova ou transfira os atletas antes de excluir o time." });
+        return;
+      }
+
       database.teams = database.teams.filter((item) => item.id !== teamId);
       writeDatabase(database);
       sendJson(response, 200, { message: "Time excluido." });
@@ -715,6 +802,92 @@ async function handleApi(request, response) {
       sendJson(response, 200, { team: getPublicTeam(team, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar o time." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/athletes") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, {
+      athletes: database.athletes.map((athlete) => getPublicAthlete(athlete, database)),
+      teams: database.teams.map((team) => getPublicTeam(team, database))
+    });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/admin/athletes") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateAthletePayload(database, body);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const athlete = {
+        id: database.athletes.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        ...validation.athlete,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      database.athletes.push(athlete);
+      writeDatabase(database);
+
+      sendJson(response, 201, { athlete: getPublicAthlete(athlete, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel criar o atleta." });
+    }
+
+    return;
+  }
+
+  if (["PUT", "DELETE"].includes(request.method) && url.pathname.startsWith("/api/admin/athletes/")) {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    const athleteId = Number(url.pathname.split("/").pop());
+    const athlete = findAthleteById(database, athleteId);
+
+    if (!athlete) {
+      sendJson(response, 404, { message: "Atleta nao encontrado." });
+      return;
+    }
+
+    if (request.method === "DELETE") {
+      database.athletes = database.athletes.filter((item) => item.id !== athleteId);
+      writeDatabase(database);
+      sendJson(response, 200, { message: "Atleta excluido." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateAthletePayload(database, body, athlete);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      Object.assign(athlete, validation.athlete, {
+        updatedAt: new Date().toISOString()
+      });
+
+      writeDatabase(database);
+      sendJson(response, 200, { athlete: getPublicAthlete(athlete, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar o atleta." });
     }
 
     return;

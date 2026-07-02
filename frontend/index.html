@@ -19,6 +19,7 @@
       <nav class="main-nav" aria-label="Navegacao principal">
         <a href="#campeonatos">Campeonatos</a>
         <a href="#times">Times</a>
+        <a href="#atletas">Atletas</a>
         <a href="#jogos">Jogos</a>
         <a href="#noticias">Noticias</a>
         <a href="#conta">Conta</a>
@@ -56,6 +57,14 @@
           <h2>Equipes cadastradas</h2>
         </div>
         <div class="teams-grid" id="teams"></div>
+      </section>
+
+      <section class="section athletes-section" id="atletas">
+        <div class="section-heading">
+          <p class="eyebrow">Elencos</p>
+          <h2>Atletas cadastrados</h2>
+        </div>
+        <div class="athletes-grid" id="athletes"></div>
       </section>
 
       <section class="section split" id="jogos">
@@ -359,13 +368,68 @@
 
             <div class="team-list" id="admin-teams"></div>
           </section>
+
+          <section class="admin-card athlete-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Atletas</p>
+                <h3>Cadastro e estatisticas</h3>
+              </div>
+            </div>
+
+            <form class="athlete-form" id="athlete-form">
+              <input type="hidden" name="id">
+              <label>
+                Nome completo
+                <input name="fullName" type="text" required>
+              </label>
+              <label>
+                Time atual
+                <select name="teamId" id="athlete-team" required></select>
+              </label>
+              <label>
+                Posicao
+                <input name="position" type="text" required>
+              </label>
+              <label>
+                Idade
+                <input name="age" type="number" min="10" max="80">
+              </label>
+              <label class="wide-field">
+                Foto URL
+                <input name="photoUrl" type="url">
+              </label>
+              <label>
+                Jogos
+                <input name="matches" type="number" min="0" value="0">
+              </label>
+              <label>
+                Gols
+                <input name="goals" type="number" min="0" value="0">
+              </label>
+              <label>
+                Cartoes amarelos
+                <input name="yellowCards" type="number" min="0" value="0">
+              </label>
+              <label>
+                Cartoes vermelhos
+                <input name="redCards" type="number" min="0" value="0">
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar atleta</button>
+                <button class="button secondary" id="clear-athlete-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="athlete-list" id="admin-athletes"></div>
+          </section>
         </div>
       </section>
     </main>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 4</span>
+      <span>Ambiente de desenvolvimento da fase 5</span>
     </footer>
 
     <script src="/scripts/app.js"></script>

@@ -217,6 +217,8 @@ h3 {
 }
 
 .cards-grid,
+.teams-grid,
+.athletes-grid,
 .news-preview,
 .roles-grid {
   display: grid;
@@ -225,6 +227,8 @@ h3 {
 }
 
 .championship-card,
+.team-card,
+.athlete-card,
 .role-card,
 .news-preview article,
 .match-panel,
@@ -240,6 +244,76 @@ h3 {
   padding: 20px;
 }
 
+.team-card,
+.athlete-card {
+  min-height: 220px;
+  padding: 18px;
+}
+
+.team-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.team-crest,
+.athlete-photo {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  color: var(--color-white);
+  background: linear-gradient(135deg, var(--color-blue), var(--color-green));
+  font-weight: 900;
+}
+
+.team-crest img,
+.athlete-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.team-meta dt {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.team-meta dd {
+  margin: 4px 0 0;
+  font-weight: 800;
+}
+
+.team-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.team-stats span {
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: var(--color-blue-dark);
+  background: var(--color-surface);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
 .championship-card small {
   display: block;
   color: var(--color-muted);
@@ -252,6 +326,8 @@ h3 {
 }
 
 .championship-card span,
+.team-card span,
+.athlete-card span,
 .role-card span,
 .news-preview span {
   color: var(--color-green-dark);
@@ -379,7 +455,7 @@ h3 {
 
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -488,13 +564,17 @@ h3 {
   gap: 20px;
 }
 
-.championship-form {
+.championship-form,
+.team-form,
+.athlete-form {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
 }
 
-.championship-form label {
+.championship-form label,
+.team-form label,
+.athlete-form label {
   display: grid;
   gap: 8px;
   color: var(--color-blue-dark);
@@ -503,7 +583,13 @@ h3 {
 
 .championship-form input,
 .championship-form select,
-.championship-form textarea {
+.championship-form textarea,
+.team-form input,
+.team-form select,
+.team-form textarea,
+.athlete-form input,
+.athlete-form select,
+.athlete-form textarea {
   width: 100%;
   min-height: 42px;
   padding: 10px 12px;
@@ -514,7 +600,9 @@ h3 {
   font: inherit;
 }
 
-.championship-form textarea {
+.championship-form textarea,
+.team-form textarea,
+.athlete-form textarea {
   resize: vertical;
 }
 
@@ -522,13 +610,17 @@ h3 {
   grid-column: span 5;
 }
 
-.championship-list {
+.championship-list,
+.team-list,
+.athlete-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.admin-championship-item {
+.admin-championship-item,
+.admin-team-item,
+.admin-athlete-item {
   display: grid;
   gap: 14px;
   padding: 16px;
@@ -538,7 +630,11 @@ h3 {
 }
 
 .admin-championship-item span,
-.admin-championship-item small {
+.admin-championship-item small,
+.admin-team-item span,
+.admin-team-item small,
+.admin-athlete-item span,
+.admin-athlete-item small {
   display: block;
   color: var(--color-muted);
   font-size: 0.78rem;
@@ -546,12 +642,16 @@ h3 {
   text-transform: uppercase;
 }
 
-.admin-championship-item strong {
+.admin-championship-item strong,
+.admin-team-item strong,
+.admin-athlete-item strong {
   display: block;
   margin: 5px 0 8px;
 }
 
-.admin-championship-item p {
+.admin-championship-item p,
+.admin-team-item p,
+.admin-athlete-item p {
   color: var(--color-muted);
   line-height: 1.55;
 }
@@ -595,6 +695,8 @@ h3 {
   }
 
   .cards-grid,
+  .teams-grid,
+  .athletes-grid,
   .news-preview,
   .roles-grid {
     grid-template-columns: 1fr;
@@ -603,7 +705,11 @@ h3 {
   .admin-stats,
   .admin-layout,
   .championship-form,
-  .championship-list {
+  .team-form,
+  .athlete-form,
+  .championship-list,
+  .team-list,
+  .athlete-list {
     grid-template-columns: 1fr;
   }
 

@@ -181,6 +181,40 @@
       "updatedAt": "2026-07-01T00:00:00.000Z"
     }
   ],
+  "athletes": [
+    {
+      "id": 1,
+      "fullName": "Joao Victor Sousa",
+      "photoUrl": "",
+      "teamId": 1,
+      "position": "Atacante",
+      "age": "24",
+      "stats": {
+        "matches": 0,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "fullName": "Carlos Henrique Lima",
+      "photoUrl": "",
+      "teamId": 2,
+      "position": "Meia",
+      "age": "27",
+      "stats": {
+        "matches": 0,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
+    }
+  ],
   "featuredMatches": [
     {
       "id": 1,

@@ -19,6 +19,13 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
+const database = JSON.parse(fs.readFileSync(path.join(__dirname, "database", "db.json"), "utf8"));
+
+if (!Array.isArray(database.athletes)) {
+  console.error("Colecao de atletas ausente no banco de dados.");
+  process.exit(1);
+}
+
 require("./server");
 
-console.log("Estrutura da fase 0 validada.");
+console.log("Estrutura da fase 5 validada.");
