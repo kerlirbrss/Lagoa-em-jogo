@@ -61,6 +61,18 @@ Rotas de campeonatos:
 - `PUT /api/admin/championships/:id`
 - `DELETE /api/admin/championships/:id`
 
+## Jogos
+
+A fase 6 inclui cadastro e gerenciamento de partidas com campeonato, fase, rodada, mandante, visitante, data, horario, campo, localizacao, placar e encerramento.
+
+Rotas de jogos:
+
+- `GET /api/matches`
+- `GET /api/admin/matches`
+- `POST /api/admin/matches`
+- `PUT /api/admin/matches/:id`
+- `DELETE /api/admin/matches/:id`
+
 ## Credenciais de desenvolvimento
 
 - Email: `admin@lagoaemjogo.local`

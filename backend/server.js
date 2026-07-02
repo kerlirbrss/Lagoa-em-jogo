@@ -12,11 +12,13 @@ const sessions = new Map();
 const USER_ROLES = ["usuario", "organizador", "fotografo", "administrador"];
 const COMMENT_STATUSES = ["pendente", "aprovado", "rejeitado"];
 const CHAMPIONSHIP_STATUSES = ["rascunho", "inscricoes", "em_andamento", "encerrado"];
+const MATCH_STATUSES = ["agendado", "em_andamento", "encerrado"];
 
 function readDatabase() {
   const raw = fs.readFileSync(DB_PATH, "utf8");
   const database = JSON.parse(raw);
   database.athletes = database.athletes || [];
+  database.matches = database.matches || [];
   return database;
 }
 
@@ -158,6 +160,15 @@ function getDefaultAthleteStats(stats = {}) {
   };
 }
 
+function getDefaultMatchScore(score = {}) {
+  const currentScore = score || {};
+
+  return {
+    home: currentScore.home === "" || currentScore.home === undefined ? "" : Number(currentScore.home),
+    away: currentScore.away === "" || currentScore.away === undefined ? "" : Number(currentScore.away)
+  };
+}
+
 function getPublicAthlete(athlete, database) {
   const team = findTeamById(database, Number(athlete.teamId));
 
@@ -172,6 +183,33 @@ function getPublicAthlete(athlete, database) {
     stats: getDefaultAthleteStats(athlete.stats),
     createdAt: athlete.createdAt || null,
     updatedAt: athlete.updatedAt || null
+  };
+}
+
+function getPublicMatch(match, database) {
+  const championship = findChampionshipById(database, Number(match.championshipId));
+  const homeTeam = findTeamById(database, Number(match.homeTeamId));
+  const awayTeam = findTeamById(database, Number(match.awayTeamId));
+
+  return {
+    id: match.id,
+    championshipId: Number(match.championshipId),
+    championshipName: championship ? championship.name : "Campeonato nao encontrado",
+    stage: match.stage,
+    round: match.round,
+    homeTeamId: Number(match.homeTeamId),
+    homeTeamName: homeTeam ? homeTeam.name : "Time mandante nao encontrado",
+    awayTeamId: Number(match.awayTeamId),
+    awayTeamName: awayTeam ? awayTeam.name : "Time visitante nao encontrado",
+    date: match.date,
+    time: match.time,
+    field: match.field,
+    location: match.location,
+    score: getDefaultMatchScore(match.score),
+    status: match.status,
+    closedAt: match.closedAt || null,
+    createdAt: match.createdAt || null,
+    updatedAt: match.updatedAt || null
   };
 }
 
@@ -250,6 +288,7 @@ function buildDashboard(database) {
       championships: database.championships.length,
       teams: database.teams.length,
       athletes: database.athletes.length,
+      matches: database.matches.length,
       pendingComments
     },
     roleSummary: database.roles.map((role) => {
@@ -280,6 +319,10 @@ function findTeamById(database, teamId) {
 
 function findAthleteById(database, athleteId) {
   return database.athletes.find((athlete) => athlete.id === athleteId) || null;
+}
+
+function findMatchById(database, matchId) {
+  return database.matches.find((match) => match.id === matchId) || null;
 }
 
 function validateChampionshipPayload(body, currentChampionship = {}) {
@@ -380,6 +423,88 @@ function validateAthletePayload(database, body, currentAthlete = {}) {
   return { athlete };
 }
 
+function validateMatchPayload(database, body, currentMatch = {}) {
+  const championshipId = Number(body.championshipId ?? currentMatch.championshipId);
+  const homeTeamId = Number(body.homeTeamId ?? currentMatch.homeTeamId);
+  const awayTeamId = Number(body.awayTeamId ?? currentMatch.awayTeamId);
+  const status = normalizeText(body.status ?? currentMatch.status ?? "agendado");
+  const score = getDefaultMatchScore(body.score ?? currentMatch.score);
+  const match = {
+    championshipId,
+    stage: normalizeText(body.stage ?? currentMatch.stage),
+    round: normalizeText(body.round ?? currentMatch.round),
+    homeTeamId,
+    awayTeamId,
+    date: normalizeDate(body.date ?? currentMatch.date),
+    time: normalizeText(body.time ?? currentMatch.time),
+    field: normalizeText(body.field ?? currentMatch.field),
+    location: normalizeText(body.location ?? currentMatch.location),
+    score,
+    status
+  };
+  const championship = findChampionshipById(database, match.championshipId);
+  const homeTeam = findTeamById(database, match.homeTeamId);
+  const awayTeam = findTeamById(database, match.awayTeamId);
+
+  if (!championship) {
+    return { error: "Campeonato da partida nao encontrado." };
+  }
+
+  if (!match.stage) {
+    return { error: "Informe a fase da partida." };
+  }
+
+  if (!match.round) {
+    return { error: "Informe a rodada da partida." };
+  }
+
+  if (!homeTeam || !awayTeam) {
+    return { error: "Informe times validos para a partida." };
+  }
+
+  if (match.homeTeamId === match.awayTeamId) {
+    return { error: "O time mandante e visitante devem ser diferentes." };
+  }
+
+  if (homeTeam.championshipId !== match.championshipId || awayTeam.championshipId !== match.championshipId) {
+    return { error: "Os times devem pertencer ao campeonato selecionado." };
+  }
+
+  if (!match.date) {
+    return { error: "Informe a data da partida." };
+  }
+
+  if (!match.time) {
+    return { error: "Informe o horario da partida." };
+  }
+
+  if (!match.field) {
+    return { error: "Informe o campo da partida." };
+  }
+
+  if (!match.location) {
+    return { error: "Informe a localizacao da partida." };
+  }
+
+  if (!MATCH_STATUSES.includes(match.status)) {
+    return { error: "Status de partida invalido." };
+  }
+
+  const invalidScore = Object.values(match.score).some((value) => {
+    return value !== "" && (!Number.isInteger(value) || value < 0);
+  });
+
+  if (invalidScore) {
+    return { error: "O placar deve conter numeros inteiros nao negativos ou ficar vazio." };
+  }
+
+  if (match.status === "encerrado" && (match.score.home === "" || match.score.away === "")) {
+    return { error: "Informe o placar para encerrar a partida." };
+  }
+
+  return { match };
+}
+
 async function handleApi(request, response) {
   const database = readDatabase();
   const url = new URL(request.url, "http://localhost");
@@ -400,6 +525,7 @@ async function handleApi(request, response) {
       championships: database.championships.map(getPublicChampionship),
       teams: database.teams.map((team) => getPublicTeam(team, database)),
       athletes: database.athletes.map((athlete) => getPublicAthlete(athlete, database)),
+      matches: database.matches.map((match) => getPublicMatch(match, database)),
       featuredMatches: database.featuredMatches,
       user: getPublicUser(getSessionUser(request))
     });
@@ -423,6 +549,13 @@ async function handleApi(request, response) {
   if (request.method === "GET" && request.url === "/api/athletes") {
     sendJson(response, 200, {
       athletes: database.athletes.map((athlete) => getPublicAthlete(athlete, database))
+    });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/matches") {
+    sendJson(response, 200, {
+      matches: database.matches.map((match) => getPublicMatch(match, database))
     });
     return;
   }
@@ -888,6 +1021,96 @@ async function handleApi(request, response) {
       sendJson(response, 200, { athlete: getPublicAthlete(athlete, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar o atleta." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/matches") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, {
+      matches: database.matches.map((match) => getPublicMatch(match, database)),
+      championships: database.championships.map(getPublicChampionship),
+      teams: database.teams.map((team) => getPublicTeam(team, database)),
+      statuses: MATCH_STATUSES
+    });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/admin/matches") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateMatchPayload(database, body);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const match = {
+        id: database.matches.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        ...validation.match,
+        closedAt: validation.match.status === "encerrado" ? new Date().toISOString() : null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      database.matches.push(match);
+      writeDatabase(database);
+
+      sendJson(response, 201, { match: getPublicMatch(match, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel criar a partida." });
+    }
+
+    return;
+  }
+
+  if (["PUT", "DELETE"].includes(request.method) && url.pathname.startsWith("/api/admin/matches/")) {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    const matchId = Number(url.pathname.split("/").pop());
+    const match = findMatchById(database, matchId);
+
+    if (!match) {
+      sendJson(response, 404, { message: "Partida nao encontrada." });
+      return;
+    }
+
+    if (request.method === "DELETE") {
+      database.matches = database.matches.filter((item) => item.id !== matchId);
+      writeDatabase(database);
+      sendJson(response, 200, { message: "Partida excluida." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateMatchPayload(database, body, match);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      Object.assign(match, validation.match, {
+        closedAt: validation.match.status === "encerrado" ? match.closedAt || new Date().toISOString() : null,
+        updatedAt: new Date().toISOString()
+      });
+
+      writeDatabase(database);
+      sendJson(response, 200, { match: getPublicMatch(match, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar a partida." });
     }
 
     return;

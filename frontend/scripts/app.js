@@ -7,6 +7,7 @@ const state = {
     championships: [],
     teams: [],
     athletes: [],
+    matches: [],
     dashboard: null
   }
 };
@@ -15,6 +16,7 @@ const elements = {
   championships: document.querySelector("#championships"),
   teams: document.querySelector("#teams"),
   athletes: document.querySelector("#athletes"),
+  matches: document.querySelector("#matches"),
   featuredMatch: document.querySelector("#featured-match"),
   roles: document.querySelector("#roles"),
   loginForm: document.querySelector("#login-form"),
@@ -45,6 +47,12 @@ elements.athleteForm = document.querySelector("#athlete-form");
 elements.athleteTeam = document.querySelector("#athlete-team");
 elements.adminAthletes = document.querySelector("#admin-athletes");
 elements.clearAthleteForm = document.querySelector("#clear-athlete-form");
+elements.matchForm = document.querySelector("#match-form");
+elements.matchChampionship = document.querySelector("#match-championship");
+elements.matchHomeTeam = document.querySelector("#match-home-team");
+elements.matchAwayTeam = document.querySelector("#match-away-team");
+elements.adminMatches = document.querySelector("#admin-matches");
+elements.clearMatchForm = document.querySelector("#clear-match-form");
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -146,6 +154,26 @@ function renderAthletes(athletes) {
     .join("");
 }
 
+function renderMatches(matches) {
+  elements.matches.innerHTML = matches
+    .map((match) => {
+      return `
+        <article class="match-card">
+          <span>${match.championshipName} - ${formatMatchStatus(match.status)}</span>
+          <div class="match-scoreline">
+            <strong>${match.homeTeamName}</strong>
+            <b>${formatMatchScore(match)}</b>
+            <strong>${match.awayTeamName}</strong>
+          </div>
+          <p>${match.stage} - ${match.round}</p>
+          <small>${formatMatchDateTime(match)} | ${match.field}</small>
+          <small>${match.location}</small>
+        </article>
+      `;
+    })
+    .join("");
+}
+
 function getTeamInitials(name) {
   return String(name || "T")
     .split(" ")
@@ -175,10 +203,32 @@ function formatChampionshipDates(championship) {
   return `${championship.startDate || "A definir"} ate ${championship.endDate || "A definir"}`;
 }
 
+function formatMatchStatus(status) {
+  const labels = {
+    agendado: "Agendado",
+    em_andamento: "Em andamento",
+    encerrado: "Encerrado"
+  };
+
+  return labels[status] || status;
+}
+
+function formatMatchScore(match) {
+  if (match.score.home === "" || match.score.away === "") {
+    return "x";
+  }
+
+  return `${match.score.home} x ${match.score.away}`;
+}
+
+function formatMatchDateTime(match) {
+  return `${match.date || "Data a definir"} as ${match.time || "horario a definir"}`;
+}
+
 function renderFeaturedMatch(match) {
   elements.featuredMatch.innerHTML = `
-    <strong>${match.homeTeam} x ${match.awayTeam}</strong>
-    <p>Data: ${match.date}</p>
+    <strong>${match.homeTeamName || match.homeTeam} x ${match.awayTeamName || match.awayTeam}</strong>
+    <p>Data: ${match.date || "A definir"} ${match.time || ""}</p>
     <p>Campo: ${match.field}</p>
   `;
 }
@@ -250,7 +300,8 @@ async function loadBootstrap() {
   renderChampionships(data.championships);
   renderTeams(data.teams);
   renderAthletes(data.athletes);
-  renderFeaturedMatch(data.featuredMatches[0]);
+  renderMatches(data.matches);
+  renderFeaturedMatch(data.matches[0] || data.featuredMatches[0]);
   renderRoles(data.roles);
   renderSession();
 }
@@ -289,6 +340,10 @@ function renderAdminStats() {
       <strong>${totals.athletes}</strong>
     </article>
     <article>
+      <span>Jogos</span>
+      <strong>${totals.matches}</strong>
+    </article>
+    <article>
       <span>Pendentes</span>
       <strong>${totals.pendingComments}</strong>
     </article>
@@ -306,6 +361,16 @@ function getChampionshipOptions(selectedChampionshipId) {
 
 function getTeamOptions(selectedTeamId) {
   return state.admin.teams
+    .map((team) => {
+      const selected = team.id === Number(selectedTeamId) ? "selected" : "";
+      return `<option value="${team.id}" ${selected}>${team.name} - ${team.community}</option>`;
+    })
+    .join("");
+}
+
+function getMatchTeamOptions(championshipId, selectedTeamId) {
+  return state.admin.teams
+    .filter((team) => team.championshipId === Number(championshipId))
     .map((team) => {
       const selected = team.id === Number(selectedTeamId) ? "selected" : "";
       return `<option value="${team.id}" ${selected}>${team.name} - ${team.community}</option>`;
@@ -422,6 +487,50 @@ function fillAthleteForm(athlete) {
   elements.athleteForm.elements.redCards.value = athlete ? athlete.stats.redCards : 0;
 }
 
+function renderAdminMatches() {
+  elements.adminMatches.innerHTML = state.admin.matches
+    .map((match) => {
+      return `
+        <article class="admin-match-item">
+          <div>
+            <span>${match.championshipName} - ${formatMatchStatus(match.status)}</span>
+            <strong>${match.homeTeamName} ${formatMatchScore(match)} ${match.awayTeamName}</strong>
+            <p>${match.stage} - ${match.round}</p>
+            <small>${formatMatchDateTime(match)} - ${match.field}</small>
+          </div>
+          <div class="comment-actions">
+            <button class="button compact" type="button" data-edit-match="${match.id}">Editar</button>
+            <button class="button compact danger" type="button" data-delete-match="${match.id}">Excluir</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function fillMatchForm(match) {
+  const championshipId = match ? match.championshipId : state.admin.championships[0]?.id || "";
+  const championshipTeams = state.admin.teams.filter((team) => team.championshipId === Number(championshipId));
+  const defaultHomeTeamId = match ? match.homeTeamId : championshipTeams[0]?.id || "";
+  const defaultAwayTeamId = match ? match.awayTeamId : championshipTeams[1]?.id || "";
+  elements.matchChampionship.innerHTML = getChampionshipOptions(championshipId);
+  elements.matchHomeTeam.innerHTML = getMatchTeamOptions(championshipId, defaultHomeTeamId);
+  elements.matchAwayTeam.innerHTML = getMatchTeamOptions(championshipId, defaultAwayTeamId);
+  elements.matchForm.elements.id.value = match ? match.id : "";
+  elements.matchForm.elements.championshipId.value = championshipId;
+  elements.matchForm.elements.stage.value = match ? match.stage : "Primeira fase";
+  elements.matchForm.elements.round.value = match ? match.round : "";
+  elements.matchForm.elements.homeTeamId.value = defaultHomeTeamId;
+  elements.matchForm.elements.awayTeamId.value = defaultAwayTeamId;
+  elements.matchForm.elements.date.value = match ? match.date : "";
+  elements.matchForm.elements.time.value = match ? match.time : "";
+  elements.matchForm.elements.field.value = match ? match.field : "";
+  elements.matchForm.elements.location.value = match ? match.location : "";
+  elements.matchForm.elements.homeScore.value = match ? match.score.home : "";
+  elements.matchForm.elements.awayScore.value = match ? match.score.away : "";
+  elements.matchForm.elements.status.value = match ? match.status : "agendado";
+}
+
 async function refreshPublicTeams() {
   const teamsData = await api("/api/teams");
   renderTeams(teamsData.teams);
@@ -430,6 +539,17 @@ async function refreshPublicTeams() {
 async function refreshPublicAthletes() {
   const athletesData = await api("/api/athletes");
   renderAthletes(athletesData.athletes);
+}
+
+async function refreshPublicMatches() {
+  const matchesData = await api("/api/matches");
+  renderMatches(matchesData.matches);
+  renderFeaturedMatch(matchesData.matches[0] || {
+    homeTeam: "A definir",
+    awayTeam: "A definir",
+    date: "A definir",
+    field: "Campo a definir"
+  });
 }
 
 function getRoleOptions(selectedRole) {
@@ -498,13 +618,14 @@ async function refreshAdminPanel() {
   }
 
   try {
-    const [dashboard, usersData, commentsData, championshipsData, teamsData, athletesData] = await Promise.all([
+    const [dashboard, usersData, commentsData, championshipsData, teamsData, athletesData, matchesData] = await Promise.all([
       api("/api/admin/dashboard"),
       api("/api/admin/users"),
       api("/api/admin/comments"),
       api("/api/admin/championships"),
       api("/api/admin/teams"),
-      api("/api/admin/athletes")
+      api("/api/admin/athletes"),
+      api("/api/admin/matches")
     ]);
 
     state.admin.dashboard = dashboard;
@@ -514,6 +635,7 @@ async function refreshAdminPanel() {
     state.admin.championships = championshipsData.championships;
     state.admin.teams = teamsData.teams;
     state.admin.athletes = athletesData.athletes;
+    state.admin.matches = matchesData.matches;
 
     elements.adminPanel.hidden = false;
     elements.adminStatus.textContent = "Painel carregado para administradores.";
@@ -525,6 +647,8 @@ async function refreshAdminPanel() {
     renderAdminTeams();
     fillAthleteForm(null);
     renderAdminAthletes();
+    fillMatchForm(null);
+    renderAdminMatches();
   } catch (error) {
     elements.adminStatus.textContent = error.message;
     elements.adminPanel.hidden = true;
@@ -724,6 +848,80 @@ elements.adminAthletes.addEventListener("click", async (event) => {
     });
     fillAthleteForm(null);
     await refreshPublicAthletes();
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.matchChampionship.addEventListener("change", () => {
+  const championshipId = elements.matchChampionship.value;
+  const teams = state.admin.teams.filter((team) => team.championshipId === Number(championshipId));
+  elements.matchHomeTeam.innerHTML = getMatchTeamOptions(championshipId, teams[0]?.id);
+  elements.matchAwayTeam.innerHTML = getMatchTeamOptions(championshipId, teams[1]?.id);
+});
+
+elements.matchForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(elements.matchForm);
+  const matchId = formData.get("id");
+  const payload = {
+    championshipId: formData.get("championshipId"),
+    stage: formData.get("stage"),
+    round: formData.get("round"),
+    homeTeamId: formData.get("homeTeamId"),
+    awayTeamId: formData.get("awayTeamId"),
+    date: formData.get("date"),
+    time: formData.get("time"),
+    field: formData.get("field"),
+    location: formData.get("location"),
+    score: {
+      home: formData.get("homeScore"),
+      away: formData.get("awayScore")
+    },
+    status: formData.get("status")
+  };
+
+  try {
+    await api(matchId ? `/api/admin/matches/${matchId}` : "/api/admin/matches", {
+      method: matchId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    });
+    fillMatchForm(null);
+    await refreshPublicMatches();
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.clearMatchForm.addEventListener("click", () => {
+  fillMatchForm(null);
+});
+
+elements.adminMatches.addEventListener("click", async (event) => {
+  const editButton = event.target.closest("[data-edit-match]");
+  const deleteButton = event.target.closest("[data-delete-match]");
+
+  if (editButton) {
+    const match = state.admin.matches.find((item) => {
+      return item.id === Number(editButton.dataset.editMatch);
+    });
+    fillMatchForm(match);
+    return;
+  }
+
+  if (!deleteButton) {
+    return;
+  }
+
+  try {
+    await api(`/api/admin/matches/${deleteButton.dataset.deleteMatch}`, {
+      method: "DELETE"
+    });
+    fillMatchForm(null);
+    await refreshPublicMatches();
     await refreshAdminPanel();
   } catch (error) {
     elements.adminStatus.textContent = error.message;

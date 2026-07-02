@@ -26,6 +26,11 @@ if (!Array.isArray(database.athletes)) {
   process.exit(1);
 }
 
+if (!Array.isArray(database.matches)) {
+  console.error("Colecao de jogos ausente no banco de dados.");
+  process.exit(1);
+}
+
 require("./server");
 
-console.log("Estrutura da fase 5 validada.");
+console.log("Estrutura da fase 6 validada.");

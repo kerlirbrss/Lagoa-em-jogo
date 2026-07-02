@@ -67,16 +67,17 @@
         <div class="athletes-grid" id="athletes"></div>
       </section>
 
-      <section class="section split" id="jogos">
+      <section class="section matches-section" id="jogos">
         <div>
           <p class="eyebrow">Proximos jogos</p>
-          <h2>Agenda pronta para receber partidas</h2>
+          <h2>Agenda de partidas</h2>
           <p>
-            A fase 0 deixa a estrutura preparada para cadastrar rodadas, campos,
-            horarios e placares nas proximas etapas.
+            Rodadas, campos, horarios, placares e encerramento das partidas
+            cadastradas pelos administradores.
           </p>
         </div>
         <div class="match-panel" id="featured-match"></div>
+        <div class="matches-grid" id="matches"></div>
       </section>
 
       <section class="section" id="noticias">
@@ -423,13 +424,84 @@
 
             <div class="athlete-list" id="admin-athletes"></div>
           </section>
+
+          <section class="admin-card match-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Jogos</p>
+                <h3>Cadastro de partidas</h3>
+              </div>
+            </div>
+
+            <form class="match-form" id="match-form">
+              <input type="hidden" name="id">
+              <label>
+                Campeonato
+                <select name="championshipId" id="match-championship" required></select>
+              </label>
+              <label>
+                Fase
+                <input name="stage" type="text" required>
+              </label>
+              <label>
+                Rodada
+                <input name="round" type="text" required>
+              </label>
+              <label>
+                Mandante
+                <select name="homeTeamId" id="match-home-team" required></select>
+              </label>
+              <label>
+                Visitante
+                <select name="awayTeamId" id="match-away-team" required></select>
+              </label>
+              <label>
+                Data
+                <input name="date" type="date" required>
+              </label>
+              <label>
+                Horario
+                <input name="time" type="time" required>
+              </label>
+              <label>
+                Campo
+                <input name="field" type="text" required>
+              </label>
+              <label>
+                Localizacao
+                <input name="location" type="text" required>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="agendado">Agendado</option>
+                  <option value="em_andamento">Em andamento</option>
+                  <option value="encerrado">Encerrado</option>
+                </select>
+              </label>
+              <label>
+                Placar mandante
+                <input name="homeScore" type="number" min="0">
+              </label>
+              <label>
+                Placar visitante
+                <input name="awayScore" type="number" min="0">
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar jogo</button>
+                <button class="button secondary" id="clear-match-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="match-list" id="admin-matches"></div>
+          </section>
         </div>
       </section>
     </main>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 5</span>
+      <span>Ambiente de desenvolvimento da fase 6</span>
     </footer>
 
     <script src="/scripts/app.js"></script>

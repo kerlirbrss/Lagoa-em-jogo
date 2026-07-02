@@ -219,6 +219,7 @@ h3 {
 .cards-grid,
 .teams-grid,
 .athletes-grid,
+.matches-grid,
 .news-preview,
 .roles-grid {
   display: grid;
@@ -229,6 +230,7 @@ h3 {
 .championship-card,
 .team-card,
 .athlete-card,
+.match-card,
 .role-card,
 .news-preview article,
 .match-panel,
@@ -247,6 +249,11 @@ h3 {
 .team-card,
 .athlete-card {
   min-height: 220px;
+  padding: 18px;
+}
+
+.match-card {
+  min-height: 210px;
   padding: 18px;
 }
 
@@ -328,6 +335,7 @@ h3 {
 .championship-card span,
 .team-card span,
 .athlete-card span,
+.match-card span,
 .role-card span,
 .news-preview span {
   color: var(--color-green-dark);
@@ -337,7 +345,8 @@ h3 {
 }
 
 .split,
-.account-section {
+.account-section,
+.matches-section {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
   gap: 28px;
@@ -347,11 +356,52 @@ h3 {
 
 .split p,
 .account-section p,
+.matches-section p,
 .news-preview p,
 .championship-card p,
+.match-card p,
 .role-card p {
   color: var(--color-muted);
   line-height: 1.65;
+}
+
+.matches-grid {
+  grid-column: 1 / -1;
+}
+
+.match-scoreline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.match-scoreline strong {
+  min-width: 0;
+  font-size: 1.05rem;
+}
+
+.match-scoreline strong:last-child {
+  text-align: right;
+}
+
+.match-scoreline b {
+  display: inline-flex;
+  min-width: 58px;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--color-white);
+  background: var(--color-blue-dark);
+}
+
+.match-card small {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-muted);
+  font-weight: 700;
 }
 
 .match-panel {
@@ -566,7 +616,8 @@ h3 {
 
 .championship-form,
 .team-form,
-.athlete-form {
+.athlete-form,
+.match-form {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
@@ -574,7 +625,8 @@ h3 {
 
 .championship-form label,
 .team-form label,
-.athlete-form label {
+.athlete-form label,
+.match-form label {
   display: grid;
   gap: 8px;
   color: var(--color-blue-dark);
@@ -589,7 +641,9 @@ h3 {
 .team-form textarea,
 .athlete-form input,
 .athlete-form select,
-.athlete-form textarea {
+.athlete-form textarea,
+.match-form input,
+.match-form select {
   width: 100%;
   min-height: 42px;
   padding: 10px 12px;
@@ -612,7 +666,8 @@ h3 {
 
 .championship-list,
 .team-list,
-.athlete-list {
+.athlete-list,
+.match-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
@@ -620,7 +675,8 @@ h3 {
 
 .admin-championship-item,
 .admin-team-item,
-.admin-athlete-item {
+.admin-athlete-item,
+.admin-match-item {
   display: grid;
   gap: 14px;
   padding: 16px;
@@ -634,7 +690,9 @@ h3 {
 .admin-team-item span,
 .admin-team-item small,
 .admin-athlete-item span,
-.admin-athlete-item small {
+.admin-athlete-item small,
+.admin-match-item span,
+.admin-match-item small {
   display: block;
   color: var(--color-muted);
   font-size: 0.78rem;
@@ -644,14 +702,16 @@ h3 {
 
 .admin-championship-item strong,
 .admin-team-item strong,
-.admin-athlete-item strong {
+.admin-athlete-item strong,
+.admin-match-item strong {
   display: block;
   margin: 5px 0 8px;
 }
 
 .admin-championship-item p,
 .admin-team-item p,
-.admin-athlete-item p {
+.admin-athlete-item p,
+.admin-match-item p {
   color: var(--color-muted);
   line-height: 1.55;
 }
@@ -676,13 +736,15 @@ h3 {
 @media (max-width: 860px) {
   .app-header,
   .split,
-  .account-section {
+  .account-section,
+  .matches-section {
     align-items: flex-start;
   }
 
   .app-header,
   .split,
-  .account-section {
+  .account-section,
+  .matches-section {
     grid-template-columns: 1fr;
   }
 
@@ -697,6 +759,7 @@ h3 {
   .cards-grid,
   .teams-grid,
   .athletes-grid,
+  .matches-grid,
   .news-preview,
   .roles-grid {
     grid-template-columns: 1fr;
@@ -707,9 +770,11 @@ h3 {
   .championship-form,
   .team-form,
   .athlete-form,
+  .match-form,
   .championship-list,
   .team-list,
-  .athlete-list {
+  .athlete-list,
+  .match-list {
     grid-template-columns: 1fr;
   }
 

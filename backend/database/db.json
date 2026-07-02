@@ -215,6 +215,28 @@
       "updatedAt": "2026-07-01T00:00:00.000Z"
     }
   ],
+  "matches": [
+    {
+      "id": 1,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 1",
+      "homeTeamId": 1,
+      "awayTeamId": 2,
+      "date": "2026-08-01",
+      "time": "16:00",
+      "field": "Campo municipal",
+      "location": "Centro, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": "",
+        "away": ""
+      },
+      "status": "agendado",
+      "closedAt": null,
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
+    }
+  ],
   "featuredMatches": [
     {
       "id": 1,
