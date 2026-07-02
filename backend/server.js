@@ -112,6 +112,41 @@ function getPublicChampionship(championship) {
   };
 }
 
+function getDefaultTeamStats(stats = {}) {
+  return {
+    matches: Number(stats.matches || 0),
+    wins: Number(stats.wins || 0),
+    draws: Number(stats.draws || 0),
+    losses: Number(stats.losses || 0),
+    goalsFor: Number(stats.goalsFor || 0),
+    goalsAgainst: Number(stats.goalsAgainst || 0),
+    points: Number(stats.points || 0)
+  };
+}
+
+function getPublicTeam(team, database) {
+  const championship = findChampionshipById(database, Number(team.championshipId));
+
+  return {
+    id: team.id,
+    name: team.name,
+    championshipId: Number(team.championshipId),
+    championshipName: championship ? championship.name : "Campeonato nao encontrado",
+    community: team.community,
+    crestUrl: team.crestUrl || "",
+    foundedYear: team.foundedYear || "",
+    coach: team.coach || "",
+    colors: team.colors || "",
+    stats: getDefaultTeamStats(team.stats),
+    squad: team.squad || "",
+    upcomingMatches: team.upcomingMatches || "",
+    recentResults: team.recentResults || "",
+    gallery: team.gallery || "",
+    createdAt: team.createdAt || null,
+    updatedAt: team.updatedAt || null
+  };
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -122,6 +157,16 @@ function normalizeText(value) {
 
 function normalizeDate(value) {
   return String(value || "").trim();
+}
+
+function normalizeOptionalYear(value) {
+  const year = normalizeText(value);
+
+  if (!year) {
+    return "";
+  }
+
+  return year;
 }
 
 function findUserById(database, userId) {
@@ -175,6 +220,7 @@ function buildDashboard(database) {
       organizers: countUsersByRole(database.users, "organizador"),
       photographers: countUsersByRole(database.users, "fotografo"),
       championships: database.championships.length,
+      teams: database.teams.length,
       pendingComments
     },
     roleSummary: database.roles.map((role) => {
@@ -197,6 +243,10 @@ function buildDashboard(database) {
 
 function findChampionshipById(database, championshipId) {
   return database.championships.find((championship) => championship.id === championshipId) || null;
+}
+
+function findTeamById(database, teamId) {
+  return database.teams.find((team) => team.id === teamId) || null;
 }
 
 function validateChampionshipPayload(body, currentChampionship = {}) {
@@ -226,6 +276,38 @@ function validateChampionshipPayload(body, currentChampionship = {}) {
   return { championship };
 }
 
+function validateTeamPayload(database, body, currentTeam = {}) {
+  const championshipId = Number(body.championshipId ?? currentTeam.championshipId);
+  const team = {
+    name: normalizeText(body.name ?? currentTeam.name),
+    championshipId,
+    community: normalizeText(body.community ?? currentTeam.community),
+    crestUrl: normalizeText(body.crestUrl ?? currentTeam.crestUrl),
+    foundedYear: normalizeOptionalYear(body.foundedYear ?? currentTeam.foundedYear),
+    coach: normalizeText(body.coach ?? currentTeam.coach),
+    colors: normalizeText(body.colors ?? currentTeam.colors),
+    stats: getDefaultTeamStats(body.stats ?? currentTeam.stats),
+    squad: normalizeText(body.squad ?? currentTeam.squad),
+    upcomingMatches: normalizeText(body.upcomingMatches ?? currentTeam.upcomingMatches),
+    recentResults: normalizeText(body.recentResults ?? currentTeam.recentResults),
+    gallery: normalizeText(body.gallery ?? currentTeam.gallery)
+  };
+
+  if (team.name.length < 3) {
+    return { error: "Informe o nome do time com pelo menos 3 caracteres." };
+  }
+
+  if (!team.community) {
+    return { error: "Informe a comunidade do time." };
+  }
+
+  if (!findChampionshipById(database, team.championshipId)) {
+    return { error: "Campeonato do time nao encontrado." };
+  }
+
+  return { team };
+}
+
 async function handleApi(request, response) {
   const database = readDatabase();
   const url = new URL(request.url, "http://localhost");
@@ -244,6 +326,7 @@ async function handleApi(request, response) {
       settings: database.settings,
       roles: database.roles,
       championships: database.championships.map(getPublicChampionship),
+      teams: database.teams.map((team) => getPublicTeam(team, database)),
       featuredMatches: database.featuredMatches,
       user: getPublicUser(getSessionUser(request))
     });
@@ -253,6 +336,13 @@ async function handleApi(request, response) {
   if (request.method === "GET" && request.url === "/api/championships") {
     sendJson(response, 200, {
       championships: database.championships.map(getPublicChampionship)
+    });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/teams") {
+    sendJson(response, 200, {
+      teams: database.teams.map((team) => getPublicTeam(team, database))
     });
     return;
   }
@@ -539,6 +629,92 @@ async function handleApi(request, response) {
       sendJson(response, 200, { championship: getPublicChampionship(championship) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar o campeonato." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/teams") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, {
+      teams: database.teams.map((team) => getPublicTeam(team, database)),
+      championships: database.championships.map(getPublicChampionship)
+    });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/admin/teams") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateTeamPayload(database, body);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const team = {
+        id: database.teams.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        ...validation.team,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      database.teams.push(team);
+      writeDatabase(database);
+
+      sendJson(response, 201, { team: getPublicTeam(team, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel criar o time." });
+    }
+
+    return;
+  }
+
+  if (["PUT", "DELETE"].includes(request.method) && url.pathname.startsWith("/api/admin/teams/")) {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    const teamId = Number(url.pathname.split("/").pop());
+    const team = findTeamById(database, teamId);
+
+    if (!team) {
+      sendJson(response, 404, { message: "Time nao encontrado." });
+      return;
+    }
+
+    if (request.method === "DELETE") {
+      database.teams = database.teams.filter((item) => item.id !== teamId);
+      writeDatabase(database);
+      sendJson(response, 200, { message: "Time excluido." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateTeamPayload(database, body, team);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      Object.assign(team, validation.team, {
+        updatedAt: new Date().toISOString()
+      });
+
+      writeDatabase(database);
+      sendJson(response, 200, { team: getPublicTeam(team, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar o time." });
     }
 
     return;

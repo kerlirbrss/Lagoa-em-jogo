@@ -129,6 +129,58 @@
       "updatedAt": "2026-07-01T00:00:00.000Z"
     }
   ],
+  "teams": [
+    {
+      "id": 1,
+      "name": "Time da Lagoa",
+      "championshipId": 1,
+      "community": "Centro",
+      "crestUrl": "",
+      "foundedYear": "2018",
+      "coach": "Raimundo Silva",
+      "colors": "Azul e branco",
+      "stats": {
+        "matches": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "points": 0
+      },
+      "squad": "Elenco em definicao para a temporada 2026.",
+      "upcomingMatches": "Proximos jogos serao cadastrados na fase de partidas.",
+      "recentResults": "Sem resultados registrados.",
+      "gallery": "Galeria sera vinculada nas proximas fases.",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Unidos do Campo",
+      "championshipId": 1,
+      "community": "Zona Rural",
+      "crestUrl": "",
+      "foundedYear": "2020",
+      "coach": "Antonio Pereira",
+      "colors": "Verde e branco",
+      "stats": {
+        "matches": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "points": 0
+      },
+      "squad": "Elenco em montagem.",
+      "upcomingMatches": "Agenda a definir.",
+      "recentResults": "Sem resultados registrados.",
+      "gallery": "Sem imagens cadastradas.",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-01T00:00:00.000Z"
+    }
+  ],
   "featuredMatches": [
     {
       "id": 1,

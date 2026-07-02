@@ -18,6 +18,7 @@
 
       <nav class="main-nav" aria-label="Navegacao principal">
         <a href="#campeonatos">Campeonatos</a>
+        <a href="#times">Times</a>
         <a href="#jogos">Jogos</a>
         <a href="#noticias">Noticias</a>
         <a href="#conta">Conta</a>
@@ -47,6 +48,14 @@
           <h2>Campeonatos iniciais</h2>
         </div>
         <div class="cards-grid" id="championships"></div>
+      </section>
+
+      <section class="section teams-section" id="times">
+        <div class="section-heading">
+          <p class="eyebrow">Times participantes</p>
+          <h2>Equipes cadastradas</h2>
+        </div>
+        <div class="teams-grid" id="teams"></div>
       </section>
 
       <section class="section split" id="jogos">
@@ -287,13 +296,76 @@
 
             <div class="championship-list" id="admin-championships"></div>
           </section>
+
+          <section class="admin-card team-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Times</p>
+                <h3>Cadastro de equipes</h3>
+              </div>
+            </div>
+
+            <form class="team-form" id="team-form">
+              <input type="hidden" name="id">
+              <label>
+                Nome
+                <input name="name" type="text" required>
+              </label>
+              <label>
+                Campeonato
+                <select name="championshipId" id="team-championship" required></select>
+              </label>
+              <label>
+                Comunidade
+                <input name="community" type="text" required>
+              </label>
+              <label>
+                Escudo URL
+                <input name="crestUrl" type="url">
+              </label>
+              <label>
+                Fundacao
+                <input name="foundedYear" type="text">
+              </label>
+              <label>
+                Tecnico
+                <input name="coach" type="text">
+              </label>
+              <label>
+                Cores
+                <input name="colors" type="text">
+              </label>
+              <label class="wide-field">
+                Elenco
+                <textarea name="squad" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Proximos jogos
+                <textarea name="upcomingMatches" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Ultimos resultados
+                <textarea name="recentResults" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Galeria
+                <textarea name="gallery" rows="3"></textarea>
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar time</button>
+                <button class="button secondary" id="clear-team-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="team-list" id="admin-teams"></div>
+          </section>
         </div>
       </section>
     </main>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 3</span>
+      <span>Ambiente de desenvolvimento da fase 4</span>
     </footer>
 
     <script src="/scripts/app.js"></script>

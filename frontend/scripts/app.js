@@ -5,12 +5,14 @@ const state = {
     roles: [],
     comments: [],
     championships: [],
+    teams: [],
     dashboard: null
   }
 };
 
 const elements = {
   championships: document.querySelector("#championships"),
+  teams: document.querySelector("#teams"),
   featuredMatch: document.querySelector("#featured-match"),
   roles: document.querySelector("#roles"),
   loginForm: document.querySelector("#login-form"),
@@ -33,6 +35,10 @@ elements.reloadAdmin = document.querySelector("#reload-admin");
 elements.championshipForm = document.querySelector("#championship-form");
 elements.adminChampionships = document.querySelector("#admin-championships");
 elements.clearChampionshipForm = document.querySelector("#clear-championship-form");
+elements.teamForm = document.querySelector("#team-form");
+elements.teamChampionship = document.querySelector("#team-championship");
+elements.adminTeams = document.querySelector("#admin-teams");
+elements.clearTeamForm = document.querySelector("#clear-team-form");
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -65,6 +71,55 @@ function renderChampionships(championships) {
       `;
     })
     .join("");
+}
+
+function renderTeams(teams) {
+  elements.teams.innerHTML = teams
+    .map((team) => {
+      const stats = team.stats || {};
+      const crest = team.crestUrl
+        ? `<img src="${team.crestUrl}" alt="Escudo do ${team.name}">`
+        : `<span>${getTeamInitials(team.name)}</span>`;
+
+      return `
+        <article class="team-card">
+          <div class="team-card-header">
+            <div class="team-crest">${crest}</div>
+            <div>
+              <span>${team.championshipName}</span>
+              <h3>${team.name}</h3>
+            </div>
+          </div>
+          <p>${team.community}</p>
+          <dl class="team-meta">
+            <div>
+              <dt>Tecnico</dt>
+              <dd>${team.coach || "A definir"}</dd>
+            </div>
+            <div>
+              <dt>Cores</dt>
+              <dd>${team.colors || "A definir"}</dd>
+            </div>
+          </dl>
+          <div class="team-stats">
+            <span>${stats.matches || 0} jogos</span>
+            <span>${stats.wins || 0} vitorias</span>
+            <span>${stats.points || 0} pts</span>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function getTeamInitials(name) {
+  return String(name || "T")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
 }
 
 function formatChampionshipStatus(status) {
@@ -159,6 +214,7 @@ async function loadBootstrap() {
   const data = await api("/api/bootstrap");
   state.user = data.user;
   renderChampionships(data.championships);
+  renderTeams(data.teams);
   renderFeaturedMatch(data.featuredMatches[0]);
   renderRoles(data.roles);
   renderSession();
@@ -190,10 +246,23 @@ function renderAdminStats() {
       <strong>${totals.championships}</strong>
     </article>
     <article>
+      <span>Times</span>
+      <strong>${totals.teams}</strong>
+    </article>
+    <article>
       <span>Pendentes</span>
       <strong>${totals.pendingComments}</strong>
     </article>
   `;
+}
+
+function getChampionshipOptions(selectedChampionshipId) {
+  return state.admin.championships
+    .map((championship) => {
+      const selected = championship.id === Number(selectedChampionshipId) ? "selected" : "";
+      return `<option value="${championship.id}" ${selected}>${championship.name} - ${championship.season}</option>`;
+    })
+    .join("");
 }
 
 function renderAdminChampionships() {
@@ -227,6 +296,50 @@ function fillChampionshipForm(championship) {
   elements.championshipForm.elements.description.value = championship ? championship.description : "";
   elements.championshipForm.elements.regulation.value = championship ? championship.regulation : "";
   elements.championshipForm.elements.awards.value = championship ? championship.awards : "";
+}
+
+function renderAdminTeams() {
+  elements.adminTeams.innerHTML = state.admin.teams
+    .map((team) => {
+      const stats = team.stats || {};
+
+      return `
+        <article class="admin-team-item">
+          <div>
+            <span>${team.championshipName}</span>
+            <strong>${team.name}</strong>
+            <p>${team.community} ${team.coach ? `- Tecnico: ${team.coach}` : ""}</p>
+            <small>${stats.matches || 0} jogos - ${stats.points || 0} pontos</small>
+          </div>
+          <div class="comment-actions">
+            <button class="button compact" type="button" data-edit-team="${team.id}">Editar</button>
+            <button class="button compact danger" type="button" data-delete-team="${team.id}">Excluir</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function fillTeamForm(team) {
+  elements.teamChampionship.innerHTML = getChampionshipOptions(team ? team.championshipId : state.admin.championships[0]?.id);
+  elements.teamForm.elements.id.value = team ? team.id : "";
+  elements.teamForm.elements.name.value = team ? team.name : "";
+  elements.teamForm.elements.championshipId.value = team ? team.championshipId : state.admin.championships[0]?.id || "";
+  elements.teamForm.elements.community.value = team ? team.community : "";
+  elements.teamForm.elements.crestUrl.value = team ? team.crestUrl : "";
+  elements.teamForm.elements.foundedYear.value = team ? team.foundedYear : "";
+  elements.teamForm.elements.coach.value = team ? team.coach : "";
+  elements.teamForm.elements.colors.value = team ? team.colors : "";
+  elements.teamForm.elements.squad.value = team ? team.squad : "";
+  elements.teamForm.elements.upcomingMatches.value = team ? team.upcomingMatches : "";
+  elements.teamForm.elements.recentResults.value = team ? team.recentResults : "";
+  elements.teamForm.elements.gallery.value = team ? team.gallery : "";
+}
+
+async function refreshPublicTeams() {
+  const teamsData = await api("/api/teams");
+  renderTeams(teamsData.teams);
 }
 
 function getRoleOptions(selectedRole) {
@@ -295,18 +408,20 @@ async function refreshAdminPanel() {
   }
 
   try {
-    const [dashboard, usersData, commentsData] = await Promise.all([
+    const [dashboard, usersData, commentsData, championshipsData, teamsData] = await Promise.all([
       api("/api/admin/dashboard"),
       api("/api/admin/users"),
-      api("/api/admin/comments")
+      api("/api/admin/comments"),
+      api("/api/admin/championships"),
+      api("/api/admin/teams")
     ]);
-    const championshipsData = await api("/api/admin/championships");
 
     state.admin.dashboard = dashboard;
     state.admin.users = usersData.users;
     state.admin.roles = usersData.roles;
     state.admin.comments = commentsData.comments;
     state.admin.championships = championshipsData.championships;
+    state.admin.teams = teamsData.teams;
 
     elements.adminPanel.hidden = false;
     elements.adminStatus.textContent = "Painel carregado para administradores.";
@@ -314,6 +429,8 @@ async function refreshAdminPanel() {
     renderAdminUsers();
     renderAdminComments();
     renderAdminChampionships();
+    fillTeamForm(null);
+    renderAdminTeams();
   } catch (error) {
     elements.adminStatus.textContent = error.message;
     elements.adminPanel.hidden = true;
@@ -383,6 +500,70 @@ elements.adminChampionships.addEventListener("click", async (event) => {
     fillChampionshipForm(null);
     const championshipsData = await api("/api/championships");
     renderChampionships(championshipsData.championships);
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.teamForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(elements.teamForm);
+  const teamId = formData.get("id");
+  const payload = {
+    name: formData.get("name"),
+    championshipId: formData.get("championshipId"),
+    community: formData.get("community"),
+    crestUrl: formData.get("crestUrl"),
+    foundedYear: formData.get("foundedYear"),
+    coach: formData.get("coach"),
+    colors: formData.get("colors"),
+    squad: formData.get("squad"),
+    upcomingMatches: formData.get("upcomingMatches"),
+    recentResults: formData.get("recentResults"),
+    gallery: formData.get("gallery")
+  };
+
+  try {
+    await api(teamId ? `/api/admin/teams/${teamId}` : "/api/admin/teams", {
+      method: teamId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    });
+    fillTeamForm(null);
+    await refreshPublicTeams();
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.clearTeamForm.addEventListener("click", () => {
+  fillTeamForm(null);
+});
+
+elements.adminTeams.addEventListener("click", async (event) => {
+  const editButton = event.target.closest("[data-edit-team]");
+  const deleteButton = event.target.closest("[data-delete-team]");
+
+  if (editButton) {
+    const team = state.admin.teams.find((item) => {
+      return item.id === Number(editButton.dataset.editTeam);
+    });
+    fillTeamForm(team);
+    return;
+  }
+
+  if (!deleteButton) {
+    return;
+  }
+
+  try {
+    await api(`/api/admin/teams/${deleteButton.dataset.deleteTeam}`, {
+      method: "DELETE"
+    });
+    fillTeamForm(null);
+    await refreshPublicTeams();
     await refreshAdminPanel();
   } catch (error) {
     elements.adminStatus.textContent = error.message;
