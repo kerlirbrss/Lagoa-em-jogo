@@ -31,6 +31,11 @@ if (!Array.isArray(database.matches)) {
   process.exit(1);
 }
 
+if (!Array.isArray(database.teams) || !Array.isArray(database.championships)) {
+  console.error("Colecoes necessarias para classificacoes ausentes no banco de dados.");
+  process.exit(1);
+}
+
 require("./server");
 
-console.log("Estrutura da fase 6 validada.");
+console.log("Estrutura da fase 7 validada.");

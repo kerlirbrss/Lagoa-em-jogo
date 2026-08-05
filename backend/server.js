@@ -141,7 +141,7 @@ function getPublicTeam(team, database) {
     foundedYear: team.foundedYear || "",
     coach: team.coach || "",
     colors: team.colors || "",
-    stats: getDefaultTeamStats(team.stats),
+    stats: getAutomaticTeamStats(database, Number(team.id)),
     squad: team.squad || "",
     upcomingMatches: team.upcomingMatches || "",
     recentResults: team.recentResults || "",
@@ -166,6 +166,94 @@ function getDefaultMatchScore(score = {}) {
   return {
     home: currentScore.home === "" || currentScore.home === undefined ? "" : Number(currentScore.home),
     away: currentScore.away === "" || currentScore.away === undefined ? "" : Number(currentScore.away)
+  };
+}
+
+function hasFinishedScore(match) {
+  const score = getDefaultMatchScore(match.score);
+  return match.status === "encerrado" && score.home !== "" && score.away !== "";
+}
+
+function getAutomaticTeamStats(database, teamId) {
+  const stats = getDefaultTeamStats();
+
+  database.matches
+    .filter((match) => hasFinishedScore(match) && (Number(match.homeTeamId) === teamId || Number(match.awayTeamId) === teamId))
+    .forEach((match) => {
+      const score = getDefaultMatchScore(match.score);
+      const isHomeTeam = Number(match.homeTeamId) === teamId;
+      const goalsFor = isHomeTeam ? score.home : score.away;
+      const goalsAgainst = isHomeTeam ? score.away : score.home;
+
+      stats.matches += 1;
+      stats.goalsFor += goalsFor;
+      stats.goalsAgainst += goalsAgainst;
+
+      if (goalsFor > goalsAgainst) {
+        stats.wins += 1;
+        stats.points += 3;
+      } else if (goalsFor === goalsAgainst) {
+        stats.draws += 1;
+        stats.points += 1;
+      } else {
+        stats.losses += 1;
+      }
+    });
+
+  return stats;
+}
+
+function getChampionshipStatistics(database, championshipId) {
+  const championship = findChampionshipById(database, championshipId);
+
+  if (!championship) {
+    return null;
+  }
+
+  const teams = database.teams.filter((team) => Number(team.championshipId) === championshipId);
+  const teamById = new Map(teams.map((team) => [Number(team.id), team]));
+  const standings = teams
+    .map((team) => {
+      const stats = getAutomaticTeamStats(database, Number(team.id));
+      return {
+        teamId: team.id,
+        teamName: team.name,
+        community: team.community,
+        ...stats,
+        goalDifference: stats.goalsFor - stats.goalsAgainst,
+        performance: stats.matches ? Number(((stats.points / (stats.matches * 3)) * 100).toFixed(1)) : 0
+      };
+    })
+    .sort((a, b) => {
+      return b.points - a.points || b.wins - a.wins || b.goalDifference - a.goalDifference || b.goalsFor - a.goalsFor || a.teamName.localeCompare(b.teamName);
+    })
+    .map((team, index) => ({ position: index + 1, ...team }));
+  const athletes = database.athletes
+    .filter((athlete) => teamById.has(Number(athlete.teamId)))
+    .map((athlete) => {
+      const stats = getDefaultAthleteStats(athlete.stats);
+      return {
+        athleteId: athlete.id,
+        athleteName: athlete.fullName,
+        teamId: athlete.teamId,
+        teamName: teamById.get(Number(athlete.teamId)).name,
+        ...stats
+      };
+    });
+  const rankAthletes = (field) => athletes
+    .filter((athlete) => athlete[field] > 0)
+    .sort((a, b) => b[field] - a[field] || b.matches - a.matches || a.athleteName.localeCompare(b.athleteName))
+    .map((athlete, index) => ({ position: index + 1, ...athlete }));
+
+  return {
+    championship: getPublicChampionship(championship),
+    updatedAt: new Date().toISOString(),
+    finishedMatches: database.matches.filter((match) => Number(match.championshipId) === championshipId && hasFinishedScore(match)).length,
+    standings,
+    topScorers: rankAthletes("goals"),
+    mostMatches: rankAthletes("matches"),
+    yellowCards: rankAthletes("yellowCards"),
+    redCards: rankAthletes("redCards")
   };
 }
 
@@ -557,6 +645,20 @@ async function handleApi(request, response) {
     sendJson(response, 200, {
       matches: database.matches.map((match) => getPublicMatch(match, database))
     });
+    return;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/statistics") {
+    const requestedChampionshipId = Number(url.searchParams.get("championshipId"));
+    const championshipId = requestedChampionshipId || Number(database.championships[0]?.id);
+    const statistics = getChampionshipStatistics(database, championshipId);
+
+    if (!statistics) {
+      sendJson(response, 404, { message: "Campeonato nao encontrado." });
+      return;
+    }
+
+    sendJson(response, 200, { statistics });
     return;
   }
 

@@ -21,6 +21,7 @@
         <a href="#times">Times</a>
         <a href="#atletas">Atletas</a>
         <a href="#jogos">Jogos</a>
+        <a href="#estatisticas">Estatisticas</a>
         <a href="#noticias">Noticias</a>
         <a href="#conta">Conta</a>
         <a href="#admin">Admin</a>
@@ -78,6 +79,28 @@
         </div>
         <div class="match-panel" id="featured-match"></div>
         <div class="matches-grid" id="matches"></div>
+      </section>
+
+      <section class="section statistics-section" id="estatisticas">
+        <div class="section-heading">
+          <p class="eyebrow">Fase 7</p>
+          <h2>Classificacao e estatisticas</h2>
+          <p>Dados atualizados automaticamente a partir das partidas encerradas e dos registros individuais dos atletas.</p>
+          <label class="statistics-filter" for="statistics-championship">
+            Campeonato
+            <select id="statistics-championship" aria-label="Selecionar campeonato para estatisticas"></select>
+          </label>
+        </div>
+        <p class="statistics-status" id="statistics-status">Carregando estatisticas...</p>
+        <div class="standings-wrap">
+          <table class="standings-table">
+            <thead>
+              <tr><th>#</th><th>Time</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Pts</th><th>Aprov.</th></tr>
+            </thead>
+            <tbody id="standings"></tbody>
+          </table>
+        </div>
+        <div class="statistics-rankings" id="statistics-rankings"></div>
       </section>
 
       <section class="section" id="noticias">
@@ -501,7 +524,7 @@
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 6</span>
+      <span>Ambiente de desenvolvimento da fase 7</span>
     </footer>
 
     <script src="/scripts/app.js"></script>

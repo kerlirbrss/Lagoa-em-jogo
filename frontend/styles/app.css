@@ -404,6 +404,103 @@ h3 {
   font-weight: 700;
 }
 
+.statistics-section {
+  background: var(--color-surface);
+}
+
+.statistics-filter {
+  display: grid;
+  max-width: 420px;
+  gap: 8px;
+  color: var(--color-blue-dark);
+  font-weight: 800;
+}
+
+.statistics-filter select {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  color: var(--color-ink);
+  background: var(--color-white);
+  font: inherit;
+}
+
+.statistics-status {
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.standings-wrap {
+  overflow-x: auto;
+  margin: 20px 0;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-white);
+}
+
+.standings-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.standings-table th,
+.standings-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--color-line);
+  text-align: center;
+}
+
+.standings-table th:nth-child(2),
+.standings-table td:nth-child(2) {
+  text-align: left;
+}
+
+.standings-table th {
+  color: var(--color-blue-dark);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.standings-table small,
+.statistics-card small {
+  display: block;
+  margin-top: 3px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.statistics-rankings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.statistics-card {
+  padding: 18px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-white);
+  box-shadow: 0 10px 30px rgba(18, 32, 51, 0.08);
+}
+
+.statistics-card ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statistics-card li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-line);
+}
+
 .match-panel {
   padding: 24px;
   border-left: 6px solid var(--color-green);
@@ -762,6 +859,10 @@ h3 {
   .matches-grid,
   .news-preview,
   .roles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .statistics-rankings {
     grid-template-columns: 1fr;
   }
 

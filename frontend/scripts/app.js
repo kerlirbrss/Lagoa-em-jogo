@@ -18,6 +18,10 @@ const elements = {
   athletes: document.querySelector("#athletes"),
   matches: document.querySelector("#matches"),
   featuredMatch: document.querySelector("#featured-match"),
+  statisticsChampionship: document.querySelector("#statistics-championship"),
+  statisticsStatus: document.querySelector("#statistics-status"),
+  standings: document.querySelector("#standings"),
+  statisticsRankings: document.querySelector("#statistics-rankings"),
   roles: document.querySelector("#roles"),
   loginForm: document.querySelector("#login-form"),
   registerForm: document.querySelector("#register-form"),
@@ -174,6 +178,50 @@ function renderMatches(matches) {
     .join("");
 }
 
+function renderStatisticsChampionshipOptions(championships, selectedId) {
+  elements.statisticsChampionship.innerHTML = championships
+    .map((championship) => `<option value="${championship.id}" ${Number(championship.id) === Number(selectedId) ? "selected" : ""}>${championship.name} - ${championship.season}</option>`)
+    .join("");
+}
+
+function renderStatistics(statistics) {
+  const { championship, standings, finishedMatches } = statistics;
+  elements.statisticsStatus.textContent = `${championship.name}: ${finishedMatches} partida${finishedMatches === 1 ? "" : "s"} encerrada${finishedMatches === 1 ? "" : "s"}.`;
+  elements.standings.innerHTML = standings.length
+    ? standings.map((team) => `
+      <tr>
+        <td>${team.position}</td><td><strong>${team.teamName}</strong><small>${team.community}</small></td>
+        <td>${team.matches}</td><td>${team.wins}</td><td>${team.draws}</td><td>${team.losses}</td>
+        <td>${team.goalsFor}</td><td>${team.goalsAgainst}</td><td>${team.goalDifference}</td><td><strong>${team.points}</strong></td><td>${team.performance}%</td>
+      </tr>`).join("")
+    : '<tr><td colspan="11">Nenhum time cadastrado neste campeonato.</td></tr>';
+
+  const rankings = [
+    ["Artilharia", "Gols", "topScorers", "goals"],
+    ["Mais jogos", "Partidas", "mostMatches", "matches"],
+    ["Cartoes amarelos", "CA", "yellowCards", "yellowCards"],
+    ["Cartoes vermelhos", "CV", "redCards", "redCards"]
+  ];
+  elements.statisticsRankings.innerHTML = rankings.map(([title, label, key, field]) => {
+    const athletes = statistics[key].slice(0, 5);
+    const content = athletes.length
+      ? athletes.map((athlete) => `<li><span>${athlete.position}. ${athlete.athleteName}<small>${athlete.teamName}</small></span><strong>${athlete[field]} ${label}</strong></li>`).join("")
+      : "<li>Nenhum registro disponivel.</li>";
+    return `<article class="statistics-card"><h3>${title}</h3><ol>${content}</ol></article>`;
+  }).join("");
+}
+
+async function loadStatistics(championshipId) {
+  try {
+    const data = await api(`/api/statistics?championshipId=${championshipId}`);
+    renderStatistics(data.statistics);
+  } catch (error) {
+    elements.statisticsStatus.textContent = error.message;
+    elements.standings.innerHTML = "";
+    elements.statisticsRankings.innerHTML = "";
+  }
+}
+
 function getTeamInitials(name) {
   return String(name || "T")
     .split(" ")
@@ -298,6 +346,10 @@ async function loadBootstrap() {
   const data = await api("/api/bootstrap");
   state.user = data.user;
   renderChampionships(data.championships);
+  renderStatisticsChampionshipOptions(data.championships, data.championships[0]?.id);
+  if (data.championships.length) {
+    await loadStatistics(data.championships[0].id);
+  }
   renderTeams(data.teams);
   renderAthletes(data.athletes);
   renderMatches(data.matches);
@@ -305,6 +357,10 @@ async function loadBootstrap() {
   renderRoles(data.roles);
   renderSession();
 }
+
+elements.statisticsChampionship.addEventListener("change", () => {
+  loadStatistics(elements.statisticsChampionship.value);
+});
 
 function renderAdminLocked() {
   elements.adminPanel.hidden = true;

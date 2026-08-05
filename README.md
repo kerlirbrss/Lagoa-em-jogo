@@ -73,6 +73,12 @@ Rotas de jogos:
 - `PUT /api/admin/matches/:id`
 - `DELETE /api/admin/matches/:id`
 
+## Classificacoes e estatisticas
+
+A fase 7 calcula automaticamente os numeros das equipes a partir de partidas com status `encerrado` e placar informado. A classificacao considera pontos, vitorias, saldo de gols e gols marcados; o aproveitamento e exibido em percentual. Os rankings de artilharia, jogos, cartoes amarelos e cartoes vermelhos usam os registros estatisticos dos atletas.
+
+- `GET /api/statistics?championshipId=:id`
+
 ## Credenciais de desenvolvimento
 
 - Email: `admin@lagoaemjogo.local`
