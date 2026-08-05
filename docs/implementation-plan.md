@@ -8,9 +8,9 @@ Este documento descreve a estratégia de implementação do sistema **Lagoa em J
 
 ---
 
-# Fase 0 — Configuração Inicial
+## Fase 0 — Configuração Inicial
 
-## Objetivo
+### Objetivo
 
 Preparar toda a infraestrutura do projeto.
 
@@ -31,9 +31,9 @@ O projeto deve iniciar corretamente e possuir ambiente preparado para desenvolvi
 
 ---
 
-# Fase 1 — Gestão de Usuários
+## Fase 1 — Gestão de Usuários
 
-## Objetivo
+### Objetivo
 
 Implementar autenticação e gerenciamento de usuários.
 
@@ -60,9 +60,9 @@ Fase 0.
 
 ---
 
-# Fase 2 — Administração
+## Fase 2 — Administração
 
-## Objetivo
+### Objetivo
 
 Criar o painel administrativo.
 
@@ -409,13 +409,15 @@ Publicar o sistema em ambiente de produção e prepará-lo para utilização pel
 
 ### Dependências
 
-# Fase 18 — Conta do Usuário
+Fases 0 a 16.
 
-## Objetivo
+## Fase 18 — Conta do Usuário
+
+### Objetivo
 
 Permitir que usuários autenticados gerenciem suas informações pessoais e preferências dentro da plataforma.
 
-## Funcionalidades
+### Funcionalidades
 
 - Visualizar perfil
 - Alterar foto de perfil
@@ -425,15 +427,17 @@ Permitir que usuários autenticados gerenciem suas informações pessoais e pref
 - Configurar notificações
 - Encerrar sessão
 
-## Dependências
+### Dependências
 
-# Fase 19 — Sistema de Comentários
+Fase 1.
 
-## Objetivo
+## Fase 19 — Sistema de Comentários
+
+### Objetivo
 
 Implementar um módulo centralizado para gerenciamento dos comentários realizados pelos usuários.
 
-## Funcionalidades
+### Funcionalidades
 
 - Criar comentários em notícias
 - Criar comentários em palpites
@@ -442,19 +446,19 @@ Implementar um módulo centralizado para gerenciamento dos comentários realizad
 - Moderação de comentários
 - Registro da data e autor do comentário
 
-## Dependências
+### Dependências
 
 Fases 8 e 13.
 
 ---
 
-# Fase 20 — Central de Contato
+## Fase 20 — Central de Contato
 
-## Objetivo
+### Objetivo
 
 Disponibilizar canais oficiais de comunicação entre os usuários e a equipe responsável pela plataforma.
 
-## Funcionalidades
+### Funcionalidades
 
 - Página de contato
 - Formulário de contato
@@ -462,19 +466,19 @@ Disponibilizar canais oficiais de comunicação entre os usuários e a equipe re
 - Links para Instagram dos desenvolvedores
 - WhatsApp exclusivo para colaboradores
 
-## Dependências
+### Dependências
 
 Fase 14.
 
 ---
 
-# Fase 21 — Gerenciamento de Imagens
+## Fase 21 — Gerenciamento de Imagens
 
-## Objetivo
+### Objetivo
 
 Centralizar o armazenamento e o gerenciamento de todas as imagens utilizadas pela plataforma.
 
-## Funcionalidades
+### Funcionalidades
 
 - Upload de imagens
 - Exclusão de imagens
@@ -483,19 +487,19 @@ Centralizar o armazenamento e o gerenciamento de todas as imagens utilizadas pel
 - Validação de formatos
 - Armazenamento seguro
 
-## Dependências
+### Dependências
 
 Fases 4, 5, 8 e 9.
 
 ---
 
-# Fase 22 — Auditoria e Logs
+## Fase 22 — Auditoria e Logs
 
-## Objetivo
+### Objetivo
 
 Registrar ações administrativas para garantir rastreabilidade e segurança das operações realizadas no sistema.
 
-## Funcionalidades
+### Funcionalidades
 
 - Registro de criação de campeonatos
 - Registro de edição de campeonatos
@@ -504,47 +508,47 @@ Registrar ações administrativas para garantir rastreabilidade e segurança das
 - Histórico de ações administrativas
 - Consulta aos logs
 
-## Dependências
+### Dependências
 
 Fase 2.
 
 ---
 
-# Fase 23 — Tratamento de Erros e SEO
+## Fase 23 — Tratamento de Erros e SEO
 
-## Objetivo
+### Objetivo
 
 Melhorar a experiência do usuário e otimizar a indexação da plataforma pelos mecanismos de busca.
 
-## Funcionalidades
+### Funcionalidades
 
-### Tratamento de Erros
+#### Tratamento de Erros
 
 - Página 403
 - Página 404
 - Página 500
 - Mensagens amigáveis de erro
 
-### SEO
+#### SEO
 
 - Meta Tags
 - Open Graph
 - URLs amigáveis
 - Títulos e descrições das páginas
 
-## Dependências
+### Dependências
 
 Fase 15.
 
 ---
 
-# Fase 24 — Homologação e Publicação Final
+## Fase 24 — Homologação e Publicação Final
 
-## Objetivo
+### Objetivo
 
 Realizar a validação completa do sistema antes da disponibilização para os usuários finais.
 
-## Funcionalidades
+### Funcionalidades
 
 - Homologação do sistema
 - Testes com usuários
@@ -555,7 +559,7 @@ Realizar a validação completa do sistema antes da disponibilização para os u
 - Publicação definitiva
 - Monitoramento pós-publicação
 
-## Dependências
+### Dependências
 
 Fases 17, 18, 19, 20, 21, 22 e 23.
 

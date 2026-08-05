@@ -41,6 +41,11 @@ if (!Array.isArray(database.news)) {
   process.exit(1);
 }
 
+if (!Array.isArray(database.galleries)) {
+  console.error("Colecao de galerias ausente no banco de dados.");
+  process.exit(1);
+}
+
 require("./server");
 
-console.log("Estrutura da fase 8 validada.");
+console.log("Estrutura da fase 9 validada.");

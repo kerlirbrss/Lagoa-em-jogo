@@ -829,7 +829,8 @@ h3 {
 .team-form,
 .athlete-form,
 .match-form,
-.news-form {
+.news-form,
+.gallery-form {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
@@ -839,7 +840,8 @@ h3 {
 .team-form label,
 .athlete-form label,
 .match-form label,
-.news-form label {
+.news-form label,
+.gallery-form label {
   display: grid;
   gap: 8px;
   color: var(--color-blue-dark);
@@ -859,7 +861,10 @@ h3 {
 .match-form select,
 .news-form input,
 .news-form select,
-.news-form textarea {
+.news-form textarea,
+.gallery-form input,
+.gallery-form select,
+.gallery-form textarea {
   width: 100%;
   min-height: 42px;
   padding: 10px 12px;
@@ -873,7 +878,8 @@ h3 {
 .championship-form textarea,
 .team-form textarea,
 .athlete-form textarea,
-.news-form textarea {
+.news-form textarea,
+.gallery-form textarea {
   resize: vertical;
 }
 
@@ -885,7 +891,8 @@ h3 {
 .team-list,
 .athlete-list,
 .match-list,
-.news-admin-list {
+.news-admin-list,
+.gallery-admin-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
@@ -895,7 +902,8 @@ h3 {
 .admin-team-item,
 .admin-athlete-item,
 .admin-match-item,
-.admin-news-item {
+.admin-news-item,
+.admin-gallery-item {
   display: grid;
   gap: 14px;
   padding: 16px;
@@ -913,7 +921,9 @@ h3 {
 .admin-match-item span,
 .admin-match-item small,
 .admin-news-item span,
-.admin-news-item small {
+.admin-news-item small,
+.admin-gallery-item span,
+.admin-gallery-item small {
   display: block;
   color: var(--color-muted);
   font-size: 0.78rem;
@@ -925,7 +935,8 @@ h3 {
 .admin-team-item strong,
 .admin-athlete-item strong,
 .admin-match-item strong,
-.admin-news-item strong {
+.admin-news-item strong,
+.admin-gallery-item strong {
   display: block;
   margin: 5px 0 8px;
 }
@@ -934,9 +945,22 @@ h3 {
 .admin-team-item p,
 .admin-athlete-item p,
 .admin-match-item p,
-.admin-news-item p {
+.admin-news-item p,
+.admin-gallery-item p {
   color: var(--color-muted);
   line-height: 1.55;
+}
+
+.gallery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.gallery-actions small {
+  color: var(--color-muted);
+  font-size: 0.78rem;
 }
 
 .comment-item strong {
@@ -984,6 +1008,7 @@ h3 {
   .athletes-grid,
   .matches-grid,
   .news-list,
+  .gallery-list,
   .roles-grid {
     grid-template-columns: 1fr;
   }
@@ -999,11 +1024,13 @@ h3 {
   .athlete-form,
   .match-form,
   .news-form,
+  .gallery-form,
   .championship-list,
   .team-list,
   .athlete-list,
   .match-list,
-  .news-admin-list {
+  .news-admin-list,
+  .gallery-admin-list {
     grid-template-columns: 1fr;
   }
 

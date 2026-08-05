@@ -8,8 +8,9 @@ const state = {
     teams: [],
     athletes: [],
     matches: [],
-    news: [],
-    dashboard: null
+  news: [],
+  galleries: [],
+  dashboard: null
   }
 };
 
@@ -64,6 +65,13 @@ elements.clearMatchForm = document.querySelector("#clear-match-form");
 elements.newsForm = document.querySelector("#news-form");
 elements.adminNews = document.querySelector("#admin-news");
 elements.clearNewsForm = document.querySelector("#clear-news-form");
+elements.galleryList = document.querySelector("#gallery-list");
+elements.galleryForm = document.querySelector("#gallery-form");
+elements.galleryType = document.querySelector("#gallery-type");
+elements.galleryChampionship = document.querySelector("#gallery-championship");
+elements.galleryMatch = document.querySelector("#gallery-match");
+elements.adminGalleries = document.querySelector("#admin-galleries");
+elements.clearGalleryForm = document.querySelector("#clear-gallery-form");
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -217,6 +225,36 @@ function renderNews(news) {
       `;
     }).join("")
     : "<p>Nenhuma noticia publicada ainda.</p>";
+}
+
+function renderGalleries(galleries) {
+  elements.galleryList.innerHTML = galleries.length
+    ? galleries.map((gallery) => {
+      const firstImage = gallery.images[0] || "";
+      const thumbImages = gallery.images.slice(1, 4);
+      const cover = firstImage ? `<img class="gallery-cover" src="${firstImage}" alt="Imagem de capa da galeria ${gallery.title}">` : "";
+      const thumbs = thumbImages.length
+        ? `<div class="gallery-thumbs">${thumbImages.map((imageUrl) => `<img src="${imageUrl}" alt="Imagem da galeria ${gallery.title}">`).join("")}</div>`
+        : "";
+      const saleLink = gallery.saleUrl
+        ? `<a class="button secondary" href="${gallery.saleUrl}" target="_blank" rel="noopener">Adquirir fotos</a>`
+        : "";
+
+      return `
+        <article class="gallery-card">
+          <span>${gallery.type} - ${gallery.context}</span>
+          <h3>${gallery.title}</h3>
+          <p>${gallery.description || ""}</p>
+          ${cover}
+          ${thumbs}
+          <div class="gallery-actions">
+            ${saleLink}
+            <small>Publicado por ${gallery.authorName}${gallery.publishedAt ? ` em ${new Date(gallery.publishedAt).toLocaleDateString("pt-BR")}` : ""}</small>
+          </div>
+        </article>
+      `;
+    }).join("")
+    : "<p>Nenhuma galeria publicada ainda.</p>";
 }
 
 function renderStatisticsChampionshipOptions(championships, selectedId) {
@@ -399,6 +437,7 @@ async function loadBootstrap() {
   renderAthletes(data.athletes);
   renderMatches(data.matches);
   renderNews(data.news || []);
+  renderGalleries(data.galleries || []);
   renderFeaturedMatch(data.matches[0] || data.featuredMatches[0]);
   renderRoles(data.roles);
   renderSession();
@@ -419,6 +458,10 @@ function setAdminVisibility(showFullAdmin) {
   elements.adminCards.forEach((card) => {
     card.hidden = !showFullAdmin;
   });
+  const galleryManager = document.querySelector(".gallery-manager");
+  if (galleryManager) {
+    galleryManager.hidden = !showFullAdmin && !(state.user && state.user.role === "fotografo");
+  }
 }
 
 function renderAdminStats() {
@@ -703,6 +746,11 @@ async function refreshPublicNews() {
   renderNews(newsData.news);
 }
 
+async function refreshPublicGalleries() {
+  const galleriesData = await api("/api/galleries");
+  renderGalleries(galleriesData.galleries);
+}
+
 function getRoleOptions(selectedRole) {
   return state.admin.roles
     .map((role) => {
@@ -763,12 +811,26 @@ function renderAdminComments() {
 }
 
 async function refreshAdminPanel() {
-  if (!canCurrentUserManageNews()) {
+  if (!canCurrentUserManageNews() && !canCurrentUserPublishGallery()) {
     renderAdminLocked();
     return;
   }
 
   try {
+    if (state.user && state.user.role === "fotografo") {
+      const galleriesData = await api("/api/admin/galleries");
+
+      state.admin.galleries = galleriesData.galleries;
+      state.admin.championships = galleriesData.championships;
+      state.admin.matches = galleriesData.matches;
+      elements.adminPanel.hidden = false;
+      elements.adminStatus.textContent = "Painel de galerias carregado para fotografos.";
+      setAdminVisibility(false);
+      fillGalleryForm(null);
+      renderAdminGalleries();
+      return;
+    }
+
     if (!isCurrentUserAdmin()) {
       const newsData = await api("/api/admin/news");
 
@@ -781,7 +843,7 @@ async function refreshAdminPanel() {
       return;
     }
 
-    const [dashboard, usersData, commentsData, championshipsData, teamsData, athletesData, matchesData, newsData] = await Promise.all([
+    const [dashboard, usersData, commentsData, championshipsData, teamsData, athletesData, matchesData, newsData, galleriesData] = await Promise.all([
       api("/api/admin/dashboard"),
       api("/api/admin/users"),
       api("/api/admin/comments"),
@@ -789,7 +851,8 @@ async function refreshAdminPanel() {
       api("/api/admin/teams"),
       api("/api/admin/athletes"),
       api("/api/admin/matches"),
-      api("/api/admin/news")
+      api("/api/admin/news"),
+      api("/api/admin/galleries")
     ]);
 
     state.admin.dashboard = dashboard;
@@ -801,6 +864,7 @@ async function refreshAdminPanel() {
     state.admin.athletes = athletesData.athletes;
     state.admin.matches = matchesData.matches;
     state.admin.news = newsData.news;
+    state.admin.galleries = galleriesData.galleries;
 
     elements.adminPanel.hidden = false;
     elements.adminStatus.textContent = "Painel carregado para administradores.";
@@ -817,16 +881,138 @@ async function refreshAdminPanel() {
     renderAdminMatches();
     fillNewsForm(null);
     renderAdminNews();
+    fillGalleryForm(null);
+    renderAdminGalleries();
   } catch (error) {
     elements.adminStatus.textContent = error.message;
     elements.adminPanel.hidden = true;
   }
 }
 
+function canCurrentUserPublishGallery() {
+  return state.user && ["administrador", "fotografo"].includes(state.user.role);
+}
+
+function getMatchOptions(selectedMatchId) {
+  return state.admin.matches
+    .map((match) => {
+      const selected = match.id === Number(selectedMatchId) ? "selected" : "";
+      return `<option value="${match.id}" ${selected}>${match.homeTeamName} x ${match.awayTeamName} - ${match.date}</option>`;
+    })
+    .join("");
+}
+
+function fillGalleryForm(gallery) {
+  elements.galleryForm.elements.id.value = gallery ? gallery.id : "";
+  elements.galleryForm.elements.title.value = gallery ? gallery.title : "";
+  elements.galleryForm.elements.type.value = gallery ? gallery.type : "campeonato";
+  elements.galleryForm.elements.status.value = gallery ? gallery.status : "rascunho";
+  const championshipId = gallery ? gallery.championshipId : state.admin.championships[0]?.id || "";
+  const matchId = gallery ? gallery.matchId : state.admin.matches[0]?.id || "";
+  elements.galleryChampionship.innerHTML = getChampionshipOptions(championshipId);
+  elements.galleryForm.elements.championshipId.value = championshipId;
+  elements.galleryMatch.innerHTML = getMatchOptions(matchId);
+  elements.galleryForm.elements.matchId.value = matchId;
+  elements.galleryForm.elements.eventName.value = gallery ? gallery.eventName : "";
+  elements.galleryForm.elements.description.value = gallery ? gallery.description : "";
+  elements.galleryForm.elements.images.value = gallery ? gallery.images.join("\n") : "";
+  elements.galleryForm.elements.saleUrl.value = gallery ? gallery.saleUrl : "";
+}
+
+function renderAdminGalleries() {
+  elements.adminGalleries.innerHTML = state.admin.galleries
+    .map((gallery) => {
+      return `
+        <article class="admin-gallery-item">
+          <div>
+            <span>${gallery.type} - ${gallery.status}</span>
+            <strong>${gallery.title}</strong>
+            <p>${gallery.context}</p>
+            <small>${gallery.images.length} imagem(ns) - ${gallery.authorName}${gallery.publishedAt ? " - " + new Date(gallery.publishedAt).toLocaleDateString("pt-BR") : ""}</small>
+          </div>
+          <div class="comment-actions">
+            <button class="button compact" type="button" data-edit-gallery="${gallery.id}">Editar</button>
+            <button class="button compact danger" type="button" data-delete-gallery="${gallery.id}">Excluir</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
 elements.tabButtons.forEach((button) => {
   button.addEventListener("click", () => {
     openTab(button.dataset.tab);
   });
+});
+
+elements.galleryType.addEventListener("change", () => {
+  const type = elements.galleryType.value;
+  elements.galleryForm.elements.championshipId.closest("label").style.display = type === "campeonato" ? "" : "none";
+  elements.galleryForm.elements.matchId.closest("label").style.display = type === "jogo" ? "" : "none";
+  elements.galleryForm.elements.eventName.closest("label").style.display = type === "evento" ? "" : "none";
+});
+
+elements.galleryForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(elements.galleryForm);
+  const galleryId = formData.get("id");
+  const payload = {
+    title: formData.get("title"),
+    type: formData.get("type"),
+    status: formData.get("status"),
+    championshipId: formData.get("championshipId"),
+    matchId: formData.get("matchId"),
+    eventName: formData.get("eventName"),
+    description: formData.get("description"),
+    images: formData.get("images"),
+    saleUrl: formData.get("saleUrl")
+  };
+
+  try {
+    await api(galleryId ? `/api/admin/galleries/${galleryId}` : "/api/admin/galleries", {
+      method: galleryId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    });
+    fillGalleryForm(null);
+    await refreshPublicGalleries();
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.clearGalleryForm.addEventListener("click", () => {
+  fillGalleryForm(null);
+});
+
+elements.adminGalleries.addEventListener("click", async (event) => {
+  const editButton = event.target.closest("[data-edit-gallery]");
+  const deleteButton = event.target.closest("[data-delete-gallery]");
+
+  if (editButton) {
+    const gallery = state.admin.galleries.find((item) => {
+      return item.id === Number(editButton.dataset.editGallery);
+    });
+    fillGalleryForm(gallery);
+    return;
+  }
+
+  if (!deleteButton) {
+    return;
+  }
+
+  try {
+    await api(`/api/admin/galleries/${deleteButton.dataset.deleteGallery}`, {
+      method: "DELETE"
+    });
+    fillGalleryForm(null);
+    await refreshPublicGalleries();
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
 });
 
 elements.championshipForm.addEventListener("submit", async (event) => {
