@@ -8,6 +8,7 @@ const state = {
     teams: [],
     athletes: [],
     matches: [],
+    news: [],
     dashboard: null
   }
 };
@@ -17,6 +18,7 @@ const elements = {
   teams: document.querySelector("#teams"),
   athletes: document.querySelector("#athletes"),
   matches: document.querySelector("#matches"),
+  newsList: document.querySelector("#news-list"),
   featuredMatch: document.querySelector("#featured-match"),
   statisticsChampionship: document.querySelector("#statistics-championship"),
   statisticsStatus: document.querySelector("#statistics-status"),
@@ -37,6 +39,8 @@ const elements = {
 elements.adminPanel = document.querySelector("#admin-panel");
 elements.adminStatus = document.querySelector("#admin-status");
 elements.adminStats = document.querySelector("#admin-stats");
+elements.adminLayout = document.querySelector(".admin-layout");
+elements.adminCards = document.querySelectorAll("#admin-panel > .admin-card:not(.news-manager)");
 elements.adminUsers = document.querySelector("#admin-users");
 elements.adminComments = document.querySelector("#admin-comments");
 elements.reloadAdmin = document.querySelector("#reload-admin");
@@ -57,6 +61,9 @@ elements.matchHomeTeam = document.querySelector("#match-home-team");
 elements.matchAwayTeam = document.querySelector("#match-away-team");
 elements.adminMatches = document.querySelector("#admin-matches");
 elements.clearMatchForm = document.querySelector("#clear-match-form");
+elements.newsForm = document.querySelector("#news-form");
+elements.adminNews = document.querySelector("#admin-news");
+elements.clearNewsForm = document.querySelector("#clear-news-form");
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -176,6 +183,40 @@ function renderMatches(matches) {
       `;
     })
     .join("");
+}
+
+function renderNews(news) {
+  elements.newsList.innerHTML = news.length
+    ? news.map((article) => {
+      const cover = article.coverImageUrl ? `<img class="news-cover" src="${article.coverImageUrl}" alt="Imagem da noticia ${article.title}">` : "";
+      const gallery = article.galleryImages.length
+        ? `<div class="news-gallery">${article.galleryImages.slice(0, 3).map((imageUrl) => `<img src="${imageUrl}" alt="Imagem complementar de ${article.title}">`).join("")}</div>`
+        : "";
+      const comments = article.comments.length
+        ? article.comments.map((comment) => `<li><strong>${comment.authorName}:</strong> ${comment.content}</li>`).join("")
+        : "<li>Nenhum comentario aprovado ainda.</li>";
+
+      return `
+        <article class="news-card">
+          ${cover}
+          <span>${article.category}</span>
+          <h3>${article.title}</h3>
+          <p>${article.summary}</p>
+          <p>${article.content}</p>
+          ${gallery}
+          <div class="news-comments">
+            <h4>Comentarios</h4>
+            <ul>${comments}</ul>
+            <form class="news-comment-form" data-news-comment="${article.id}">
+              <input name="authorName" type="text" placeholder="Seu nome" required>
+              <textarea name="content" rows="3" placeholder="Escreva um comentario" required></textarea>
+              <button class="button secondary" type="submit">Enviar para moderacao</button>
+            </form>
+          </div>
+        </article>
+      `;
+    }).join("")
+    : "<p>Nenhuma noticia publicada ainda.</p>";
 }
 
 function renderStatisticsChampionshipOptions(championships, selectedId) {
@@ -298,6 +339,10 @@ function isCurrentUserAdmin() {
   return state.user && state.user.role === "administrador";
 }
 
+function canCurrentUserManageNews() {
+  return state.user && ["administrador", "organizador"].includes(state.user.role);
+}
+
 function fillProfileForm() {
   if (!state.user) {
     elements.profileForm.reset();
@@ -353,6 +398,7 @@ async function loadBootstrap() {
   renderTeams(data.teams);
   renderAthletes(data.athletes);
   renderMatches(data.matches);
+  renderNews(data.news || []);
   renderFeaturedMatch(data.matches[0] || data.featuredMatches[0]);
   renderRoles(data.roles);
   renderSession();
@@ -364,7 +410,15 @@ elements.statisticsChampionship.addEventListener("change", () => {
 
 function renderAdminLocked() {
   elements.adminPanel.hidden = true;
-  elements.adminStatus.textContent = "Entre com uma conta administradora para carregar o painel.";
+  elements.adminStatus.textContent = "Entre como administrador ou organizador autorizado para carregar o painel.";
+}
+
+function setAdminVisibility(showFullAdmin) {
+  elements.adminStats.hidden = !showFullAdmin;
+  elements.adminLayout.hidden = !showFullAdmin;
+  elements.adminCards.forEach((card) => {
+    card.hidden = !showFullAdmin;
+  });
 }
 
 function renderAdminStats() {
@@ -398,6 +452,10 @@ function renderAdminStats() {
     <article>
       <span>Jogos</span>
       <strong>${totals.matches}</strong>
+    </article>
+    <article>
+      <span>Noticias</span>
+      <strong>${totals.news || 0}</strong>
     </article>
     <article>
       <span>Pendentes</span>
@@ -564,6 +622,27 @@ function renderAdminMatches() {
     .join("");
 }
 
+function renderAdminNews() {
+  elements.adminNews.innerHTML = state.admin.news
+    .map((article) => {
+      return `
+        <article class="admin-news-item">
+          <div>
+            <span>${article.category} - ${article.status}</span>
+            <strong>${article.title}</strong>
+            <p>${article.summary}</p>
+            <small>${article.authorName} - ${article.publishedAt || "Nao publicado"}</small>
+          </div>
+          <div class="comment-actions">
+            <button class="button compact" type="button" data-edit-news="${article.id}">Editar</button>
+            <button class="button compact danger" type="button" data-delete-news="${article.id}">Excluir</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
 function fillMatchForm(match) {
   const championshipId = match ? match.championshipId : state.admin.championships[0]?.id || "";
   const championshipTeams = state.admin.teams.filter((team) => team.championshipId === Number(championshipId));
@@ -587,6 +666,17 @@ function fillMatchForm(match) {
   elements.matchForm.elements.status.value = match ? match.status : "agendado";
 }
 
+function fillNewsForm(article) {
+  elements.newsForm.elements.id.value = article ? article.id : "";
+  elements.newsForm.elements.title.value = article ? article.title : "";
+  elements.newsForm.elements.category.value = article ? article.category : "";
+  elements.newsForm.elements.status.value = article ? article.status : "rascunho";
+  elements.newsForm.elements.coverImageUrl.value = article ? article.coverImageUrl : "";
+  elements.newsForm.elements.summary.value = article ? article.summary : "";
+  elements.newsForm.elements.content.value = article ? article.content : "";
+  elements.newsForm.elements.galleryImages.value = article ? article.galleryImages.join("\n") : "";
+}
+
 async function refreshPublicTeams() {
   const teamsData = await api("/api/teams");
   renderTeams(teamsData.teams);
@@ -606,6 +696,11 @@ async function refreshPublicMatches() {
     date: "A definir",
     field: "Campo a definir"
   });
+}
+
+async function refreshPublicNews() {
+  const newsData = await api("/api/news");
+  renderNews(newsData.news);
 }
 
 function getRoleOptions(selectedRole) {
@@ -668,20 +763,33 @@ function renderAdminComments() {
 }
 
 async function refreshAdminPanel() {
-  if (!isCurrentUserAdmin()) {
+  if (!canCurrentUserManageNews()) {
     renderAdminLocked();
     return;
   }
 
   try {
-    const [dashboard, usersData, commentsData, championshipsData, teamsData, athletesData, matchesData] = await Promise.all([
+    if (!isCurrentUserAdmin()) {
+      const newsData = await api("/api/admin/news");
+
+      state.admin.news = newsData.news;
+      elements.adminPanel.hidden = false;
+      elements.adminStatus.textContent = "Painel de noticias carregado para organizadores.";
+      setAdminVisibility(false);
+      fillNewsForm(null);
+      renderAdminNews();
+      return;
+    }
+
+    const [dashboard, usersData, commentsData, championshipsData, teamsData, athletesData, matchesData, newsData] = await Promise.all([
       api("/api/admin/dashboard"),
       api("/api/admin/users"),
       api("/api/admin/comments"),
       api("/api/admin/championships"),
       api("/api/admin/teams"),
       api("/api/admin/athletes"),
-      api("/api/admin/matches")
+      api("/api/admin/matches"),
+      api("/api/admin/news")
     ]);
 
     state.admin.dashboard = dashboard;
@@ -692,9 +800,11 @@ async function refreshAdminPanel() {
     state.admin.teams = teamsData.teams;
     state.admin.athletes = athletesData.athletes;
     state.admin.matches = matchesData.matches;
+    state.admin.news = newsData.news;
 
     elements.adminPanel.hidden = false;
     elements.adminStatus.textContent = "Painel carregado para administradores.";
+    setAdminVisibility(true);
     renderAdminStats();
     renderAdminUsers();
     renderAdminComments();
@@ -705,6 +815,8 @@ async function refreshAdminPanel() {
     renderAdminAthletes();
     fillMatchForm(null);
     renderAdminMatches();
+    fillNewsForm(null);
+    renderAdminNews();
   } catch (error) {
     elements.adminStatus.textContent = error.message;
     elements.adminPanel.hidden = true;
@@ -981,6 +1093,93 @@ elements.adminMatches.addEventListener("click", async (event) => {
     await refreshAdminPanel();
   } catch (error) {
     elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.newsForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(elements.newsForm);
+  const newsId = formData.get("id");
+  const payload = {
+    title: formData.get("title"),
+    category: formData.get("category"),
+    status: formData.get("status"),
+    coverImageUrl: formData.get("coverImageUrl"),
+    summary: formData.get("summary"),
+    content: formData.get("content"),
+    galleryImages: formData.get("galleryImages")
+  };
+
+  try {
+    await api(newsId ? `/api/admin/news/${newsId}` : "/api/admin/news", {
+      method: newsId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    });
+    fillNewsForm(null);
+    await refreshPublicNews();
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.clearNewsForm.addEventListener("click", () => {
+  fillNewsForm(null);
+});
+
+elements.adminNews.addEventListener("click", async (event) => {
+  const editButton = event.target.closest("[data-edit-news]");
+  const deleteButton = event.target.closest("[data-delete-news]");
+
+  if (editButton) {
+    const article = state.admin.news.find((item) => {
+      return item.id === Number(editButton.dataset.editNews);
+    });
+    fillNewsForm(article);
+    return;
+  }
+
+  if (!deleteButton) {
+    return;
+  }
+
+  try {
+    await api(`/api/admin/news/${deleteButton.dataset.deleteNews}`, {
+      method: "DELETE"
+    });
+    fillNewsForm(null);
+    await refreshPublicNews();
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
+elements.newsList.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-news-comment]");
+
+  if (!form) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const formData = new FormData(form);
+
+  try {
+    const data = await api(`/api/news/${form.dataset.newsComment}/comments`, {
+      method: "POST",
+      body: JSON.stringify({
+        authorName: formData.get("authorName"),
+        content: formData.get("content")
+      })
+    });
+    form.reset();
+    setMessage(data.message);
+    await refreshAdminPanel();
+  } catch (error) {
+    setMessage(error.message);
   }
 });
 

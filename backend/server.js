@@ -13,12 +13,14 @@ const USER_ROLES = ["usuario", "organizador", "fotografo", "administrador"];
 const COMMENT_STATUSES = ["pendente", "aprovado", "rejeitado"];
 const CHAMPIONSHIP_STATUSES = ["rascunho", "inscricoes", "em_andamento", "encerrado"];
 const MATCH_STATUSES = ["agendado", "em_andamento", "encerrado"];
+const NEWS_STATUSES = ["rascunho", "publicado"];
 
 function readDatabase() {
   const raw = fs.readFileSync(DB_PATH, "utf8");
   const database = JSON.parse(raw);
   database.athletes = database.athletes || [];
   database.matches = database.matches || [];
+  database.news = database.news || [];
   return database;
 }
 
@@ -301,6 +303,35 @@ function getPublicMatch(match, database) {
   };
 }
 
+function getPublicNewsArticle(article, database, options = {}) {
+  const comments = database.comments
+    .filter((comment) => Number(comment.newsId) === Number(article.id) && comment.status === "aprovado")
+    .map((comment) => {
+      return {
+        id: comment.id,
+        authorName: comment.authorName,
+        content: comment.content,
+        createdAt: comment.createdAt || null
+      };
+    });
+
+  return {
+    id: article.id,
+    title: article.title,
+    category: article.category,
+    summary: article.summary || "",
+    content: options.includeContent ? article.content || "" : "",
+    coverImageUrl: article.coverImageUrl || "",
+    galleryImages: article.galleryImages || [],
+    status: article.status,
+    authorName: article.authorName || "Equipe Lagoa em Jogo",
+    publishedAt: article.publishedAt || null,
+    createdAt: article.createdAt || null,
+    updatedAt: article.updatedAt || null,
+    comments
+  };
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -311,6 +342,17 @@ function normalizeText(value) {
 
 function normalizeDate(value) {
   return String(value || "").trim();
+}
+
+function normalizeList(value) {
+  if (Array.isArray(value)) {
+    return value.map(normalizeText).filter(Boolean);
+  }
+
+  return String(value || "")
+    .split(/\r?\n|,/)
+    .map(normalizeText)
+    .filter(Boolean);
 }
 
 function normalizeOptionalYear(value) {
@@ -343,6 +385,10 @@ function isAdmin(user) {
   return user && user.role === "administrador";
 }
 
+function canPublishNews(user) {
+  return user && ["administrador", "organizador"].includes(user.role);
+}
+
 function requireAdmin(request, response) {
   const user = getSessionUser(request);
 
@@ -353,6 +399,22 @@ function requireAdmin(request, response) {
 
   if (!isAdmin(user)) {
     sendJson(response, 403, { message: "Acesso restrito a administradores." });
+    return null;
+  }
+
+  return user;
+}
+
+function requireNewsPublisher(request, response) {
+  const user = getSessionUser(request);
+
+  if (!user) {
+    sendJson(response, 401, { message: "Entre para gerenciar noticias." });
+    return null;
+  }
+
+  if (!canPublishNews(user)) {
+    sendJson(response, 403, { message: "Publicacao restrita a administradores e organizadores autorizados." });
     return null;
   }
 
@@ -377,6 +439,7 @@ function buildDashboard(database) {
       teams: database.teams.length,
       athletes: database.athletes.length,
       matches: database.matches.length,
+      news: database.news.length,
       pendingComments
     },
     roleSummary: database.roles.map((role) => {
@@ -411,6 +474,10 @@ function findAthleteById(database, athleteId) {
 
 function findMatchById(database, matchId) {
   return database.matches.find((match) => match.id === matchId) || null;
+}
+
+function findNewsById(database, newsId) {
+  return database.news.find((article) => article.id === newsId) || null;
 }
 
 function validateChampionshipPayload(body, currentChampionship = {}) {
@@ -593,6 +660,41 @@ function validateMatchPayload(database, body, currentMatch = {}) {
   return { match };
 }
 
+function validateNewsPayload(body, currentArticle = {}) {
+  const status = normalizeText(body.status ?? currentArticle.status ?? "rascunho");
+  const article = {
+    title: normalizeText(body.title ?? currentArticle.title),
+    category: normalizeText(body.category ?? currentArticle.category),
+    summary: normalizeText(body.summary ?? currentArticle.summary),
+    content: normalizeText(body.content ?? currentArticle.content),
+    coverImageUrl: normalizeText(body.coverImageUrl ?? currentArticle.coverImageUrl),
+    galleryImages: normalizeList(body.galleryImages ?? currentArticle.galleryImages),
+    status
+  };
+
+  if (article.title.length < 5) {
+    return { error: "Informe um titulo de noticia com pelo menos 5 caracteres." };
+  }
+
+  if (!article.category) {
+    return { error: "Informe a categoria da noticia." };
+  }
+
+  if (article.summary.length < 10) {
+    return { error: "Informe um resumo da noticia com pelo menos 10 caracteres." };
+  }
+
+  if (article.content.length < 20) {
+    return { error: "Informe o conteudo da noticia com pelo menos 20 caracteres." };
+  }
+
+  if (!NEWS_STATUSES.includes(article.status)) {
+    return { error: "Status de noticia invalido." };
+  }
+
+  return { article };
+}
+
 async function handleApi(request, response) {
   const database = readDatabase();
   const url = new URL(request.url, "http://localhost");
@@ -614,6 +716,10 @@ async function handleApi(request, response) {
       teams: database.teams.map((team) => getPublicTeam(team, database)),
       athletes: database.athletes.map((athlete) => getPublicAthlete(athlete, database)),
       matches: database.matches.map((match) => getPublicMatch(match, database)),
+      news: database.news
+        .filter((article) => article.status === "publicado")
+        .sort((a, b) => String(b.publishedAt || b.createdAt || "").localeCompare(String(a.publishedAt || a.createdAt || "")))
+        .map((article) => getPublicNewsArticle(article, database, { includeContent: true })),
       featuredMatches: database.featuredMatches,
       user: getPublicUser(getSessionUser(request))
     });
@@ -645,6 +751,65 @@ async function handleApi(request, response) {
     sendJson(response, 200, {
       matches: database.matches.map((match) => getPublicMatch(match, database))
     });
+    return;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/news") {
+    const category = normalizeText(url.searchParams.get("category")).toLowerCase();
+    const news = database.news
+      .filter((article) => article.status === "publicado")
+      .filter((article) => !category || article.category.toLowerCase() === category)
+      .sort((a, b) => String(b.publishedAt || b.createdAt || "").localeCompare(String(a.publishedAt || a.createdAt || "")))
+      .map((article) => getPublicNewsArticle(article, database, { includeContent: true }));
+
+    sendJson(response, 200, { news });
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname.startsWith("/api/news/") && url.pathname.endsWith("/comments")) {
+    try {
+      const newsId = Number(url.pathname.split("/")[3]);
+      const article = findNewsById(database, newsId);
+      const body = await parseBody(request);
+      const authorName = normalizeText(body.authorName);
+      const content = normalizeText(body.content);
+
+      if (!article || article.status !== "publicado") {
+        sendJson(response, 404, { message: "Noticia nao encontrada." });
+        return;
+      }
+
+      if (authorName.length < 3) {
+        sendJson(response, 400, { message: "Informe seu nome para comentar." });
+        return;
+      }
+
+      if (content.length < 5) {
+        sendJson(response, 400, { message: "Escreva um comentario com pelo menos 5 caracteres." });
+        return;
+      }
+
+      const comment = {
+        id: database.comments.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        authorName,
+        context: `Noticia: ${article.title}`,
+        newsId: article.id,
+        content,
+        status: "pendente",
+        createdAt: new Date().toISOString()
+      };
+
+      database.comments.push(comment);
+      writeDatabase(database);
+
+      sendJson(response, 201, {
+        message: "Comentario enviado para moderacao.",
+        comment
+      });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel comentar na noticia." });
+    }
+
     return;
   }
 
@@ -1213,6 +1378,110 @@ async function handleApi(request, response) {
       sendJson(response, 200, { match: getPublicMatch(match, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar a partida." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/news") {
+    if (!requireNewsPublisher(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, {
+      news: database.news
+        .slice()
+        .sort((a, b) => String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")))
+        .map((article) => getPublicNewsArticle(article, database, { includeContent: true })),
+      statuses: NEWS_STATUSES
+    });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/admin/news") {
+    const publisher = requireNewsPublisher(request, response);
+
+    if (!publisher) {
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateNewsPayload(body);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const article = {
+        id: database.news.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        ...validation.article,
+        authorId: publisher.id,
+        authorName: publisher.name,
+        publishedAt: validation.article.status === "publicado" ? now : null,
+        createdAt: now,
+        updatedAt: now
+      };
+
+      database.news.push(article);
+      writeDatabase(database);
+
+      sendJson(response, 201, { article: getPublicNewsArticle(article, database, { includeContent: true }) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel criar a noticia." });
+    }
+
+    return;
+  }
+
+  if (["PUT", "DELETE"].includes(request.method) && url.pathname.startsWith("/api/admin/news/")) {
+    if (!requireNewsPublisher(request, response)) {
+      return;
+    }
+
+    const newsId = Number(url.pathname.split("/").pop());
+    const article = findNewsById(database, newsId);
+
+    if (!article) {
+      sendJson(response, 404, { message: "Noticia nao encontrada." });
+      return;
+    }
+
+    if (request.method === "DELETE") {
+      database.news = database.news.filter((item) => item.id !== newsId);
+      database.comments = database.comments.filter((comment) => Number(comment.newsId) !== newsId);
+      writeDatabase(database);
+      sendJson(response, 200, { message: "Noticia excluida." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateNewsPayload(body, article);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const wasPublished = article.status === "publicado";
+      const willPublish = validation.article.status === "publicado";
+
+      Object.assign(article, validation.article, {
+        publishedAt: willPublish ? article.publishedAt || new Date().toISOString() : null,
+        updatedAt: new Date().toISOString()
+      });
+
+      if (!wasPublished && willPublish) {
+        article.publishedAt = new Date().toISOString();
+      }
+
+      writeDatabase(database);
+      sendJson(response, 200, { article: getPublicNewsArticle(article, database, { includeContent: true }) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar a noticia." });
     }
 
     return;

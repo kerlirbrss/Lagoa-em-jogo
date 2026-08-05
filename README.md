@@ -79,6 +79,19 @@ A fase 7 calcula automaticamente os numeros das equipes a partir de partidas com
 
 - `GET /api/statistics?championshipId=:id`
 
+## Noticias
+
+A fase 8 inclui gerenciamento e publicacao de noticias com categoria, imagem principal, galeria de imagens, status de rascunho/publicado e comentarios enviados para moderacao. A publicacao via API administrativa fica restrita a administradores e organizadores.
+
+Rotas de noticias:
+
+- `GET /api/news`
+- `POST /api/news/:id/comments`
+- `GET /api/admin/news`
+- `POST /api/admin/news`
+- `PUT /api/admin/news/:id`
+- `DELETE /api/admin/news/:id`
+
 ## Credenciais de desenvolvimento
 
 - Email: `admin@lagoaemjogo.local`

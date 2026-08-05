@@ -36,6 +36,11 @@ if (!Array.isArray(database.teams) || !Array.isArray(database.championships)) {
   process.exit(1);
 }
 
+if (!Array.isArray(database.news)) {
+  console.error("Colecao de noticias ausente no banco de dados.");
+  process.exit(1);
+}
+
 require("./server");
 
-console.log("Estrutura da fase 7 validada.");
+console.log("Estrutura da fase 8 validada.");

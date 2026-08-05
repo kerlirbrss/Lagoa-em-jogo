@@ -246,11 +246,29 @@
       "field": "Campo municipal"
     }
   ],
+  "news": [
+    {
+      "id": 1,
+      "title": "Campeonato Rural abre preparacao para a temporada 2026",
+      "category": "Campeonatos",
+      "summary": "Organizacao inicia os ajustes para receber equipes das comunidades rurais.",
+      "content": "A organizacao do Campeonato Rural abriu a preparacao para a temporada 2026 com foco no cadastro de equipes, definicao da tabela e comunicacao oficial com os torcedores.",
+      "coverImageUrl": "",
+      "galleryImages": [],
+      "status": "publicado",
+      "authorId": 1,
+      "authorName": "Administrador",
+      "publishedAt": "2026-07-01T10:00:00.000Z",
+      "createdAt": "2026-07-01T10:00:00.000Z",
+      "updatedAt": "2026-07-01T10:00:00.000Z"
+    }
+  ],
   "comments": [
     {
       "id": 1,
       "authorName": "Torcedor da Lagoa",
       "context": "Noticia",
+      "newsId": 1,
       "content": "Vai ser uma grande temporada para o futebol local.",
       "status": "pendente",
       "createdAt": "2026-07-01T08:00:00.000Z"

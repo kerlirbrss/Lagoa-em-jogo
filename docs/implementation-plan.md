@@ -408,3 +408,173 @@ Publicar o sistema em ambiente de produção e prepará-lo para utilização pel
 - Validação final do ambiente de produção
 
 ### Dependências
+
+# Fase 18 — Conta do Usuário
+
+## Objetivo
+
+Permitir que usuários autenticados gerenciem suas informações pessoais e preferências dentro da plataforma.
+
+## Funcionalidades
+
+- Visualizar perfil
+- Alterar foto de perfil
+- Alterar nome
+- Alterar senha
+- Gerenciar favoritos
+- Configurar notificações
+- Encerrar sessão
+
+## Dependências
+
+# Fase 19 — Sistema de Comentários
+
+## Objetivo
+
+Implementar um módulo centralizado para gerenciamento dos comentários realizados pelos usuários.
+
+## Funcionalidades
+
+- Criar comentários em notícias
+- Criar comentários em palpites
+- Editar comentários (quando permitido)
+- Excluir comentários (Administrador)
+- Moderação de comentários
+- Registro da data e autor do comentário
+
+## Dependências
+
+Fases 8 e 13.
+
+---
+
+# Fase 20 — Central de Contato
+
+## Objetivo
+
+Disponibilizar canais oficiais de comunicação entre os usuários e a equipe responsável pela plataforma.
+
+## Funcionalidades
+
+- Página de contato
+- Formulário de contato
+- E-mail institucional
+- Links para Instagram dos desenvolvedores
+- WhatsApp exclusivo para colaboradores
+
+## Dependências
+
+Fase 14.
+
+---
+
+# Fase 21 — Gerenciamento de Imagens
+
+## Objetivo
+
+Centralizar o armazenamento e o gerenciamento de todas as imagens utilizadas pela plataforma.
+
+## Funcionalidades
+
+- Upload de imagens
+- Exclusão de imagens
+- Compressão automática
+- Organização por categorias
+- Validação de formatos
+- Armazenamento seguro
+
+## Dependências
+
+Fases 4, 5, 8 e 9.
+
+---
+
+# Fase 22 — Auditoria e Logs
+
+## Objetivo
+
+Registrar ações administrativas para garantir rastreabilidade e segurança das operações realizadas no sistema.
+
+## Funcionalidades
+
+- Registro de criação de campeonatos
+- Registro de edição de campeonatos
+- Registro de alterações em jogos
+- Registro de exclusão de comentários
+- Histórico de ações administrativas
+- Consulta aos logs
+
+## Dependências
+
+Fase 2.
+
+---
+
+# Fase 23 — Tratamento de Erros e SEO
+
+## Objetivo
+
+Melhorar a experiência do usuário e otimizar a indexação da plataforma pelos mecanismos de busca.
+
+## Funcionalidades
+
+### Tratamento de Erros
+
+- Página 403
+- Página 404
+- Página 500
+- Mensagens amigáveis de erro
+
+### SEO
+
+- Meta Tags
+- Open Graph
+- URLs amigáveis
+- Títulos e descrições das páginas
+
+## Dependências
+
+Fase 15.
+
+---
+
+# Fase 24 — Homologação e Publicação Final
+
+## Objetivo
+
+Realizar a validação completa do sistema antes da disponibilização para os usuários finais.
+
+## Funcionalidades
+
+- Homologação do sistema
+- Testes com usuários
+- Correção de inconsistências
+- Aprovação final
+- Backup do banco de dados
+- Backup das imagens
+- Publicação definitiva
+- Monitoramento pós-publicação
+
+## Dependências
+
+Fases 17, 18, 19, 20, 21, 22 e 23.
+
+---
+
+# Roadmap de Evolução
+
+Após a entrega do **MVP (Minimum Viable Product)**, a plataforma poderá evoluir por meio da implementação das seguintes funcionalidades:
+
+- Aplicativo Android e iOS
+- Ranking histórico
+- Hall da Fama
+- Memória do futebol lagoense
+- Estatísticas avançadas
+- Outras modalidades esportivas
+- Transmissões ao vivo
+- API pública
+- Integração com redes sociais
+- Sistema de patrocinadores
+- Área de anúncios
+- Gestão financeira de campeonatos
+- Ranking de jogadores por temporada

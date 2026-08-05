@@ -105,21 +105,11 @@
 
       <section class="section" id="noticias">
         <div class="section-heading">
-          <p class="eyebrow">Comunicacao</p>
-          <h2>Layout base para noticias e galerias</h2>
+          <p class="eyebrow">Fase 8</p>
+          <h2>Noticias oficiais</h2>
+          <p>Publicacoes, imagens e comentarios moderados sobre os campeonatos locais.</p>
         </div>
-        <div class="news-preview">
-          <article>
-            <span>Noticias</span>
-            <h3>Espaco preparado para publicacoes oficiais</h3>
-            <p>Administradores e organizadores poderao destacar novidades dos campeonatos.</p>
-          </article>
-          <article>
-            <span>Galeria</span>
-            <h3>Area para fotos por jogo, evento ou campeonato</h3>
-            <p>Fotografos parceiros terao uma base visual consistente para as proximas fases.</p>
-          </article>
-        </div>
+        <div class="news-list" id="news-list"></div>
       </section>
 
       <section class="section" id="perfis">
@@ -232,7 +222,7 @@
         <div class="section-heading">
           <p class="eyebrow">Administracao</p>
           <h2>Painel administrativo</h2>
-          <p id="admin-status">Entre com uma conta administradora para carregar o painel.</p>
+          <p id="admin-status">Entre como administrador ou organizador autorizado para carregar o painel.</p>
         </div>
 
         <div class="admin-panel" id="admin-panel" hidden>
@@ -518,13 +508,63 @@
 
             <div class="match-list" id="admin-matches"></div>
           </section>
+
+          <section class="admin-card news-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Noticias</p>
+                <h3>Publicacao e categorias</h3>
+              </div>
+            </div>
+
+            <form class="news-form" id="news-form">
+              <input type="hidden" name="id">
+              <label>
+                Titulo
+                <input name="title" type="text" required>
+              </label>
+              <label>
+                Categoria
+                <input name="category" type="text" placeholder="Campeonatos, Times, Bastidores" required>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="rascunho">Rascunho</option>
+                  <option value="publicado">Publicado</option>
+                </select>
+              </label>
+              <label class="wide-field">
+                Imagem principal URL
+                <input name="coverImageUrl" type="url">
+              </label>
+              <label class="wide-field">
+                Resumo
+                <textarea name="summary" rows="3" required></textarea>
+              </label>
+              <label class="wide-field">
+                Conteudo
+                <textarea name="content" rows="5" required></textarea>
+              </label>
+              <label class="wide-field">
+                Galeria de imagens
+                <textarea name="galleryImages" rows="3" placeholder="Uma URL por linha"></textarea>
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar noticia</button>
+                <button class="button secondary" id="clear-news-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="news-admin-list" id="admin-news"></div>
+          </section>
         </div>
       </section>
     </main>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 7</span>
+      <span>Ambiente de desenvolvimento da fase 8</span>
     </footer>
 
     <script src="/scripts/app.js"></script>
