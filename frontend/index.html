@@ -2,13 +2,30 @@
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Lagoa em Jogo</title>
+    <meta name="description" content="Plataforma do futebol amador e comunitário de Lagoa de São Francisco - PI.">
+    <meta name="theme-color" content="#1155cc">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Lagoa em Jogo">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <link rel="stylesheet" href="styles/app.css">
+    <script>
+      (function () {
+        var stored = null;
+        try { stored = localStorage.getItem("lej-theme"); } catch (e) {}
+        var theme = stored || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
   </head>
   <body>
     <header class="app-header">
-      <a class="brand" href="/" aria-label="Lagoa em Jogo">
+      <a class="brand" href="#inicio" aria-label="Lagoa em Jogo">
         <span class="brand-mark">LJ</span>
         <span>
           <strong>Lagoa em Jogo</strong>
@@ -16,7 +33,7 @@
         </span>
       </a>
 
-      <nav class="main-nav" aria-label="Navegacao principal">
+      <nav class="main-nav" id="main-nav" aria-label="Navegacao principal">
         <a href="#campeonatos">Campeonatos</a>
         <a href="#times">Times</a>
         <a href="#atletas">Atletas</a>
@@ -27,10 +44,21 @@
         <a href="#conta">Conta</a>
         <a href="#admin">Admin</a>
       </nav>
+
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+
+        <button class="icon-button nav-toggle" id="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="main-nav">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
     </header>
 
     <main>
-      <section class="hero">
+      <section class="hero" id="inicio">
         <div class="hero-content">
           <p class="eyebrow">Lagoa de Sao Francisco - PI</p>
           <h1>Feito por quem joga. Acompanhado por quem torce.</h1>
@@ -633,6 +661,41 @@
         </div>
       </section>
     </main>
+
+    <div class="nav-backdrop" id="nav-backdrop"></div>
+
+    <nav class="bottom-nav" aria-label="Navegacao inferior">
+      <a href="#inicio" class="active" aria-current="page">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        Inicio
+      </a>
+      <a href="#campeonatos">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v6a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+        Campeonatos
+      </a>
+      <a href="#times">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v5c0 4.5 3.5 8.4 8 9 4.5-.6 8-4.5 8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        Times
+      </a>
+      <a href="#noticias">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h13v14H4z"/><path d="M17 8h3v11a2 2 0 0 1-2 2H4"/><path d="M7 9h7"/><path d="M7 13h7"/></svg>
+        Noticias
+      </a>
+      <button id="more-button" type="button" aria-expanded="false" aria-controls="nav-drawer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+        Mais
+      </button>
+    </nav>
+
+    <nav class="nav-drawer" id="nav-drawer" aria-label="Mais opcoes">
+      <a href="#atletas">Atletas</a>
+      <a href="#jogos">Jogos</a>
+      <a href="#estatisticas">Estatisticas</a>
+      <a href="#galeria">Galeria</a>
+      <a href="#perfis">Perfis</a>
+      <a href="#conta">Conta</a>
+      <a href="#admin">Admin</a>
+    </nav>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>

@@ -1518,6 +1518,149 @@ elements.logoutButton.addEventListener("click", async () => {
   setMessage("Sessao encerrada.");
 });
 
+/* ============================================================
+   Tema claro/escuro + navegacao mobile + PWA
+   ============================================================ */
+
+const themeToggle = document.querySelector("#theme-toggle");
+const themeMeta = document.querySelector('meta[name="theme-color"]');
+const rootEl = document.documentElement;
+
+function applyTheme(theme) {
+  rootEl.setAttribute("data-theme", theme);
+  try {
+    localStorage.setItem("lej-theme", theme);
+  } catch (error) {
+    // localStorage pode estar indisponivel; ignora.
+  }
+
+  if (themeMeta) {
+    themeMeta.setAttribute("content", theme === "dark" ? "#0d141d" : "#1155cc");
+  }
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const next = rootEl.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(next);
+  });
+}
+
+/* Navegacao mobile (hamburguer + menu "Mais") */
+const navToggle = document.querySelector("#nav-toggle");
+const mainNav = document.querySelector("#main-nav");
+const moreButton = document.querySelector("#more-button");
+const navDrawer = document.querySelector("#nav-drawer");
+const navBackdrop = document.querySelector("#nav-backdrop");
+
+function closeMenuPanels() {
+  if (mainNav) {
+    mainNav.classList.remove("open");
+  }
+  if (navToggle) {
+    navToggle.setAttribute("aria-expanded", "false");
+  }
+  if (navDrawer) {
+    navDrawer.classList.remove("open");
+  }
+  if (moreButton) {
+    moreButton.setAttribute("aria-expanded", "false");
+  }
+  if (navBackdrop) {
+    navBackdrop.classList.remove("open");
+  }
+}
+
+if (navToggle && mainNav) {
+  navToggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const open = mainNav.classList.toggle("open");
+    navToggle.setAttribute("aria-expanded", String(open));
+    if (navBackdrop) {
+      navBackdrop.classList.toggle("open", open);
+    }
+  });
+}
+
+if (moreButton && navDrawer) {
+  moreButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const open = navDrawer.classList.toggle("open");
+    moreButton.setAttribute("aria-expanded", String(open));
+    if (mainNav) {
+      mainNav.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    }
+    if (navBackdrop) {
+      navBackdrop.classList.toggle("open", open);
+    }
+  });
+}
+
+/* Fecha os paineis ao clicar em qualquer link do menu */
+document.querySelectorAll(".main-nav a, .nav-drawer a").forEach((link) => {
+  link.addEventListener("click", closeMenuPanels);
+});
+
+if (navBackdrop) {
+  navBackdrop.addEventListener("click", closeMenuPanels);
+}
+
+/* Destaque da secao ativa na navegacao (scrollspy) */
+function setupScrollSpy() {
+  const navGroups = [document.querySelectorAll(".bottom-nav a"), document.querySelectorAll(".main-nav a"), document.querySelectorAll(".nav-drawer a")];
+  const links = [];
+  navGroups.forEach((group) => group.forEach((a) => links.push(a)));
+
+  const sectionRefs = new Map();
+  links.forEach((link) => {
+    const href = link.getAttribute("href");
+    if (href && href.startsWith("#") && !sectionRefs.has(href)) {
+      sectionRefs.set(href, link);
+    }
+  });
+
+  const ids = Array.from(sectionRefs.keys());
+  const sections = ids.map((id) => document.querySelector(id)).filter(Boolean);
+
+  function onScroll() {
+    const position = window.scrollY + 120;
+    let current = ids[0] || "#inicio";
+
+    sections.forEach((section) => {
+      if (section.offsetTop <= position) {
+        current = `#${section.id}`;
+      }
+    });
+
+    ids.forEach((id) => {
+      const link = sectionRefs.get(id);
+      if (!link) {
+        return;
+      }
+      if (id === current) {
+        link.classList.add("active");
+      } else {
+        link.classList.remove("active");
+      }
+    });
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+}
+
+setupScrollSpy();
+
+/* Registro do service worker (PWA) */
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {
+      // Falha silenciosa: a app continua funcionando sem SW.
+    });
+  });
+}
+
 loadBootstrap().catch((error) => {
   setMessage(error.message);
 });
