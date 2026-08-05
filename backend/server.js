@@ -14,6 +14,8 @@ const COMMENT_STATUSES = ["pendente", "aprovado", "rejeitado"];
 const CHAMPIONSHIP_STATUSES = ["rascunho", "inscricoes", "em_andamento", "encerrado"];
 const MATCH_STATUSES = ["agendado", "em_andamento", "encerrado"];
 const NEWS_STATUSES = ["rascunho", "publicado"];
+const GALLERY_STATUSES = ["rascunho", "publicado"];
+const GALLERY_TYPES = ["campeonato", "jogo", "evento"];
 
 function readDatabase() {
   const raw = fs.readFileSync(DB_PATH, "utf8");
@@ -21,6 +23,7 @@ function readDatabase() {
   database.athletes = database.athletes || [];
   database.matches = database.matches || [];
   database.news = database.news || [];
+  database.galleries = database.galleries || [];
   return database;
 }
 
@@ -332,6 +335,40 @@ function getPublicNewsArticle(article, database, options = {}) {
   };
 }
 
+function getGalleryContext(gallery, database) {
+  if (gallery.type === "campeonato") {
+    const championship = findChampionshipById(database, Number(gallery.championshipId));
+    return championship ? championship.name : "Campeonato nao encontrado";
+  }
+
+  if (gallery.type === "jogo") {
+    const match = findMatchById(database, Number(gallery.matchId));
+    return match ? `${getPublicMatch(match, database).homeTeamName} x ${getPublicMatch(match, database).awayTeamName}` : "Jogo nao encontrado";
+  }
+
+  return gallery.eventName || "Evento";
+}
+
+function getPublicGallery(gallery, database) {
+  return {
+    id: gallery.id,
+    title: gallery.title,
+    type: gallery.type,
+    context: getGalleryContext(gallery, database),
+    championshipId: gallery.championshipId || "",
+    matchId: gallery.matchId || "",
+    eventName: gallery.eventName || "",
+    description: gallery.description || "",
+    images: gallery.images || [],
+    saleUrl: gallery.saleUrl || "",
+    status: gallery.status,
+    authorName: gallery.authorName || "Equipe Lagoa em Jogo",
+    publishedAt: gallery.publishedAt || null,
+    createdAt: gallery.createdAt || null,
+    updatedAt: gallery.updatedAt || null
+  };
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -389,6 +426,10 @@ function canPublishNews(user) {
   return user && ["administrador", "organizador"].includes(user.role);
 }
 
+function canPublishGallery(user) {
+  return user && ["administrador", "fotografo"].includes(user.role);
+}
+
 function requireAdmin(request, response) {
   const user = getSessionUser(request);
 
@@ -421,6 +462,22 @@ function requireNewsPublisher(request, response) {
   return user;
 }
 
+function requireGalleryPublisher(request, response) {
+  const user = getSessionUser(request);
+
+  if (!user) {
+    sendJson(response, 401, { message: "Entre para gerenciar galerias." });
+    return null;
+  }
+
+  if (!canPublishGallery(user)) {
+    sendJson(response, 403, { message: "Publicacao restrita a administradores e fotografos parceiros." });
+    return null;
+  }
+
+  return user;
+}
+
 function countUsersByRole(users, role) {
   return users.filter((user) => user.role === role).length;
 }
@@ -440,6 +497,7 @@ function buildDashboard(database) {
       athletes: database.athletes.length,
       matches: database.matches.length,
       news: database.news.length,
+      galleries: database.galleries.length,
       pendingComments
     },
     roleSummary: database.roles.map((role) => {
@@ -478,6 +536,10 @@ function findMatchById(database, matchId) {
 
 function findNewsById(database, newsId) {
   return database.news.find((article) => article.id === newsId) || null;
+}
+
+function findGalleryById(database, galleryId) {
+  return database.galleries.find((gallery) => gallery.id === galleryId) || null;
 }
 
 function validateChampionshipPayload(body, currentChampionship = {}) {
@@ -695,6 +757,64 @@ function validateNewsPayload(body, currentArticle = {}) {
   return { article };
 }
 
+function validateGalleryPayload(database, body, currentGallery = {}) {
+  const type = normalizeText(body.type ?? currentGallery.type ?? "evento");
+  const status = normalizeText(body.status ?? currentGallery.status ?? "rascunho");
+  const gallery = {
+    title: normalizeText(body.title ?? currentGallery.title),
+    type,
+    championshipId: Number(body.championshipId ?? currentGallery.championshipId) || "",
+    matchId: Number(body.matchId ?? currentGallery.matchId) || "",
+    eventName: normalizeText(body.eventName ?? currentGallery.eventName),
+    description: normalizeText(body.description ?? currentGallery.description),
+    images: normalizeList(body.images ?? currentGallery.images),
+    saleUrl: normalizeText(body.saleUrl ?? currentGallery.saleUrl),
+    status
+  };
+
+  if (gallery.title.length < 5) {
+    return { error: "Informe um titulo de galeria com pelo menos 5 caracteres." };
+  }
+
+  if (!GALLERY_TYPES.includes(gallery.type)) {
+    return { error: "Tipo de galeria invalido." };
+  }
+
+  if (!GALLERY_STATUSES.includes(gallery.status)) {
+    return { error: "Status de galeria invalido." };
+  }
+
+  if (gallery.type === "campeonato" && !findChampionshipById(database, gallery.championshipId)) {
+    return { error: "Selecione um campeonato valido para a galeria." };
+  }
+
+  if (gallery.type === "jogo" && !findMatchById(database, gallery.matchId)) {
+    return { error: "Selecione um jogo valido para a galeria." };
+  }
+
+  if (gallery.type === "evento" && gallery.eventName.length < 3) {
+    return { error: "Informe o nome do evento da galeria." };
+  }
+
+  if (gallery.images.length === 0) {
+    return { error: "Informe pelo menos uma imagem para a galeria." };
+  }
+
+  if (gallery.type !== "campeonato") {
+    gallery.championshipId = "";
+  }
+
+  if (gallery.type !== "jogo") {
+    gallery.matchId = "";
+  }
+
+  if (gallery.type !== "evento") {
+    gallery.eventName = "";
+  }
+
+  return { gallery };
+}
+
 async function handleApi(request, response) {
   const database = readDatabase();
   const url = new URL(request.url, "http://localhost");
@@ -720,6 +840,10 @@ async function handleApi(request, response) {
         .filter((article) => article.status === "publicado")
         .sort((a, b) => String(b.publishedAt || b.createdAt || "").localeCompare(String(a.publishedAt || a.createdAt || "")))
         .map((article) => getPublicNewsArticle(article, database, { includeContent: true })),
+      galleries: database.galleries
+        .filter((gallery) => gallery.status === "publicado")
+        .sort((a, b) => String(b.publishedAt || b.createdAt || "").localeCompare(String(a.publishedAt || a.createdAt || "")))
+        .map((gallery) => getPublicGallery(gallery, database)),
       featuredMatches: database.featuredMatches,
       user: getPublicUser(getSessionUser(request))
     });
@@ -763,6 +887,18 @@ async function handleApi(request, response) {
       .map((article) => getPublicNewsArticle(article, database, { includeContent: true }));
 
     sendJson(response, 200, { news });
+    return;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/galleries") {
+    const type = normalizeText(url.searchParams.get("type"));
+    const galleries = database.galleries
+      .filter((gallery) => gallery.status === "publicado")
+      .filter((gallery) => !type || gallery.type === type)
+      .sort((a, b) => String(b.publishedAt || b.createdAt || "").localeCompare(String(a.publishedAt || a.createdAt || "")))
+      .map((gallery) => getPublicGallery(gallery, database));
+
+    sendJson(response, 200, { galleries });
     return;
   }
 
@@ -1482,6 +1618,112 @@ async function handleApi(request, response) {
       sendJson(response, 200, { article: getPublicNewsArticle(article, database, { includeContent: true }) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar a noticia." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/galleries") {
+    if (!requireGalleryPublisher(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, {
+      galleries: database.galleries
+        .slice()
+        .sort((a, b) => String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")))
+        .map((gallery) => getPublicGallery(gallery, database)),
+      championships: database.championships.map(getPublicChampionship),
+      matches: database.matches.map((match) => getPublicMatch(match, database)),
+      statuses: GALLERY_STATUSES,
+      types: GALLERY_TYPES
+    });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/admin/galleries") {
+    const publisher = requireGalleryPublisher(request, response);
+
+    if (!publisher) {
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateGalleryPayload(database, body);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const gallery = {
+        id: database.galleries.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        ...validation.gallery,
+        authorId: publisher.id,
+        authorName: publisher.name,
+        publishedAt: validation.gallery.status === "publicado" ? now : null,
+        createdAt: now,
+        updatedAt: now
+      };
+
+      database.galleries.push(gallery);
+      writeDatabase(database);
+
+      sendJson(response, 201, { gallery: getPublicGallery(gallery, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel criar a galeria." });
+    }
+
+    return;
+  }
+
+  if (["PUT", "DELETE"].includes(request.method) && url.pathname.startsWith("/api/admin/galleries/")) {
+    if (!requireGalleryPublisher(request, response)) {
+      return;
+    }
+
+    const galleryId = Number(url.pathname.split("/").pop());
+    const gallery = findGalleryById(database, galleryId);
+
+    if (!gallery) {
+      sendJson(response, 404, { message: "Galeria nao encontrada." });
+      return;
+    }
+
+    if (request.method === "DELETE") {
+      database.galleries = database.galleries.filter((item) => item.id !== galleryId);
+      writeDatabase(database);
+      sendJson(response, 200, { message: "Galeria excluida." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateGalleryPayload(database, body, gallery);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const wasPublished = gallery.status === "publicado";
+      const willPublish = validation.gallery.status === "publicado";
+
+      Object.assign(gallery, validation.gallery, {
+        publishedAt: willPublish ? gallery.publishedAt || new Date().toISOString() : null,
+        updatedAt: new Date().toISOString()
+      });
+
+      if (!wasPublished && willPublish) {
+        gallery.publishedAt = new Date().toISOString();
+      }
+
+      writeDatabase(database);
+      sendJson(response, 200, { gallery: getPublicGallery(gallery, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar a galeria." });
     }
 
     return;

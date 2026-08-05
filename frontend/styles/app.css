@@ -221,6 +221,7 @@ h3 {
 .athletes-grid,
 .matches-grid,
 .news-list,
+.gallery-list,
 .roles-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -233,6 +234,7 @@ h3 {
 .match-card,
 .role-card,
 .news-card,
+.gallery-card,
 .match-panel,
 .account-panel {
   border: 1px solid var(--color-line);
@@ -337,7 +339,8 @@ h3 {
 .athlete-card span,
 .match-card span,
 .role-card span,
-.news-card span {
+.news-card span,
+.gallery-card span {
   color: var(--color-green-dark);
   font-size: 0.8rem;
   font-weight: 800;
@@ -358,6 +361,7 @@ h3 {
 .account-section p,
 .matches-section p,
 .news-card p,
+.gallery-card p,
 .championship-card p,
 .match-card p,
 .role-card p {
@@ -589,6 +593,45 @@ h3 {
   color: var(--color-ink);
   background: var(--color-white);
   font: inherit;
+}
+
+.gallery-section {
+  background: var(--color-surface);
+}
+
+.gallery-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.gallery-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.gallery-cover {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.gallery-thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.gallery-thumbs img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.gallery-card .button {
+  justify-self: start;
 }
 
 .account-panel {

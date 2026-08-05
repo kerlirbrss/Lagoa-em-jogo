@@ -23,6 +23,7 @@
         <a href="#jogos">Jogos</a>
         <a href="#estatisticas">Estatisticas</a>
         <a href="#noticias">Noticias</a>
+        <a href="#galeria">Galeria</a>
         <a href="#conta">Conta</a>
         <a href="#admin">Admin</a>
       </nav>
@@ -110,6 +111,15 @@
           <p>Publicacoes, imagens e comentarios moderados sobre os campeonatos locais.</p>
         </div>
         <div class="news-list" id="news-list"></div>
+      </section>
+
+      <section class="section gallery-section" id="galeria">
+        <div class="section-heading">
+          <p class="eyebrow">Fase 9</p>
+          <h2>Galerias esportivas</h2>
+          <p>Fotos organizadas por campeonato, jogo ou evento, com acesso para compra quando houver plataforma vinculada.</p>
+        </div>
+        <div class="gallery-list" id="gallery-list"></div>
       </section>
 
       <section class="section" id="perfis">
@@ -558,13 +568,75 @@
 
             <div class="news-admin-list" id="admin-news"></div>
           </section>
+
+          <section class="admin-card gallery-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Galeria</p>
+                <h3>Fotos e organizacao</h3>
+              </div>
+            </div>
+
+            <form class="gallery-form" id="gallery-form">
+              <input type="hidden" name="id">
+              <label>
+                Titulo
+                <input name="title" type="text" required>
+              </label>
+              <label>
+                Tipo
+                <select name="type" id="gallery-type" required>
+                  <option value="campeonato">Campeonato</option>
+                  <option value="jogo">Jogo</option>
+                  <option value="evento">Evento</option>
+                </select>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="rascunho">Rascunho</option>
+                  <option value="publicado">Publicado</option>
+                </select>
+              </label>
+              <label>
+                Campeonato
+                <select name="championshipId" id="gallery-championship"></select>
+              </label>
+              <label>
+                Jogo
+                <select name="matchId" id="gallery-match"></select>
+              </label>
+              <label class="wide-field">
+                Evento
+                <input name="eventName" type="text" placeholder="Nome do evento">
+              </label>
+              <label class="wide-field">
+                Descricao
+                <textarea name="description" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Imagens da galeria
+                <textarea name="images" rows="4" placeholder="Uma URL por linha" required></textarea>
+              </label>
+              <label class="wide-field">
+                Link de venda das fotos
+                <input name="saleUrl" type="url">
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar galeria</button>
+                <button class="button secondary" id="clear-gallery-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="gallery-admin-list" id="admin-galleries"></div>
+          </section>
         </div>
       </section>
     </main>
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 8</span>
+      <span>Ambiente de desenvolvimento da fase 9</span>
     </footer>
 
     <script src="/scripts/app.js"></script>
