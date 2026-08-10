@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap');
+
 /* ============================================================
    Lagoa em Jogo - folha de estilos
    Abordagem: MOBILE-FIRST (base = celular; amplia em telas maiores)
@@ -7,6 +9,9 @@
 /* ---------- Tokens (tema claro) ---------- */
 :root {
   color-scheme: light;
+
+  --font-heading: "Barlow Condensed", "Arial Narrow", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Barlow", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --color-blue: #1155cc;
   --color-blue-dark: #0b2f6b;
@@ -1326,4 +1331,93 @@ textarea {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* ============================================================
+   UI/UX Pro Max — refinamentos de polimento
+   (skill ui-ux-pro-max aplicada, respeitando a identidade da marca:
+    azul/verde/branco conforme PRD)
+   ============================================================ */
+
+body {
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, .eyebrow, .brand strong, .brand-mark,
+.button, .tab-button, .main-nav a, .bottom-nav a, .bottom-nav > button,
+.nav-drawer a, .account-form label, .statistics-filter,
+.championship-form label, .team-form label, .athlete-form label,
+.match-form label, .news-form label, .gallery-form label,
+.standings-table th, .admin-table th {
+  font-family: var(--font-heading);
+  letter-spacing: 0.01em;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+h1 {
+  font-weight: 800;
+}
+
+h2 {
+  font-weight: 700;
+}
+
+.eyebrow {
+  letter-spacing: 0.06em;
+}
+
+/* Alvos clicaveis: cursor + sem delay de 300ms no toque */
+a, button, select, input[type="submit"], input[type="button"], .button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Margem de scroll para o header fixo nao cobrir as ancoras */
+section[id] {
+  scroll-margin-top: 76px;
+}
+
+/* Foco visivel (acessibilidade / WCAG) */
+:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Transicoes suaves (150-300ms) e press feedback sem mover o layout */
+.button,
+.icon-button,
+.tab-button,
+.main-nav a,
+.nav-drawer a {
+  transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease, transform 120ms ease;
+}
+
+.button:active,
+.icon-button:active,
+.tab-button:active {
+  transform: translateY(1px);
+}
+
+/* Cards realcam levemente no hover (desktop) */
+@media (hover: hover) {
+  .championship-card:hover,
+  .team-card:hover,
+  .athlete-card:hover,
+  .match-card:hover,
+  .news-card:hover,
+  .gallery-card:hover,
+  .role-card:hover,
+  .admin-card:hover {
+    border-color: var(--color-blue);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* Hero com titulo de impacto (estilo "Vibrant & Block-based") */
+.hero h1 {
+  font-weight: 800;
+  letter-spacing: 0;
 }
