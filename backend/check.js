@@ -5,8 +5,10 @@ const requiredFiles = [
   "backend/server.js",
   "backend/database/db.json",
   "frontend/index.html",
+  "frontend/admin.html",
   "frontend/styles/app.css",
-  "frontend/scripts/app.js"
+  "frontend/scripts/app.js",
+  "frontend/scripts/admin.js"
 ];
 
 const missing = requiredFiles.filter((file) => {

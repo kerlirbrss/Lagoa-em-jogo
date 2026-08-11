@@ -25,6 +25,12 @@ Depois acesse:
 http://localhost:3000
 ```
 
+O painel administrativo fica em uma pagina dedicada:
+
+```text
+http://localhost:3000/admin.html
+```
+
 ## Gestao de usuarios
 
 A fase 1 inclui cadastro, login, logout, recuperacao de senha em modo desenvolvimento, perfil do usuario e edicao de perfil.
@@ -38,6 +44,8 @@ Perfis disponiveis:
 - Administrador
 
 ## Administracao
+
+O painel administrativo foi separado da pagina inicial e fica disponivel em `http://localhost:3000/admin.html`. A pagina tem login proprio e carrega apenas as ferramentas correspondentes ao perfil do usuario conectado (dashboard completo, usuarios, moderacao de comentarios, campeonatos, times, atletas, jogos, noticias e galerias).
 
 A fase 2 inclui painel administrativo com dashboard, gerenciamento de usuarios, controle de perfis/permissoes e moderacao de comentarios.
 

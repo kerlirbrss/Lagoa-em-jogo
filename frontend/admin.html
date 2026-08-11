@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Admin - Lagoa em Jogo</title>
+    <meta name="description" content="Painel administrativo da plataforma Lagoa em Jogo.">
+    <meta name="theme-color" content="#1155cc">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Lagoa em Jogo">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <link rel="stylesheet" href="styles/app.css">
+    <script>
+      (function () {
+        var stored = null;
+        try { stored = localStorage.getItem("lej-theme"); } catch (e) {}
+        var theme = stored || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="index.html" aria-label="Lagoa em Jogo - voltar ao site">
+        <span class="brand-mark">LJ</span>
+        <span>
+          <strong>Lagoa em Jogo</strong>
+          <small>Painel administrativo</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" id="main-nav" aria-label="Navegacao principal">
+        <a href="index.html">Inicio</a>
+        <a href="index.html#campeonatos">Campeonatos</a>
+        <a href="index.html#times">Times</a>
+        <a href="index.html#atletas">Atletas</a>
+        <a href="index.html#jogos">Jogos</a>
+        <a href="index.html#noticias">Noticias</a>
+        <a href="index.html#galeria">Galeria</a>
+        <a href="index.html#conta">Conta</a>
+        <a href="admin.html" class="active" aria-current="page">Admin</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="icon-button theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+
+        <button class="icon-button nav-toggle" id="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="main-nav">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="section admin-section" id="admin">
+        <div class="section-heading">
+          <p class="eyebrow">Administracao</p>
+          <h2>Painel administrativo</h2>
+          <p id="admin-status">Verificando acesso...</p>
+          <p id="admin-session"></p>
+          <div class="form-actions">
+            <a class="button secondary" href="index.html">Voltar ao site</a>
+            <button class="button secondary" id="logout-button" type="button" hidden>Sair da sessao</button>
+          </div>
+        </div>
+
+        <div class="admin-panel" id="admin-login" hidden>
+          <section class="admin-card">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Acesso restrito</p>
+                <h3>Entrar no painel</h3>
+              </div>
+            </div>
+            <p>Entre com uma conta de administrador, organizador ou fotografo para acessar as ferramentas.</p>
+            <form class="account-form active" id="login-form">
+              <label>
+                Email
+                <input name="email" type="email" value="admin@lagoaemjogo.local" autocomplete="email" required>
+              </label>
+              <label>
+                Senha
+                <input name="password" type="password" value="admin123" autocomplete="current-password" required>
+              </label>
+              <div class="form-actions">
+                <button class="button primary" type="submit">Entrar</button>
+                <a class="button secondary" href="index.html#conta">Criar conta</a>
+              </div>
+            </form>
+            <p class="form-message" id="form-message" role="status"></p>
+          </section>
+        </div>
+        <div class="admin-panel" id="admin-panel" hidden>
+          <div class="admin-stats" id="admin-stats"></div>
+
+          <div class="admin-layout">
+            <section class="admin-card">
+              <div class="admin-card-heading">
+                <div>
+                  <p class="eyebrow">Usuarios</p>
+                  <h3>Gerenciamento de acessos</h3>
+                </div>
+                <button class="button secondary" id="reload-admin" type="button">Atualizar</button>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Email</th>
+                      <th>Perfil</th>
+                      <th>Status</th>
+                      <th>Acao</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-users"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-card">
+              <div class="admin-card-heading">
+                <div>
+                  <p class="eyebrow">Moderacao</p>
+                  <h3>Comentarios</h3>
+                </div>
+              </div>
+              <div class="comment-list" id="admin-comments"></div>
+            </section>
+          </div>
+
+          <section class="admin-card championship-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Campeonatos</p>
+                <h3>Cadastro e temporada</h3>
+              </div>
+            </div>
+
+            <form class="championship-form" id="championship-form">
+              <input type="hidden" name="id">
+              <label>
+                Nome
+                <input name="name" type="text" required>
+              </label>
+              <label>
+                Temporada
+                <input name="season" type="text" value="2026" required>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="rascunho">Rascunho</option>
+                  <option value="inscricoes">Inscricoes</option>
+                  <option value="em_andamento">Em andamento</option>
+                  <option value="encerrado">Encerrado</option>
+                </select>
+              </label>
+              <label>
+                Inicio
+                <input name="startDate" type="date">
+              </label>
+              <label>
+                Fim
+                <input name="endDate" type="date">
+              </label>
+              <label class="wide-field">
+                Descricao
+                <textarea name="description" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Regulamento
+                <textarea name="regulation" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Premiacoes
+                <textarea name="awards" rows="3"></textarea>
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar campeonato</button>
+                <button class="button secondary" id="clear-championship-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="championship-list" id="admin-championships"></div>
+<section class="admin-card team-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Times</p>
+                <h3>Cadastro de equipes</h3>
+              </div>
+            </div>
+
+            <form class="team-form" id="team-form">
+              <input type="hidden" name="id">
+              <label>
+                Nome
+                <input name="name" type="text" required>
+              </label>
+              <label>
+                Campeonato
+                <select name="championshipId" id="team-championship" required></select>
+              </label>
+              <label>
+                Comunidade
+                <input name="community" type="text" required>
+              </label>
+              <label>
+                Escudo URL
+                <input name="crestUrl" type="url">
+              </label>
+              <label>
+                Fundacao
+                <input name="foundedYear" type="text">
+              </label>
+              <label>
+                Tecnico
+                <input name="coach" type="text">
+              </label>
+              <label>
+                Cores
+                <input name="colors" type="text">
+              </label>
+              <label class="wide-field">
+                Elenco
+                <textarea name="squad" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Proximos jogos
+                <textarea name="upcomingMatches" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Ultimos resultados
+                <textarea name="recentResults" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Galeria
+                <textarea name="gallery" rows="3"></textarea>
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar time</button>
+                <button class="button secondary" id="clear-team-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="team-list" id="admin-teams"></div>
+          </section>
+
+          <section class="admin-card athlete-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Atletas</p>
+                <h3>Cadastro e estatisticas</h3>
+              </div>
+            </div>
+
+            <form class="athlete-form" id="athlete-form">
+              <input type="hidden" name="id">
+              <label>
+                Nome completo
+                <input name="fullName" type="text" required>
+              </label>
+              <label>
+                Time atual
+                <select name="teamId" id="athlete-team" required></select>
+              </label>
+              <label>
+                Posicao
+                <input name="position" type="text" required>
+              </label>
+              <label>
+                Idade
+                <input name="age" type="number" min="10" max="80" inputmode="numeric">
+              </label>
+              <label class="wide-field">
+                Foto URL
+                <input name="photoUrl" type="url">
+              </label>
+              <label>
+                Jogos
+                <input name="matches" type="number" min="0" value="0" inputmode="numeric">
+              </label>
+              <label>
+                Gols
+                <input name="goals" type="number" min="0" value="0" inputmode="numeric">
+              </label>
+              <label>
+                Cartoes amarelos
+                <input name="yellowCards" type="number" min="0" value="0" inputmode="numeric">
+              </label>
+              <label>
+                Cartoes vermelhos
+                <input name="redCards" type="number" min="0" value="0" inputmode="numeric">
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar atleta</button>
+                <button class="button secondary" id="clear-athlete-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="athlete-list" id="admin-athletes"></div>
+          </section>
+
+          <section class="admin-card match-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Jogos</p>
+                <h3>Cadastro de partidas</h3>
+              </div>
+            </div>
+
+            <form class="match-form" id="match-form">
+              <input type="hidden" name="id">
+              <label>
+                Campeonato
+                <select name="championshipId" id="match-championship" required></select>
+              </label>
+              <label>
+                Fase
+                <input name="stage" type="text" required>
+              </label>
+              <label>
+                Rodada
+                <input name="round" type="text" required>
+              </label>
+              <label>
+                Mandante
+                <select name="homeTeamId" id="match-home-team" required></select>
+              </label>
+              <label>
+                Visitante
+                <select name="awayTeamId" id="match-away-team" required></select>
+              </label>
+          </section>
+<label>
+                Data
+                <input name="date" type="date" required>
+              </label>
+              <label>
+                Horario
+                <input name="time" type="time" required>
+              </label>
+              <label>
+                Campo
+                <input name="field" type="text" required>
+              </label>
+              <label>
+                Localizacao
+                <input name="location" type="text" required>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="agendado">Agendado</option>
+                  <option value="em_andamento">Em andamento</option>
+                  <option value="encerrado">Encerrado</option>
+                </select>
+              </label>
+              <label>
+                Placar mandante
+                <input name="homeScore" type="number" min="0" inputmode="numeric">
+              </label>
+              <label>
+                Placar visitante
+                <input name="awayScore" type="number" min="0" inputmode="numeric">
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar jogo</button>
+                <button class="button secondary" id="clear-match-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="match-list" id="admin-matches"></div>
+          </section>
+
+          <section class="admin-card news-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Noticias</p>
+                <h3>Publicacao e categorias</h3>
+              </div>
+            </div>
+
+            <form class="news-form" id="news-form">
+              <input type="hidden" name="id">
+              <label>
+                Titulo
+                <input name="title" type="text" required>
+              </label>
+              <label>
+                Categoria
+                <input name="category" type="text" placeholder="Campeonatos, Times, Bastidores" required>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="rascunho">Rascunho</option>
+                  <option value="publicado">Publicado</option>
+                </select>
+              </label>
+              <label class="wide-field">
+                Imagem principal URL
+                <input name="coverImageUrl" type="url">
+              </label>
+              <label class="wide-field">
+                Resumo
+                <textarea name="summary" rows="3" required></textarea>
+              </label>
+              <label class="wide-field">
+                Conteudo
+                <textarea name="content" rows="5" required></textarea>
+              </label>
+              <label class="wide-field">
+                Galeria de imagens
+                <textarea name="galleryImages" rows="3" placeholder="Uma URL por linha"></textarea>
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar noticia</button>
+                <button class="button secondary" id="clear-news-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="news-admin-list" id="admin-news"></div>
+          </section>
+<section class="admin-card gallery-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Galeria</p>
+                <h3>Fotos e organizacao</h3>
+              </div>
+            </div>
+
+            <form class="gallery-form" id="gallery-form">
+              <input type="hidden" name="id">
+              <label>
+                Titulo
+                <input name="title" type="text" required>
+              </label>
+              <label>
+                Tipo
+                <select name="type" id="gallery-type" required>
+                  <option value="campeonato">Campeonato</option>
+                  <option value="jogo">Jogo</option>
+                  <option value="evento">Evento</option>
+                </select>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="rascunho">Rascunho</option>
+                  <option value="publicado">Publicado</option>
+                </select>
+              </label>
+              <label>
+                Campeonato
+                <select name="championshipId" id="gallery-championship"></select>
+              </label>
+              <label>
+                Jogo
+                <select name="matchId" id="gallery-match"></select>
+              </label>
+              <label class="wide-field">
+                Evento
+                <input name="eventName" type="text" placeholder="Nome do evento">
+              </label>
+              <label class="wide-field">
+                Descricao
+                <textarea name="description" rows="3"></textarea>
+              </label>
+              <label class="wide-field">
+                Imagens da galeria
+                <textarea name="images" rows="4" placeholder="Uma URL por linha" required></textarea>
+              </label>
+              <label class="wide-field">
+                Link de venda das fotos
+                <input name="saleUrl" type="url">
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar galeria</button>
+                <button class="button secondary" id="clear-gallery-form" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="gallery-admin-list" id="admin-galleries"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div class="nav-backdrop" id="nav-backdrop"></div>
+
+    <nav class="nav-drawer" id="nav-drawer" aria-label="Mais opcoes">
+      <a href="index.html">Inicio</a>
+      <a href="index.html#campeonatos">Campeonatos</a>
+      <a href="index.html#times">Times</a>
+      <a href="index.html#atletas">Atletas</a>
+      <a href="index.html#jogos">Jogos</a>
+      <a href="index.html#estatisticas">Estatisticas</a>
+      <a href="index.html#noticias">Noticias</a>
+      <a href="index.html#galeria">Galeria</a>
+      <a href="index.html#conta">Conta</a>
+      <a href="admin.html" class="active" aria-current="page">Admin</a>
+      <button id="logout-nav" type="button">Sair da sessao</button>
+    </nav>
+
+    <footer class="app-footer">
+      <span>Lagoa em Jogo</span>
+      <span>Painel administrativo fase 9 - Galeria</span>
+    </footer>
+
+    <script src="scripts/admin.js"></script>
+  </body>
+</html>

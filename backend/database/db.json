@@ -17,9 +17,53 @@
       "password": "admin123",
       "role": "administrador",
       "status": "ativo",
-      "phone": "",
+      "phone": "(89) 99999-0001",
       "community": "Administracao",
       "createdAt": "2026-07-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Maria Oliveira",
+      "email": "maria@lagoaemjogo.local",
+      "password": "maria123",
+      "role": "organizador",
+      "status": "ativo",
+      "phone": "(89) 99999-0002",
+      "community": "Centro",
+      "createdAt": "2026-07-02T00:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "Joao Fotografo",
+      "email": "joao.foto@lagoaemjogo.local",
+      "password": "joao123",
+      "role": "fotografo",
+      "status": "ativo",
+      "phone": "(89) 99999-0003",
+      "community": "Boqueirao",
+      "createdAt": "2026-07-02T00:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "name": "Pedro Santos",
+      "email": "pedro@lagoaemjogo.local",
+      "password": "pedro123",
+      "role": "usuario",
+      "status": "ativo",
+      "phone": "(89) 99999-0004",
+      "community": "Vila Nova",
+      "createdAt": "2026-07-03T00:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "name": "Ana Costa",
+      "email": "ana@lagoaemjogo.local",
+      "password": "ana123",
+      "role": "usuario",
+      "status": "bloqueado",
+      "phone": "",
+      "community": "Saudade",
+      "createdAt": "2026-07-03T00:00:00.000Z"
     }
   ],
   "roles": [
@@ -79,28 +123,28 @@
     {
       "id": 1,
       "name": "Campeonato Rural",
-      "status": "inscricoes",
+      "status": "em_andamento",
       "season": "2026",
-      "startDate": "2026-08-01",
-      "endDate": "2026-10-12",
-      "description": "Competicao voltada para equipes das comunidades rurais.",
-      "regulation": "Formato inicial em grupos, com classificacao para mata-mata.",
-      "awards": "Trofeu, medalhas e premiacao para campeao, vice e artilheiro.",
+      "startDate": "2026-07-01",
+      "endDate": "2026-09-12",
+      "description": "Competicao voltada para equipes das comunidades rurais do municipio.",
+      "regulation": "Seis equipes em turno unico. Os quatro primeiros se classificam para a semifinal.",
+      "awards": "Trofeu, medalhas e premiacao para campeao, vice, artilheiro e melhor goleiro.",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-01T00:00:00.000Z"
+      "updatedAt": "2026-07-13T21:00:00.000Z"
     },
     {
       "id": 2,
       "name": "Copa Lagoa",
-      "status": "rascunho",
+      "status": "inscricoes",
       "season": "2026",
-      "startDate": "",
-      "endDate": "",
+      "startDate": "2026-09-19",
+      "endDate": "2026-11-01",
       "description": "Copa aberta para times locais de Lagoa de Sao Francisco.",
-      "regulation": "",
-      "awards": "",
+      "regulation": "Inscricoes abertas para equipes e atletas da regiao.",
+      "awards": "Premiacao para o campeao, com trofeu e medalhas.",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-01T00:00:00.000Z"
+      "updatedAt": "2026-07-10T12:00:00.000Z"
     },
     {
       "id": 3,
@@ -117,18 +161,19 @@
     },
     {
       "id": 4,
-      "name": "Campeonato do Trabalhador das Cabeceiras",
+      "name": "Campeonato das Cabeceiras",
       "status": "rascunho",
       "season": "2026",
       "startDate": "",
       "endDate": "",
-      "description": "Torneio direcionado a equipes da regiao das Cabeceiras.",
+      "description": "Campeonato entre as comunidades da regiao das Cabeceiras.",
       "regulation": "",
       "awards": "",
-      "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-01T00:00:00.000Z"
+      "createdAt": "2026-07-05T00:00:00.000Z",
+      "updatedAt": "2026-07-05T00:00:00.000Z"
     }
-  ],
+  ]
+,
   "teams": [
     {
       "id": 1,
@@ -137,23 +182,14 @@
       "community": "Centro",
       "crestUrl": "",
       "foundedYear": "2018",
-      "coach": "Raimundo Silva",
+      "coach": "Marcos Aurelio",
       "colors": "Azul e branco",
-      "stats": {
-        "matches": 0,
-        "wins": 0,
-        "draws": 0,
-        "losses": 0,
-        "goalsFor": 0,
-        "goalsAgainst": 0,
-        "points": 0
-      },
-      "squad": "Elenco em definicao para a temporada 2026.",
-      "upcomingMatches": "Proximos jogos serao cadastrados na fase de partidas.",
-      "recentResults": "Sem resultados registrados.",
-      "gallery": "Galeria sera vinculada nas proximas fases.",
+      "squad": "Joao Victor Sousa, Pedro Henrique Souza, Antonio Carlos",
+      "upcomingMatches": "Rodada 3 x Vila Nova FC",
+      "recentResults": "V 2x1 Unidos do Campo | D 2x3 Estrela do Sertao",
+      "gallery": "",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-01T00:00:00.000Z"
+      "updatedAt": "2026-07-13T21:00:00.000Z"
     },
     {
       "id": 2,
@@ -161,24 +197,111 @@
       "championshipId": 1,
       "community": "Zona Rural",
       "crestUrl": "",
-      "foundedYear": "2020",
-      "coach": "Antonio Pereira",
-      "colors": "Verde e branco",
-      "stats": {
-        "matches": 0,
-        "wins": 0,
-        "draws": 0,
-        "losses": 0,
-        "goalsFor": 0,
-        "goalsAgainst": 0,
-        "points": 0
-      },
-      "squad": "Elenco em montagem.",
-      "upcomingMatches": "Agenda a definir.",
-      "recentResults": "Sem resultados registrados.",
-      "gallery": "Sem imagens cadastradas.",
+      "foundedYear": "2015",
+      "coach": "Raimundo Nonato",
+      "colors": "Verde e amarelo",
+      "squad": "Carlos Henrique Lima, Rafael Alves, Josue Pereira",
+      "upcomingMatches": "Rodada 3 x Saudade FC",
+      "recentResults": "D 1x2 Time da Lagoa | V 2x0 Boa Esperanca EC",
+      "gallery": "",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-01T00:00:00.000Z"
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "Estrela do Sertao",
+      "championshipId": 1,
+      "community": "Boqueirao",
+      "crestUrl": "",
+      "foundedYear": "2019",
+      "coach": "Francisco das Chagas",
+      "colors": "Amarelo e preto",
+      "squad": "Lucas Gabriel Moura, Igor Ferreira, Caio Vinicius",
+      "upcomingMatches": "Rodada 3 x Boa Esperanca EC",
+      "recentResults": "V 3x0 Vila Nova FC | V 3x2 Time da Lagoa",
+      "gallery": "",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "name": "Vila Nova FC",
+      "championshipId": 1,
+      "community": "Vila Nova",
+      "crestUrl": "",
+      "foundedYear": "2016",
+      "coach": "Sebastiao Alves",
+      "colors": "Vermelho e branco",
+      "squad": "Antonio Marcos Silva, Bruno Cesar Melo, Davi Henrique",
+      "upcomingMatches": "Rodada 3 x Time da Lagoa",
+      "recentResults": "D 0x3 Estrela do Sertao | D 1x2 Saudade FC",
+      "gallery": "",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "name": "Boa Esperanca EC",
+      "championshipId": 1,
+      "community": "Boa Esperanca",
+      "crestUrl": "",
+      "foundedYear": "2014",
+      "coach": "Jose Carlos Rodrigues",
+      "colors": "Azul celeste",
+      "squad": "Daniel Rodrigues, Eduardo Lima Neto, Felipe Souza",
+      "upcomingMatches": "Rodada 3 x Estrela do Sertao",
+      "recentResults": "E 1x1 Saudade FC | D 0x2 Unidos do Campo",
+      "gallery": "",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "name": "Saudade FC",
+      "championshipId": 1,
+      "community": "Saudade",
+      "crestUrl": "",
+      "foundedYear": "2017",
+      "coach": "Antonio Neto",
+      "colors": "Preto e branco",
+      "squad": "Gabriel Soares, Mateus Oliveira, Renan Castro",
+      "upcomingMatches": "Rodada 3 x Unidos do Campo",
+      "recentResults": "E 1x1 Boa Esperanca EC | V 2x1 Vila Nova FC",
+      "gallery": "",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "name": "Atletico Cabeceiras",
+      "championshipId": 2,
+      "community": "Cabeceiras",
+      "crestUrl": "",
+      "foundedYear": "2013",
+      "coach": "Raimundo Sousa",
+      "colors": "Branco e verde",
+      "squad": "Igor Ferreira, Natan Lima, Weverton Silva",
+      "upcomingMatches": "",
+      "recentResults": "",
+      "gallery": "",
+      "createdAt": "2026-07-05T00:00:00.000Z",
+      "updatedAt": "2026-07-05T00:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "name": "Juventude do Riacho",
+      "championshipId": 2,
+      "community": "Riacho Grande",
+      "crestUrl": "",
+      "foundedYear": "2015",
+      "coach": "Paulo Sergio Araujo",
+      "colors": "Amarelo e azul",
+      "squad": "Otavio Reis, Paulo Sergio Nunes, Lindomar Costa",
+      "upcomingMatches": "",
+      "recentResults": "",
+      "gallery": "",
+      "createdAt": "2026-07-05T00:00:00.000Z",
+      "updatedAt": "2026-07-05T00:00:00.000Z"
     }
   ],
   "athletes": [
@@ -190,29 +313,189 @@
       "position": "Atacante",
       "age": "24",
       "stats": {
-        "matches": 0,
-        "goals": 0,
+        "matches": 2,
+        "goals": 3,
         "yellowCards": 0,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-01T00:00:00.000Z"
+      "updatedAt": "2026-07-13T21:00:00.000Z"
     },
     {
       "id": 2,
+      "fullName": "Pedro Henrique Souza",
+      "photoUrl": "",
+      "teamId": 1,
+      "position": "Meia",
+      "age": "26",
+      "stats": {
+        "matches": 2,
+        "goals": 1,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 3,
       "fullName": "Carlos Henrique Lima",
       "photoUrl": "",
       "teamId": 2,
       "position": "Meia",
       "age": "27",
       "stats": {
-        "matches": 0,
+        "matches": 2,
+        "goals": 2,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "fullName": "Rafael Alves",
+      "photoUrl": "",
+      "teamId": 2,
+      "position": "Zagueiro",
+      "age": "29",
+      "stats": {
+        "matches": 2,
         "goals": 0,
+        "yellowCards": 2,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "fullName": "Francisco das Chagas",
+      "photoUrl": "",
+      "teamId": 3,
+      "position": "Atacante",
+      "age": "31",
+      "stats": {
+        "matches": 2,
+        "goals": 5,
         "yellowCards": 0,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-01T00:00:00.000Z"
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "fullName": "Lucas Gabriel Moura",
+      "photoUrl": "",
+      "teamId": 3,
+      "position": "Meia",
+      "age": "22",
+      "stats": {
+        "matches": 2,
+        "goals": 3,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "fullName": "Antonio Marcos Silva",
+      "photoUrl": "",
+      "teamId": 4,
+      "position": "Goleiro",
+      "age": "23",
+      "stats": {
+        "matches": 2,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 1
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "fullName": "Bruno Cesar Melo",
+      "photoUrl": "",
+      "teamId": 4,
+      "position": "Lateral",
+      "age": "25",
+      "stats": {
+        "matches": 2,
+        "goals": 1,
+        "yellowCards": 2,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "fullName": "Daniel Rodrigues",
+      "photoUrl": "",
+      "teamId": 5,
+      "position": "Atacante",
+      "age": "28",
+      "stats": {
+        "matches": 2,
+        "goals": 4,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "fullName": "Eduardo Lima Neto",
+      "photoUrl": "",
+      "teamId": 5,
+      "position": "Volante",
+      "age": "24",
+      "stats": {
+        "matches": 2,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "fullName": "Gabriel Soares",
+      "photoUrl": "",
+      "teamId": 6,
+      "position": "Meia",
+      "age": "21",
+      "stats": {
+        "matches": 2,
+        "goals": 2,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 12,
+      "fullName": "Mateus Oliveira",
+      "photoUrl": "",
+      "teamId": 6,
+      "position": "Zagueiro",
+      "age": "26",
+      "stats": {
+        "matches": 2,
+        "goals": 1,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-13T21:00:00.000Z"
     }
   ],
   "matches": [
@@ -223,7 +506,127 @@
       "round": "Rodada 1",
       "homeTeamId": 1,
       "awayTeamId": 2,
-      "date": "2026-08-01",
+      "date": "2026-07-05",
+      "time": "16:00",
+      "field": "Campo municipal",
+      "location": "Centro, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": 2,
+        "away": 1
+      },
+      "status": "encerrado",
+      "closedAt": "2026-07-05T17:45:00.000Z",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-05T17:45:00.000Z"
+    },
+    {
+      "id": 2,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 1",
+      "homeTeamId": 3,
+      "awayTeamId": 4,
+      "date": "2026-07-05",
+      "time": "17:30",
+      "field": "Campo municipal",
+      "location": "Centro, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": 3,
+        "away": 0
+      },
+      "status": "encerrado",
+      "closedAt": "2026-07-05T19:15:00.000Z",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-05T19:15:00.000Z"
+    },
+    {
+      "id": 3,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 1",
+      "homeTeamId": 5,
+      "awayTeamId": 6,
+      "date": "2026-07-06",
+      "time": "15:00",
+      "field": "Campo do Boqueirao",
+      "location": "Boqueirao, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": 1,
+        "away": 1
+      },
+      "status": "encerrado",
+      "closedAt": "2026-07-06T16:45:00.000Z",
+      "createdAt": "2026-07-01T00:00:00.000Z",
+      "updatedAt": "2026-07-06T16:45:00.000Z"
+    },
+    {
+      "id": 4,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 2",
+      "homeTeamId": 1,
+      "awayTeamId": 3,
+      "date": "2026-07-12",
+      "time": "16:00",
+      "field": "Campo municipal",
+      "location": "Centro, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": 2,
+        "away": 3
+      },
+      "status": "encerrado",
+      "closedAt": "2026-07-12T17:45:00.000Z",
+      "createdAt": "2026-07-07T00:00:00.000Z",
+      "updatedAt": "2026-07-12T17:45:00.000Z"
+    },
+    {
+      "id": 5,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 2",
+      "homeTeamId": 2,
+      "awayTeamId": 5,
+      "date": "2026-07-12",
+      "time": "17:30",
+      "field": "Campo da Zona Rural",
+      "location": "Zona Rural, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": 2,
+        "away": 0
+      },
+      "status": "encerrado",
+      "closedAt": "2026-07-12T19:15:00.000Z",
+      "createdAt": "2026-07-07T00:00:00.000Z",
+      "updatedAt": "2026-07-12T19:15:00.000Z"
+    },
+    {
+      "id": 6,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 2",
+      "homeTeamId": 4,
+      "awayTeamId": 6,
+      "date": "2026-07-13",
+      "time": "15:00",
+      "field": "Campo da Vila Nova",
+      "location": "Vila Nova, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": 1,
+        "away": 2
+      },
+      "status": "encerrado",
+      "closedAt": "2026-07-13T16:45:00.000Z",
+      "createdAt": "2026-07-07T00:00:00.000Z",
+      "updatedAt": "2026-07-13T16:45:00.000Z"
+    },
+    {
+      "id": 7,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 3",
+      "homeTeamId": 1,
+      "awayTeamId": 4,
+      "date": "2026-08-16",
       "time": "16:00",
       "field": "Campo municipal",
       "location": "Centro, Lagoa de Sao Francisco - PI",
@@ -233,16 +636,56 @@
       },
       "status": "agendado",
       "closedAt": null,
-      "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-01T00:00:00.000Z"
+      "createdAt": "2026-07-14T00:00:00.000Z",
+      "updatedAt": "2026-07-14T00:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 3",
+      "homeTeamId": 3,
+      "awayTeamId": 5,
+      "date": "2026-08-17",
+      "time": "16:00",
+      "field": "Campo municipal",
+      "location": "Centro, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": "",
+        "away": ""
+      },
+      "status": "agendado",
+      "closedAt": null,
+      "createdAt": "2026-07-14T00:00:00.000Z",
+      "updatedAt": "2026-07-14T00:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "championshipId": 1,
+      "stage": "Primeira fase",
+      "round": "Rodada 3",
+      "homeTeamId": 6,
+      "awayTeamId": 2,
+      "date": "2026-08-17",
+      "time": "17:30",
+      "field": "Campo municipal",
+      "location": "Centro, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": "",
+        "away": ""
+      },
+      "status": "agendado",
+      "closedAt": null,
+      "createdAt": "2026-07-14T00:00:00.000Z",
+      "updatedAt": "2026-07-14T00:00:00.000Z"
     }
   ],
   "featuredMatches": [
     {
       "id": 1,
       "homeTeam": "Time da Lagoa",
-      "awayTeam": "Unidos do Campo",
-      "date": "A definir",
+      "awayTeam": "Vila Nova FC",
+      "date": "2026-08-16",
       "field": "Campo municipal"
     }
   ],
@@ -253,7 +696,7 @@
       "category": "Campeonatos",
       "summary": "Organizacao inicia os ajustes para receber equipes das comunidades rurais.",
       "content": "A organizacao do Campeonato Rural abriu a preparacao para a temporada 2026 com foco no cadastro de equipes, definicao da tabela e comunicacao oficial com os torcedores.",
-      "coverImageUrl": "",
+      "coverImageUrl": "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=1200&q=80",
       "galleryImages": [],
       "status": "publicado",
       "authorId": 1,
@@ -261,6 +704,69 @@
       "publishedAt": "2026-07-01T10:00:00.000Z",
       "createdAt": "2026-07-01T10:00:00.000Z",
       "updatedAt": "2026-07-01T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "title": "Primeira rodada do Campeonato Rural tem jogos disputados",
+      "category": "Resultados",
+      "summary": "Estrela do Sertao estreia com vitoria de 3 a 0 e lidera a rodada.",
+      "content": "A primeira rodada do Campeonato Rural movimentou os campos da cidade. O destaque ficou por conta da vitoria do Estrela do Sertao sobre o Vila Nova FC por 3 a 0, com grande atuacao do atacante Francisco das Chagas.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1200&q=80",
+      "galleryImages": [
+        "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1553778263-73a83bab9b0c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "publicado",
+      "authorId": 2,
+      "authorName": "Maria Oliveira",
+      "publishedAt": "2026-07-07T09:00:00.000Z",
+      "createdAt": "2026-07-07T09:00:00.000Z",
+      "updatedAt": "2026-07-07T09:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "title": "Estrela do Sertao lidera a classificacao na segunda rodada",
+      "category": "Classificacao",
+      "summary": "Com seis pontos, time do Boqueirao assume a lideranca com seis gols marcados.",
+      "content": "Depois de vencer o Time da Lagoa por 3 a 2 no classico da rodada, o Estrela do Sertao assumiu a lideranca isolada da classificacao do Campeonato Rural com seis pontos e o melhor ataque da competicao.",
+      "coverImageUrl": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80",
+      "galleryImages": [],
+      "status": "publicado",
+      "authorId": 1,
+      "authorName": "Administrador",
+      "publishedAt": "2026-07-14T08:30:00.000Z",
+      "createdAt": "2026-07-14T08:30:00.000Z",
+      "updatedAt": "2026-07-14T08:30:00.000Z"
+    },
+    {
+      "id": 4,
+      "title": "Copa Lagoa abre inscricoes para equipes da regiao",
+      "category": "Campeonatos",
+      "summary": "Times interessados podem confirmar participacao ate o inicio de setembro.",
+      "content": "A Copa Lagoa 2026 esta com inscricoes abertas para equipes amadoras de toda a regiao. A competicao tem previsao de inicio para setembro e promete reunir as principais forcas do futebol local.",
+      "coverImageUrl": "",
+      "galleryImages": [],
+      "status": "publicado",
+      "authorId": 2,
+      "authorName": "Maria Oliveira",
+      "publishedAt": "2026-07-15T14:00:00.000Z",
+      "createdAt": "2026-07-15T14:00:00.000Z",
+      "updatedAt": "2026-07-15T14:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "title": "Organizacao define data da cerimonia de premiacao do Rural",
+      "category": "Campeonatos",
+      "summary": "Premiacao esta prevista para o encerramento da fase final do campeonato.",
+      "content": "A comissao organizadora do Campeonato Rural define os detalhes da cerimonia de premiacao que encerrara a temporada 2026 da competicao.",
+      "coverImageUrl": "",
+      "galleryImages": [],
+      "status": "rascunho",
+      "authorId": 2,
+      "authorName": "Maria Oliveira",
+      "publishedAt": "",
+      "createdAt": "2026-07-15T15:30:00.000Z",
+      "updatedAt": "2026-07-15T15:30:00.000Z"
     }
   ],
   "galleries": [
@@ -278,11 +784,50 @@
       ],
       "saleUrl": "",
       "status": "publicado",
-      "authorId": 1,
-      "authorName": "Administrador",
-      "publishedAt": "2026-07-01T11:00:00.000Z",
-      "createdAt": "2026-07-01T11:00:00.000Z",
-      "updatedAt": "2026-07-01T11:00:00.000Z"
+      "authorId": 3,
+      "authorName": "Joao Fotografo",
+      "publishedAt": "2026-07-03T11:00:00.000Z",
+      "createdAt": "2026-07-03T11:00:00.000Z",
+      "updatedAt": "2026-07-03T11:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "title": "Primeira rodada no campo municipal",
+      "type": "jogo",
+      "championshipId": 1,
+      "matchId": 1,
+      "eventName": "",
+      "description": "Os melhores momentos da abertura do Campeonato Rural registrados pela equipe de fotografia.",
+      "images": [
+        "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1553778263-73a83bab9b0c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "saleUrl": "https://example.com/fotos-primeira-rodada",
+      "status": "publicado",
+      "authorId": 3,
+      "authorName": "Joao Fotografo",
+      "publishedAt": "2026-07-06T18:00:00.000Z",
+      "createdAt": "2026-07-06T18:00:00.000Z",
+      "updatedAt": "2026-07-06T18:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "title": "Festa de abertura da temporada 2026",
+      "type": "evento",
+      "championshipId": "",
+      "matchId": "",
+      "eventName": "Abertura Municipal de Futebol",
+      "description": "Cobertura fotografica do evento que marcou o inicio da temporada esportiva do municipio.",
+      "images": [
+        "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "saleUrl": "",
+      "status": "publicado",
+      "authorId": 3,
+      "authorName": "Joao Fotografo",
+      "publishedAt": "2026-06-28T12:00:00.000Z",
+      "createdAt": "2026-06-28T12:00:00.000Z",
+      "updatedAt": "2026-06-28T12:00:00.000Z"
     }
   ],
   "comments": [
@@ -293,7 +838,7 @@
       "newsId": 1,
       "content": "Vai ser uma grande temporada para o futebol local.",
       "status": "pendente",
-      "createdAt": "2026-07-01T08:00:00.000Z"
+      "createdAt": "2026-07-02T08:00:00.000Z"
     },
     {
       "id": 2,
@@ -301,7 +846,34 @@
       "context": "Palpite",
       "content": "A final promete campo cheio e jogo disputado.",
       "status": "aprovado",
-      "createdAt": "2026-07-01T09:00:00.000Z"
+      "createdAt": "2026-07-02T09:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "authorName": "Torcedor do Sertao",
+      "context": "Noticia",
+      "newsId": 2,
+      "content": "Que show do Estrela do Sertao! O Francisco das Chagas esta em grande fase.",
+      "status": "pendente",
+      "createdAt": "2026-07-08T10:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "authorName": "Zeca da Vila",
+      "context": "Noticia",
+      "newsId": 3,
+      "content": "A lideranca foi merecida, mas o Time da Lagoa ainda briga pelo titulo.",
+      "status": "rejeitado",
+      "createdAt": "2026-07-14T11:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "authorName": "Maria Oliveira",
+      "context": "Noticia",
+      "newsId": 4,
+      "content": "As equipes que quiserem participar podem procurar a organizacao ate o inicio de setembro.",
+      "status": "aprovado",
+      "createdAt": "2026-07-15T16:00:00.000Z"
     }
   ]
 }
