@@ -1,14 +1,14 @@
 /* Service Worker - Lagoa em Jogo */
 /* Cache simples do "shell" da aplicacao para preparacao PWA. */
 
-const CACHE = "lej-cache-v1";
+const CACHE = "lej-cache-v2";
 const SHELL = [
   "/",
   "/index.html",
   "/styles/app.css",
   "/scripts/app.js",
   "/manifest.webmanifest",
-  "/icons/icon.svg"
+  "/icons/lagoa-em-jogo.png"
 ];
 
 self.addEventListener("install", (event) => {
