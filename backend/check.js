@@ -48,6 +48,11 @@ if (!Array.isArray(database.galleries)) {
   process.exit(1);
 }
 
+if (!Array.isArray(database.favorites)) {
+  console.error("Colecao de favoritos ausente no banco de dados.");
+  process.exit(1);
+}
+
 require("./server");
 
 const source = fs.readFileSync(path.join(__dirname, "server.js"), "utf8");
@@ -57,4 +62,9 @@ if (!source.includes('"/api/search"')) {
   process.exit(1);
 }
 
-console.log("Estrutura da fase 10 validada.");
+if (!source.includes('"/api/favorites"')) {
+  console.error("Rotas de favoritos da fase 11 ausentes no server.js.");
+  process.exit(1);
+}
+
+console.log("Estrutura da fase 11 validada.");

@@ -24,6 +24,7 @@ function readDatabase() {
   database.matches = database.matches || [];
   database.news = database.news || [];
   database.galleries = database.galleries || [];
+  database.favorites = database.favorites || [];
   return database;
 }
 
@@ -103,6 +104,42 @@ function getAdminUser(user) {
     ...getPublicUser(user),
     resetRequestedAt: user.resetRequestedAt || null
   };
+}
+
+function getPublicFavorite(favorite, database) {
+  let item = null;
+
+  if (favorite.type === "time") {
+    const team = findTeamById(database, Number(favorite.itemId));
+    item = team ? getPublicTeam(team, database) : null;
+  } else if (favorite.type === "campeonato") {
+    const championship = findChampionshipById(database, Number(favorite.itemId));
+    item = championship ? getPublicChampionship(championship) : null;
+  }
+
+  if (!item) {
+    return null;
+  }
+
+  return {
+    id: favorite.id,
+    type: favorite.type,
+    itemId: Number(favorite.itemId),
+    item,
+    createdAt: favorite.createdAt || null
+  };
+}
+
+function getPublicFavorites(database, user) {
+  if (!user) {
+    return [];
+  }
+
+  return database.favorites
+    .filter((favorite) => Number(favorite.userId) === Number(user.id))
+    .map((favorite) => getPublicFavorite(favorite, database))
+    .filter(Boolean)
+    .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
 }
 
 function getPublicChampionship(championship) {
@@ -909,7 +946,8 @@ async function handleApi(request, response) {
         .sort((a, b) => String(b.publishedAt || b.createdAt || "").localeCompare(String(a.publishedAt || a.createdAt || "")))
         .map((gallery) => getPublicGallery(gallery, database)),
       featuredMatches: database.featuredMatches,
-      user: getPublicUser(getSessionUser(request))
+      user: getPublicUser(getSessionUser(request)),
+      favorites: getPublicFavorites(database, getSessionUser(request))
     });
     return;
   }
@@ -1047,8 +1085,114 @@ async function handleApi(request, response) {
 
   if (request.method === "GET" && request.url === "/api/me") {
     sendJson(response, 200, {
-      user: getPublicUser(getSessionUser(request))
+      user: getPublicUser(getSessionUser(request)),
+      favorites: getPublicFavorites(database, getSessionUser(request))
     });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/favorites") {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na conta para favoritar conteudos." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const type = normalizeText(body.type);
+      const itemId = Number(body.itemId);
+
+      if (!["time", "campeonato"].includes(type)) {
+        sendJson(response, 400, { message: "Tipo de favorito invalido. Use 'time' ou 'campeonato'." });
+        return;
+      }
+
+      const itemExists = type === "time"
+        ? Boolean(findTeamById(database, itemId))
+        : Boolean(findChampionshipById(database, itemId));
+
+      if (!itemExists) {
+        sendJson(response, 404, { message: type === "time" ? "Time nao encontrado." : "Campeonato nao encontrado." });
+        return;
+      }
+
+      const existing = database.favorites.find((favorite) => {
+        return Number(favorite.userId) === Number(sessionUser.id) && favorite.type === type && Number(favorite.itemId) === itemId;
+      });
+
+      if (existing) {
+        sendJson(response, 409, { message: "Este item ja esta nos seus favoritos." });
+        return;
+      }
+
+      const favorite = {
+        id: database.favorites.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        userId: sessionUser.id,
+        type,
+        itemId,
+        createdAt: new Date().toISOString()
+      };
+
+      database.favorites.push(favorite);
+      writeDatabase(database);
+
+      sendJson(response, 201, {
+        message: "Item adicionado aos favoritos.",
+        favorite: getPublicFavorite(favorite, database)
+      });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel adicionar o favorito." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/favorites") {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na conta para ver seus favoritos." });
+      return;
+    }
+
+    sendJson(response, 200, {
+      favorites: getPublicFavorites(database, sessionUser)
+    });
+    return;
+  }
+
+  if (request.method === "DELETE" && url.pathname.startsWith("/api/favorites/")) {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na conta para gerenciar favoritos." });
+      return;
+    }
+
+    const segments = url.pathname.replace("/api/favorites/", "").split("/").filter(Boolean);
+    const type = normalizeText(segments[0]);
+    const itemId = Number(segments[1]);
+
+    if (!["time", "campeonato"].includes(type) || !itemId) {
+      sendJson(response, 400, { message: "Favorito invalido." });
+      return;
+    }
+
+    const favorite = database.favorites.find((item) => {
+      return Number(item.userId) === Number(sessionUser.id) && item.type === type && Number(item.itemId) === itemId;
+    });
+
+    if (!favorite) {
+      sendJson(response, 404, { message: "Favorito nao encontrado." });
+      return;
+    }
+
+    database.favorites = database.favorites.filter((item) => item.id !== favorite.id);
+    writeDatabase(database);
+
+    sendJson(response, 200, { message: "Item removido dos favoritos." });
     return;
   }
 

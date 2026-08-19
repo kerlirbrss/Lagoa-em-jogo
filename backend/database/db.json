@@ -172,8 +172,7 @@
       "createdAt": "2026-07-05T00:00:00.000Z",
       "updatedAt": "2026-07-05T00:00:00.000Z"
     }
-  ]
-,
+  ],
   "teams": [
     {
       "id": 1,
@@ -874,6 +873,36 @@
       "content": "As equipes que quiserem participar podem procurar a organizacao ate o inicio de setembro.",
       "status": "aprovado",
       "createdAt": "2026-07-15T16:00:00.000Z"
+    }
+  ],
+  "favorites": [
+    {
+      "id": 1,
+      "userId": 1,
+      "type": "time",
+      "itemId": 1,
+      "createdAt": "2026-07-02T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "type": "campeonato",
+      "itemId": 1,
+      "createdAt": "2026-07-02T10:05:00.000Z"
+    },
+    {
+      "id": 3,
+      "userId": 4,
+      "type": "time",
+      "itemId": 3,
+      "createdAt": "2026-07-04T11:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "userId": 4,
+      "type": "campeonato",
+      "itemId": 2,
+      "createdAt": "2026-07-04T11:10:00.000Z"
     }
   ]
 }

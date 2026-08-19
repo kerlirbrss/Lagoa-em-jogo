@@ -30,7 +30,7 @@ Desenvolver uma plataforma web que permita:
 
 ## Status atual do desenvolvimento
 
-O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 10 do plano de evolução, conforme documentação do produto e da implementação.
+O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 11 do plano de evolução, conforme documentação do produto e da implementação.
 
 ### Fases implementadas
 
@@ -100,7 +100,12 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
   - normalização de acentos e correspondência por trecho do texto;
   - resultados agrupados por categoria com navegação para as seções.
 
-> A partir da Fase 11, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
+- Fase 11 — Favoritos
+  - favoritar times e campeonatos;
+  - lista de favoritos por usuário (autenticado);
+  - exibição de conteúdos personalizados na página inicial.
+
+> A partir da Fase 12, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
 
 ---
 
@@ -115,6 +120,8 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
 - classificação e estatísticas por campeonato;
 - notícias com comentários;
 - galeria de imagens;
+- busca global por campeonatos, times, atletas e notícias;
+- favoritar times e campeonatos com seção de favoritos personalizada;
 - área de conta para cadastro, login e edição de perfil;
 - layout responsivo para dispositivos móveis e desktop;
 - suporte a tema claro/escuro;
@@ -279,10 +286,10 @@ A estrutura atual permite demonstrar de forma clara o valor do produto, com uma 
 
 As próximas etapas previstas pela documentação do projeto e pelo roadmap de evolução são:
 
-- Favoritos e personalização da experiência;
 - Notificações para usuários;
 - Sistema de palpites;
 - Conta do usuário com gestão mais completa;
+- Página inicial agregada (banner, destaque, artilheiros);
 - Central de contato;
 - Melhorias em páginas de erro e SEO;
 - Testes automatizados e validação de qualidade;

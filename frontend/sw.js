@@ -1,7 +1,7 @@
 /* Service Worker - Lagoa em Jogo */
 /* Cache simples do "shell" da aplicacao para preparacao PWA. */
 
-const CACHE = "lej-cache-v3";
+const CACHE = "lej-cache-v4";
 const SHELL = [
   "/",
   "/index.html",

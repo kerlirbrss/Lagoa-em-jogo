@@ -1,5 +1,8 @@
 const state = {
-  user: null
+  user: null,
+  favorites: [],
+  championships: [],
+  teams: []
 };
 
 const elements = {
@@ -28,7 +31,9 @@ const elements = {
   searchInput: document.querySelector("#search-input"),
   searchResultsSection: document.querySelector("#resultados"),
   searchStatus: document.querySelector("#search-status"),
-  searchResults: document.querySelector("#search-results")
+  searchResults: document.querySelector("#search-results"),
+  favoritesSection: document.querySelector("#favoritos"),
+  favoritesList: document.querySelector("#favorites-list")
 };
 
 async function api(path, options = {}) {
@@ -54,7 +59,10 @@ function renderChampionships(championships) {
     .map((championship) => {
       return `
         <article class="championship-card">
-          <span>${championship.season} - ${formatChampionshipStatus(championship.status)}</span>
+          <div class="card-topbar">
+            <span>${championship.season} - ${formatChampionshipStatus(championship.status)}</span>
+            ${getFavoriteButtonHtml("campeonato", championship.id)}
+          </div>
           <h3>${championship.name}</h3>
           <p>${championship.description || "Campeonato em preparacao."}</p>
           <small>${formatChampionshipDates(championship)}</small>
@@ -80,6 +88,7 @@ function renderTeams(teams) {
               <span>${team.championshipName}</span>
               <h3>${team.name}</h3>
             </div>
+            ${getFavoriteButtonHtml("time", team.id)}
           </div>
           <p>${team.community}</p>
           <dl class="team-meta">
@@ -129,6 +138,132 @@ function renderAthletes(athletes) {
       `;
     })
     .join("");
+}
+
+function isFavorite(type, itemId) {
+  return state.favorites.some((favorite) => {
+    return favorite.type === type && Number(favorite.itemId) === Number(itemId);
+  });
+}
+
+function getFavoriteButtonHtml(type, itemId) {
+  if (!state.user) {
+    return "";
+  }
+
+  const active = isFavorite(type, itemId);
+  const label = active ? "Remover dos favoritos" : "Adicionar aos favoritos";
+
+  return `
+    <button
+      class="favorite-button${active ? " active" : ""}"
+      type="button"
+      data-favorite-type="${type}"
+      data-favorite-id="${itemId}"
+      aria-pressed="${active}"
+      aria-label="${label}"
+      title="${label}"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${active ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2l2.9 6.26L21 9.27l-4.5 4.6L17.8 21 12 17.77 6.2 21l1.3-7.13L3 9.27l6.1-1.01z"/>
+      </svg>
+    </button>
+  `;
+}
+
+function renderFavorites() {
+  if (!elements.favoritesSection || !elements.favoritesList) {
+    return;
+  }
+
+  const favorites = state.favorites;
+  elements.favoritesSection.hidden = favorites.length === 0;
+
+  elements.favoritesList.innerHTML = favorites.length
+    ? favorites.map((favorite) => {
+      const item = favorite.item;
+      if (!item) {
+        return "";
+      }
+
+      const crest = favorite.type === "time" && item.crestUrl
+        ? `<img src="${item.crestUrl}" alt="Escudo do ${item.name}">`
+        : `<span>${getTeamInitials(item.name)}</span>`;
+
+      const detail = favorite.type === "time"
+        ? `${item.championshipName} - ${item.community || ""}`
+        : `${item.season} - ${formatChampionshipStatus(item.status)}`;
+
+      return `
+        <article class="favorite-card">
+          <div class="favorite-crest">${crest}</div>
+          <div class="favorite-info">
+            <span>${favorite.type === "time" ? "Time" : "Campeonato"}</span>
+            <h3>${item.name}</h3>
+            <small>${detail}</small>
+          </div>
+          ${getFavoriteButtonHtml(favorite.type, favorite.itemId)}
+        </article>
+      `;
+    }).join("")
+    : "";
+}
+
+async function toggleFavorite(type, itemId) {
+  if (!state.user) {
+    setMessage("Entre na conta para favoritar conteudos.");
+    openTab("login", { clearMessage: false });
+    return;
+  }
+
+  try {
+    if (isFavorite(type, itemId)) {
+      await api(`/api/favorites/${type}/${itemId}`, { method: "DELETE" });
+      state.favorites = state.favorites.filter((favorite) => {
+        return !(favorite.type === type && Number(favorite.itemId) === Number(itemId));
+      });
+      setMessage("Item removido dos favoritos.");
+    } else {
+      const data = await api("/api/favorites", {
+        method: "POST",
+        body: JSON.stringify({ type, itemId })
+      });
+      state.favorites.unshift(data.favorite);
+      setMessage("Item adicionado aos favoritos.");
+    }
+
+    renderFavorites();
+    renderChampionships(state.championships);
+    renderTeams(state.teams);
+  } catch (error) {
+    setMessage(error.message);
+  }
+}
+
+/* Delegacao: botoes de favoritar em cards e na lista de favoritos */
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-favorite-type]");
+
+  if (!button) {
+    return;
+  }
+
+  const type = button.dataset.favoriteType;
+  const itemId = Number(button.dataset.favoriteId);
+  toggleFavorite(type, itemId);
+});
+
+async function loadFavorites() {
+  if (!state.user) {
+    state.favorites = [];
+  } else {
+    const data = await api("/api/favorites");
+    state.favorites = data.favorites || [];
+  }
+
+  renderFavorites();
+  renderChampionships(state.championships);
+  renderTeams(state.teams);
 }
 
 function renderMatches(matches) {
@@ -462,6 +597,10 @@ function openTab(tabName, options = {}) {
 async function loadBootstrap() {
   const data = await api("/api/bootstrap");
   state.user = data.user;
+  state.favorites = data.favorites || [];
+  state.championships = data.championships;
+  state.teams = data.teams;
+  renderFavorites();
   renderChampionships(data.championships);
   renderStatisticsChampionshipOptions(data.championships, data.championships[0]?.id);
   if (data.championships.length) {
@@ -562,6 +701,7 @@ elements.loginForm.addEventListener("submit", async (event) => {
     });
 
     state.user = data.user;
+    await loadFavorites();
     renderSession();
     openTab("profile", { clearMessage: false });
     setMessage("Login realizado com sucesso.");
@@ -590,6 +730,7 @@ elements.registerForm.addEventListener("submit", async (event) => {
 
     state.user = data.user;
     elements.registerForm.reset();
+    await loadFavorites();
     renderSession();
     openTab("profile", { clearMessage: false });
     setMessage("Conta criada e login realizado.");
@@ -647,6 +788,7 @@ elements.resetForm.addEventListener("submit", async (event) => {
 elements.logoutButton.addEventListener("click", async () => {
   await api("/api/logout", { method: "POST" });
   state.user = null;
+  await loadFavorites();
   renderSession();
   openTab("login", { clearMessage: false });
   setMessage("Sessao encerrada.");

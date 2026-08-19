@@ -81,7 +81,7 @@ Priorização:
 ### 4.3 Opcionais / pós-MVP (🟢)
 | Item | Módulo | Observação |
 |---|---|---|
-| Favoritos | Fase 11 | Não implementado — evolução |
+| Favoritos | Fase 11 | ✅ Implementado — favoritar times/campeonatos com seção personalizada na página inicial; exige sessão |
 | Notificações | Fase 12 | Não implementado — evolução |
 | Palpites | Fase 13 | Não implementado — evolução |
 | Auditoria/logs administrativos | Fase 22 | Não implementado — evolução |
