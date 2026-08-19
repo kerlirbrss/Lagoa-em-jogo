@@ -402,6 +402,70 @@ function normalizeOptionalYear(value) {
   return year;
 }
 
+function normalizeSearchText(value) {
+  return normalizeText(value)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function matchesSearchQuery(value, query) {
+  return normalizeSearchText(value).includes(query);
+}
+
+function buildSearchResults(database, rawQuery, requestedLimit) {
+  const query = normalizeSearchText(rawQuery);
+  const limit = Math.min(Math.max(Number(requestedLimit) || 5, 1), 20);
+
+  const matchChampionship = (championship) => {
+    return [championship.name, championship.season, championship.description, championship.regulation, championship.awards]
+      .filter(Boolean)
+      .some((value) => matchesSearchQuery(value, query));
+  };
+
+  const matchTeam = (team) => {
+    return [team.name, team.community, team.coach, team.colors, team.foundedYear, team.squad]
+      .filter(Boolean)
+      .some((value) => matchesSearchQuery(value, query));
+  };
+
+  const matchAthlete = (athlete) => {
+    const team = findTeamById(database, Number(athlete.teamId));
+    return [athlete.fullName, athlete.position, team ? team.name : ""]
+      .filter(Boolean)
+      .some((value) => matchesSearchQuery(value, query));
+  };
+
+  const matchNews = (article) => {
+    return [article.title, article.category, article.summary, article.content]
+      .filter(Boolean)
+      .some((value) => matchesSearchQuery(value, query));
+  };
+
+  const allChampionships = database.championships.filter(matchChampionship);
+  const allTeams = database.teams.filter(matchTeam);
+  const allAthletes = database.athletes.filter(matchAthlete);
+  const allNews = database.news.filter((article) => article.status === "publicado").filter(matchNews);
+
+  return {
+    query: normalizeText(rawQuery),
+    normalizedQuery: query,
+    total: allChampionships.length + allTeams.length + allAthletes.length + allNews.length,
+    counts: {
+      championships: allChampionships.length,
+      teams: allTeams.length,
+      athletes: allAthletes.length,
+      news: allNews.length
+    },
+    results: {
+      championships: allChampionships.slice(0, limit).map(getPublicChampionship),
+      teams: allTeams.slice(0, limit).map((team) => getPublicTeam(team, database)),
+      athletes: allAthletes.slice(0, limit).map((athlete) => getPublicAthlete(athlete, database)),
+      news: allNews.slice(0, limit).map((article) => getPublicNewsArticle(article, database))
+    }
+  };
+}
+
 function findUserById(database, userId) {
   return database.users.find((user) => user.id === userId) || null;
 }
@@ -887,6 +951,24 @@ async function handleApi(request, response) {
       .map((article) => getPublicNewsArticle(article, database, { includeContent: true }));
 
     sendJson(response, 200, { news });
+    return;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/search") {
+    const query = normalizeText(url.searchParams.get("q") || "");
+    const requestedLimit = url.searchParams.get("limit");
+
+    if (!query) {
+      sendJson(response, 400, { message: "Informe um termo para buscar." });
+      return;
+    }
+
+    if (query.length < 2) {
+      sendJson(response, 400, { message: "Informe pelo menos 2 caracteres para buscar." });
+      return;
+    }
+
+    sendJson(response, 200, buildSearchResults(database, query, Number(requestedLimit)));
     return;
   }
 

@@ -66,11 +66,34 @@
             A base digital para organizar campeonatos, times, jogos, noticias,
             galerias e estatisticas do futebol local.
           </p>
+          <form class="search-box" id="search-form" role="search" aria-label="Busca global">
+            <label class="visually-hidden" for="search-input">O que voce procura?</label>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input
+              id="search-input"
+              name="q"
+              type="search"
+              placeholder="Buscar campeonatos, times, atletas e noticias"
+              autocomplete="off"
+              aria-describedby="search-hint"
+            >
+            <button class="button primary" type="submit">Buscar</button>
+          </form>
+          <p class="search-hint" id="search-hint">Ex.: "estrela", "copa lagoa", "atacante" ou "inscricoes".</p>
           <div class="hero-actions">
             <a class="button primary" href="#campeonatos">Ver campeonatos</a>
             <a class="button secondary" href="#conta">Entrar como admin</a>
           </div>
         </div>
+      </section>
+
+      <section class="section search-results-section" id="resultados" hidden>
+        <div class="section-heading">
+          <p class="eyebrow">Fase 10</p>
+          <h2>Resultados da busca</h2>
+          <p id="search-status" role="status">Digite um termo para encontrar conteudos.</p>
+        </div>
+        <div class="search-results" id="search-results"></div>
       </section>
 
       <section class="section" id="campeonatos">
@@ -288,6 +311,7 @@
       <a href="#jogos">Jogos</a>
       <a href="#estatisticas">Estatisticas</a>
       <a href="#galeria">Galeria</a>
+      <a href="#resultados">Busca</a>
       <a href="#perfis">Perfis</a>
       <a href="#conta">Conta</a>
       <a href="admin.html">Admin</a>
@@ -295,7 +319,7 @@
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 9 - Galeria</span>
+      <span>Ambiente de desenvolvimento da fase 10 - Pesquisa</span>
     </footer>
 
     <script src="scripts/app.js"></script>

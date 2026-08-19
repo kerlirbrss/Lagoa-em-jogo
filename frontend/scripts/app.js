@@ -23,7 +23,12 @@ const elements = {
   formMessage: document.querySelector("#form-message"),
   tabButtons: document.querySelectorAll(".tab-button"),
   accountForms: document.querySelectorAll(".account-form"),
-  galleryList: document.querySelector("#gallery-list")
+  galleryList: document.querySelector("#gallery-list"),
+  searchForm: document.querySelector("#search-form"),
+  searchInput: document.querySelector("#search-input"),
+  searchResultsSection: document.querySelector("#resultados"),
+  searchStatus: document.querySelector("#search-status"),
+  searchResults: document.querySelector("#search-results")
 };
 
 async function api(path, options = {}) {
@@ -208,6 +213,92 @@ function renderGalleries(galleries) {
       `;
     }).join("")
     : "<p>Nenhuma galeria publicada ainda.</p>";
+}
+
+function renderSearchResults(payload) {
+  const query = payload.query || "";
+  const results = payload.results || {};
+  const total = payload.total || 0;
+
+  if (!elements.searchResultsSection) {
+    return;
+  }
+
+  elements.searchResultsSection.hidden = false;
+  elements.searchStatus.textContent = query
+    ? `Foram encontrados ${total} resultado${total === 1 ? "" : "s"} para "${query}".`
+    : "Digite um termo para encontrar conteudos.";
+
+  if (total === 0) {
+    elements.searchResults.innerHTML = `
+      <p class="search-empty">
+        Nenhum resultado encontrado para "${query}". Tente outro time, atleta, campeonato ou noticia.
+      </p>
+    `;
+    return;
+  }
+
+  const groups = [
+    {
+      title: "Campeonatos",
+      icon: "M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3",
+      anchor: "#campeonatos",
+      items: (results.championships || []).map((championship) => ({
+        label: championship.name,
+        detail: `${championship.season || "Temporada a definir"} - ${formatChampionshipStatus(championship.status)}`
+      }))
+    },
+    {
+      title: "Times",
+      icon: "M12 3 4 6v5c0 4.5 3.5 8.4 8 9 4.5-.6 8-4.5 8-9V6z",
+      anchor: "#times",
+      items: (results.teams || []).map((team) => ({
+        label: team.name,
+        detail: team.community
+      }))
+    },
+    {
+      title: "Atletas",
+      icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+      anchor: "#atletas",
+      items: (results.athletes || []).map((athlete) => ({
+        label: athlete.fullName,
+        detail: `${athlete.position}${athlete.teamName ? ` - ${athlete.teamName}` : ""}`
+      }))
+    },
+    {
+      title: "Noticias",
+      icon: "M4 5h13v14H4zM17 8h3v11a2 2 0 0 1-2 2H4",
+      anchor: "#noticias",
+      items: (results.news || []).map((article) => ({
+        label: article.title,
+        detail: `${article.category} - ${article.summary || ""}`
+      }))
+    }
+  ];
+
+  elements.searchResults.innerHTML = groups
+    .filter((group) => group.items.length)
+    .map((group) => `
+      <article class="search-group">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${group.icon}"/></svg>
+          ${group.title}
+          <small>${group.items.length} resultado${group.items.length === 1 ? "" : "s"}</small>
+        </h3>
+        <ul>
+          ${group.items.map((item) => `
+            <li>
+              <a href="${group.anchor}">
+                <strong>${item.label}</strong>
+                <small>${item.detail}</small>
+              </a>
+            </li>
+          `).join("")}
+        </ul>
+      </article>
+    `)
+    .join("");
 }
 
 function renderStatisticsChampionshipOptions(championships, selectedId) {
@@ -420,6 +511,40 @@ elements.newsList.addEventListener("submit", async (event) => {
   } catch (error) {
     setMessage(error.message);
   }
+});
+
+elements.searchForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const query = elements.searchInput.value.trim();
+
+  if (!query) {
+    elements.searchStatus.textContent = "Digite um termo para buscar.";
+    return;
+  }
+
+  try {
+    const payload = await api(`/api/search?q=${encodeURIComponent(query)}`);
+    renderSearchResults(payload);
+
+    if (elements.searchResultsSection) {
+      elements.searchResultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  } catch (error) {
+    elements.searchStatus.textContent = error.message;
+  }
+});
+
+/* Link "Busca" do menu: leva o foco ao campo de pesquisa no hero */
+document.querySelectorAll('a[href="#resultados"]').forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (elements.searchInput) {
+      elements.searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      elements.searchInput.focus({ preventScroll: true });
+    }
+  });
 });
 
 elements.loginForm.addEventListener("submit", async (event) => {

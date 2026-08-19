@@ -50,4 +50,11 @@ if (!Array.isArray(database.galleries)) {
 
 require("./server");
 
-console.log("Estrutura da fase 9 validada.");
+const source = fs.readFileSync(path.join(__dirname, "server.js"), "utf8");
+
+if (!source.includes('"/api/search"')) {
+  console.error("Rota de pesquisa da fase 10 ausente no server.js.");
+  process.exit(1);
+}
+
+console.log("Estrutura da fase 10 validada.");

@@ -30,7 +30,7 @@ Desenvolver uma plataforma web que permita:
 
 ## Status atual do desenvolvimento
 
-O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 9 do plano de evolução, conforme documentação do produto e da implementação.
+O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 10 do plano de evolução, conforme documentação do produto e da implementação.
 
 ### Fases implementadas
 
@@ -95,7 +95,12 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
   - imagens organizadas;
   - redirecionamento para venda de fotos quando aplicável.
 
-> A partir da Fase 10, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
+- Fase 10 — Pesquisa global
+  - busca por campeonatos, times, atletas e notícias;
+  - normalização de acentos e correspondência por trecho do texto;
+  - resultados agrupados por categoria com navegação para as seções.
+
+> A partir da Fase 11, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
 
 ---
 
@@ -274,7 +279,6 @@ A estrutura atual permite demonstrar de forma clara o valor do produto, com uma 
 
 As próximas etapas previstas pela documentação do projeto e pelo roadmap de evolução são:
 
-- Pesquisa global por conteúdos;
 - Favoritos e personalização da experiência;
 - Notificações para usuários;
 - Sistema de palpites;
