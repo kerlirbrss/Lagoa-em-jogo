@@ -1,6 +1,7 @@
 const state = {
   user: null,
   favorites: [],
+  personalizedHome: null,
   championships: [],
   teams: [],
   notifications: [],
@@ -37,6 +38,7 @@ const elements = {
   searchResults: document.querySelector("#search-results"),
   favoritesSection: document.querySelector("#favoritos"),
   favoritesList: document.querySelector("#favorites-list"),
+  personalizedContent: document.querySelector("#personalized-content"),
   notificationBell: document.querySelector("#notification-bell"),
   notificationBadge: document.querySelector("#notification-badge"),
   notificationsSection: document.querySelector("#notificacoes"),
@@ -183,7 +185,7 @@ function getFavoriteButtonHtml(type, itemId) {
 }
 
 function renderFavorites() {
-  if (!elements.favoritesSection || !elements.favoritesList) {
+  if (!elements.favoritesSection || !elements.favoritesList || !elements.personalizedContent) {
     return;
   }
 
@@ -218,6 +220,28 @@ function renderFavorites() {
       `;
     }).join("")
     : "";
+
+  const personalizedHome = state.personalizedHome || {};
+  const renderMatch = (match, isResult) => `
+    <a class="personalized-match" href="#jogos">
+      <span>${match.championshipName} - ${match.round}</span>
+      <strong>${match.homeTeamName} ${isResult ? formatMatchScore(match) : "x"} ${match.awayTeamName}</strong>
+      <small>${isResult ? "Resultado" : formatMatchDateTime(match)}</small>
+    </a>
+  `;
+  const renderMatchGroup = (title, matches, isResult) => `
+    <section class="personalized-group">
+      <h3>${title}</h3>
+      ${matches.length
+        ? `<div class="personalized-match-list">${matches.map((match) => renderMatch(match, isResult)).join("")}</div>`
+        : `<p class="personalized-empty">${isResult ? "Ainda nao ha resultados para seus favoritos." : "Nao ha proximos jogos para seus favoritos."}</p>`}
+    </section>
+  `;
+
+  elements.personalizedContent.innerHTML = `
+    ${renderMatchGroup("Proximos jogos", personalizedHome.upcomingMatches || [], false)}
+    ${renderMatchGroup("Ultimos resultados", personalizedHome.recentResults || [], true)}
+  `;
 }
 
 async function toggleFavorite(type, itemId) {
@@ -243,9 +267,7 @@ async function toggleFavorite(type, itemId) {
       setMessage("Item adicionado aos favoritos.");
     }
 
-    renderFavorites();
-    renderChampionships(state.championships);
-    renderTeams(state.teams);
+    await loadFavorites();
   } catch (error) {
     setMessage(error.message);
   }
@@ -267,9 +289,11 @@ document.addEventListener("click", (event) => {
 async function loadFavorites() {
   if (!state.user) {
     state.favorites = [];
+    state.personalizedHome = null;
   } else {
-    const data = await api("/api/favorites");
+    const data = await api("/api/personalized-home");
     state.favorites = data.favorites || [];
+    state.personalizedHome = data;
   }
 
   renderFavorites();
@@ -289,6 +313,16 @@ function getNotificationTypeLabel(type) {
   };
 
   return labels[type] || "Aviso";
+}
+
+function getNotificationTarget(notification) {
+  const targets = {
+    jogo: "#jogos",
+    campeonato: "#campeonatos",
+    noticia: "#noticias"
+  };
+
+  return targets[notification.contextType] || "#inicio";
 }
 
 function formatNotificationDate(value) {
@@ -384,6 +418,8 @@ function renderNotifications() {
           <button class="notification-action" type="button" data-notification-read="${notification.id}" aria-label="Marcar como lida">Ler</button>
           <button class="notification-action" type="button" data-notification-delete="${notification.id}" aria-label="Excluir notificacao">Excluir</button>
         `;
+      const target = getNotificationTarget(notification);
+      const openLabel = notification.contextLabel ? `Abrir: ${notification.contextLabel}` : "Abrir conteudo relacionado";
 
       return `
         <article class="notification-card${readClass}">
@@ -397,7 +433,10 @@ function renderNotifications() {
           </div>
           <div class="notification-footer">
             ${contextBadge}
-            <span class="notification-actions">${actions}</span>
+            <span class="notification-actions">
+              <a class="notification-action" href="${target}" data-notification-open="${notification.id}" aria-label="${openLabel}">Abrir</a>
+              ${actions}
+            </span>
           </div>
         </article>
       `;
@@ -507,6 +546,7 @@ if (elements.notificationsList) {
   elements.notificationsList.addEventListener("click", (event) => {
     const readButton = event.target.closest("[data-notification-read]");
     const deleteButton = event.target.closest("[data-notification-delete]");
+    const openLink = event.target.closest("[data-notification-open]");
 
     if (readButton) {
       markNotificationRead(Number(readButton.dataset.notificationRead));
@@ -514,6 +554,15 @@ if (elements.notificationsList) {
 
     if (deleteButton) {
       deleteNotification(Number(deleteButton.dataset.notificationDelete));
+    }
+
+    if (openLink) {
+      const notificationId = Number(openLink.dataset.notificationOpen);
+      const notification = state.notifications.find((item) => item.id === notificationId);
+
+      if (notification && !notification.isRead) {
+        markNotificationRead(notificationId);
+      }
     }
   });
 }
@@ -906,6 +955,7 @@ async function loadBootstrap() {
   const data = await api("/api/bootstrap");
   state.user = data.user;
   state.favorites = data.favorites || [];
+  state.personalizedHome = null;
   state.championships = data.championships;
   state.teams = data.teams;
   renderFavorites();
@@ -922,6 +972,7 @@ async function loadBootstrap() {
   renderFeaturedMatch(data.matches[0] || data.featuredMatches[0]);
   renderRoles(data.roles);
   renderSession();
+  await loadFavorites();
   await loadNotifications();
   await loadNotificationPreferences();
 }

@@ -168,6 +168,38 @@ function getPublicFavorites(database, user) {
     .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
 }
 
+function buildPersonalizedHome(database, user) {
+  const favorites = getPublicFavorites(database, user);
+  const favoriteTeamIds = new Set(
+    favorites.filter((favorite) => favorite.type === "time").map((favorite) => Number(favorite.itemId))
+  );
+  const favoriteChampionshipIds = new Set(
+    favorites.filter((favorite) => favorite.type === "campeonato").map((favorite) => Number(favorite.itemId))
+  );
+  const isRelevantMatch = (match) => {
+    return favoriteChampionshipIds.has(Number(match.championshipId))
+      || favoriteTeamIds.has(Number(match.homeTeamId))
+      || favoriteTeamIds.has(Number(match.awayTeamId));
+  };
+  const byMatchDateAscending = (a, b) => `${a.date}T${a.time || "00:00"}`.localeCompare(`${b.date}T${b.time || "00:00"}`);
+  const byMatchDateDescending = (a, b) => byMatchDateAscending(b, a);
+  const relevantMatches = database.matches.filter(isRelevantMatch);
+
+  return {
+    favorites,
+    upcomingMatches: relevantMatches
+      .filter((match) => match.status !== "encerrado")
+      .sort(byMatchDateAscending)
+      .slice(0, 3)
+      .map((match) => getPublicMatch(match, database)),
+    recentResults: relevantMatches
+      .filter(hasFinishedScore)
+      .sort(byMatchDateDescending)
+      .slice(0, 3)
+      .map((match) => getPublicMatch(match, database))
+  };
+}
+
 /* ============================================================
    Notificacoes (Fase 12)
    ============================================================ */
@@ -1383,6 +1415,18 @@ async function handleApi(request, response) {
     sendJson(response, 200, {
       favorites: getPublicFavorites(database, sessionUser)
     });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/personalized-home") {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na conta para ver seus conteudos personalizados." });
+      return;
+    }
+
+    sendJson(response, 200, buildPersonalizedHome(database, sessionUser));
     return;
   }
 

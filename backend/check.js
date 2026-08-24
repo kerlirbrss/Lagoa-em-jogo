@@ -77,6 +77,11 @@ if (!source.includes('"/api/favorites"')) {
   process.exit(1);
 }
 
+if (!source.includes('"/api/personalized-home"')) {
+  console.error("Conteudos personalizados da fase 11 ausentes no server.js.");
+  process.exit(1);
+}
+
 if (!source.includes('"/api/notifications"')) {
   console.error("Rotas de notificacoes da fase 12 ausentes no server.js.");
   process.exit(1);
@@ -87,4 +92,4 @@ if (!source.includes('"/api/notification-preferences"')) {
   process.exit(1);
 }
 
-console.log("Estrutura da fase 12 validada.");
+console.log("Estrutura das fases 10, 11 e 12 validada.");

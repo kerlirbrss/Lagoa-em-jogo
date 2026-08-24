@@ -1,7 +1,7 @@
 # Avaliação de MVP — Lagoa em Jogo
 
 > Data da análise: 05/08/2026
-> Última atualização: 24/08/2026 — Fase 12 (Notificações) implementada em backend e frontend, com rotas, preferências, geração automática e testes de integração validados.
+> Última atualização: 24/08/2026 — Fases 11 (Favoritos) e 12 (Notificações) concluídas, com conteúdo personalizado e navegação direta a partir dos avisos.
 > Base: `backend/server.js`, `frontend/` (index.html, app.js, app.css), `backend/database/db.json`, `docs/implementation-plan.md` e `docs/PRD.md`.
 
 ## 1. Objetivo desta análise
@@ -40,7 +40,7 @@ Itens fora desse núcleo (pesquisa global, favoritos, notificações, palpites, 
 | Comentários | `POST /api/news/:id/comments` + `GET/PATCH /api/admin/comments` (moderação) | ✅ |
 | Admin — usuários | `GET /api/admin/users`, `PATCH /api/admin/users/:id` (role/status) | ✅ |
 | Admin — dashboard | `GET /api/admin/dashboard` | ✅ |
-| Favoritos (Fase 11) | `POST /api/favorites`, `GET /api/favorites`, `DELETE /api/favorites/:type/:id` | ✅ |
+| Favoritos (Fase 11) | `POST /api/favorites`, `GET /api/favorites`, `DELETE /api/favorites/:type/:id`, `GET /api/personalized-home` | ✅ |
 | Notificações (Fase 12) | `GET /api/notifications`, `POST /api/notifications/read`, `DELETE /api/notifications/:id`, `GET/PUT /api/notification-preferences` | ✅ |
 
 Controle de acesso por papel (visitante, usuário, organizador, fotógrafo, administrador) presente via `requireAdmin`, `requireNewsPublisher`, `requireGalleryPublisher` e sessão por cookie (`lej_session`).
@@ -52,7 +52,8 @@ Controle de acesso por papel (visitante, usuário, organizador, fotógrafo, admi
 
 ### 3.2 Frontend
 - Página única com seções: Hero, Campeonatos, Times, Atletas, Jogos (agenda + jogo em destaque), Estatísticas (filtro por campeonato, classificação, rankings), Notícias (com comentários), Galeria, Perfis (papéis), Conta (login/cadastro/perfil/recuperação) e Painel Admin.
-- **Notificações (Fase 12)**: sino no cabeçalho com contador de não lidas, seção dedicada (listar, marcar como lida/remover, "marcar todas como lidas") e painel de preferências com 4 tipos de aviso (times favoritos, campeonatos favoritos, notícias e próximos jogos).
+- **Favoritos (Fase 11)**: botões para favoritar times e campeonatos e uma área personalizada na página inicial. Ela reúne os favoritos do usuário, os próximos jogos e os últimos resultados relacionados a eles.
+- **Notificações (Fase 12)**: sino no cabeçalho com contador de não lidas, seção dedicada (listar, marcar como lida/remover, "marcar todas como lidas"), painel de preferências com 4 tipos de aviso e navegação direta para o jogo, campeonato ou notícia relacionada. Ao abrir um aviso não lido, ele é marcado como lido.
 - **Responsividade mobile-first**, **tema claro/escuro** e **preparação para PWA** (manifest + service worker + ícone) — adicionados recentemente (ver §5), com refinamentos da skill `ui-ux-pro-max` (tipografia Barlow, foco visível, transições 150–300ms, `inputmode="numeric"` em campos numéricos).
 - Barra de navegação inferior no celular (Início, Campeonatos, Times, Notícias, Mais) e navegação completa no desktop, com link "Notificações" no menu principal e no menu "Mais".
 
@@ -89,8 +90,8 @@ Priorização:
 ### 4.3 Opcionais / pós-MVP (🟢)
 | Item | Módulo | Observação |
 |---|---|---|
-| Favoritos | Fase 11 | ✅ Implementado — favoritar times/campeonatos com seção personalizada na página inicial; exige sessão |
-| Notificações | Fase 12 | ✅ Implementado — sino com contador, seção de notificações e preferências por tipo de aviso; geração automática ao agendar/encerrar jogos e publicar notícias |
+| Favoritos | Fase 11 | ✅ Concluído — favoritar/desfavoritar times e campeonatos e exibir uma página inicial personalizada com agenda e resultados relevantes; exige sessão |
+| Notificações | Fase 12 | ✅ Concluído — sino com contador, preferências, leitura/exclusão, navegação direta e geração automática ao agendar/encerrar jogos e publicar notícias |
 | Palpites | Fase 13 | Não implementado — evolução |
 | Auditoria/logs administrativos | Fase 22 | Não implementado — evolução |
 | PWA completo (instalação, offline robusto, ícones PNG) | Fase 15/17 | Preparação feita; falta icon 192/512 PNG, prompt de instalação e testes offline |
@@ -136,12 +137,10 @@ Itens de evolução (palpites, auditoria, deploy, PWA completo) **não são impe
 ## 8. Sugestão de plano de curto prazo (antes da apresentação)
 
 - [x] Instalar Node.js e validar a execução (`http://localhost:3000` respondendo).
-- [x] Rodar `npm run check` — estrutura das fases 10, 11 e 12 validada.
+- [x] Rodar `npm run check` — estrutura das fases 10, 11 e 12 validada, incluindo a rota de conteúdo personalizado da Fase 11.
 - [x] Enriquecer `db.json` com cenário demo (times, jogos encerrados, notícias, galeria, favoritos e notificações).
-- [x] Implementar Fase 12 — Notificações (backend + frontend) com teste de integração automatizado (22 afirmações passando).
+- [x] Implementar Fase 12 — Notificações (backend + frontend): preferências, geração automática, leitura/exclusão e navegação para o conteúdo relacionado.
 - [ ] Aplicar hash de senha em `register`/`login` e proteger o banco.
 - [ ] Criar páginas de erro 403/404/500 e uma página de contato.
 - [ ] (Opcional) Adicionar upload básico de imagem.
 - [ ] Realizar teste manual fim-a-fim e gravar roteiro de apresentação.
-
-
