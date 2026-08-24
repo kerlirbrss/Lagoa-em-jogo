@@ -17,6 +17,30 @@ const NEWS_STATUSES = ["rascunho", "publicado"];
 const GALLERY_STATUSES = ["rascunho", "publicado"];
 const GALLERY_TYPES = ["campeonato", "jogo", "evento"];
 
+const NOTIFICATION_TYPES = ["jogo_resultado", "proximo_jogo", "noticia_nova"];
+const NOTIFICATION_PREFERENCES = [
+  {
+    id: "times_favoritos",
+    name: "Times favoritos",
+    description: "Avise quando um jogo de um time que eu favorito for encerrado."
+  },
+  {
+    id: "campeonatos_favoritos",
+    name: "Campeonatos favoritos",
+    description: "Avise sobre resultados e novidades dos campeonatos que eu favorito."
+  },
+  {
+    id: "noticias",
+    name: "Noticias",
+    description: "Avise quando uma nova noticia for publicada na plataforma."
+  },
+  {
+    id: "proximos_jogos",
+    name: "Proximos jogos",
+    description: "Avise sobre os proximos jogos dos meus times e campeonatos favoritos."
+  }
+];
+
 function readDatabase() {
   const raw = fs.readFileSync(DB_PATH, "utf8");
   const database = JSON.parse(raw);
@@ -25,6 +49,8 @@ function readDatabase() {
   database.news = database.news || [];
   database.galleries = database.galleries || [];
   database.favorites = database.favorites || [];
+  database.notifications = database.notifications || [];
+  database.notificationPreferences = database.notificationPreferences || [];
   return database;
 }
 
@@ -140,6 +166,203 @@ function getPublicFavorites(database, user) {
     .map((favorite) => getPublicFavorite(favorite, database))
     .filter(Boolean)
     .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+}
+
+/* ============================================================
+   Notificacoes (Fase 12)
+   ============================================================ */
+
+function getPublicNotification(notification) {
+  return {
+    id: notification.id,
+    type: notification.type,
+    title: notification.title,
+    message: notification.message || "",
+    contextType: notification.contextType || "",
+    contextId: Number(notification.contextId) || 0,
+    contextLabel: notification.contextLabel || "",
+    isRead: Boolean(notification.isRead),
+    createdAt: notification.createdAt || null
+  };
+}
+
+function nextNotificationId(database) {
+  return database.notifications.reduce((highest, item) => Math.max(highest, item.id), 0) + 1;
+}
+
+function pushNotification(database, notification) {
+  const record = {
+    ...notification,
+    id: nextNotificationId(database),
+    isRead: Boolean(notification.isRead),
+    createdAt: notification.createdAt || new Date().toISOString()
+  };
+  database.notifications.push(record);
+  return record;
+}
+
+function isNotificationPreferenceEnabled(database, userId, key) {
+  const row = database.notificationPreferences.find((item) => {
+    return Number(item.userId) === Number(userId) && item.key === key;
+  });
+
+  return Boolean(!row || row.enabled !== false);
+}
+
+function getNotificationPreferencesForUser(database, user) {
+  return NOTIFICATION_PREFERENCES.map((preference) => {
+    const row = database.notificationPreferences.find((item) => {
+      return Number(item.userId) === Number(user.id) && item.key === preference.id;
+    });
+
+    return {
+      ...preference,
+      enabled: row ? row.enabled !== false : true
+    };
+  });
+}
+
+function getUsersWhoFavorited(database, type, itemId) {
+  return database.favorites
+    .filter((favorite) => favorite.type === type && Number(favorite.itemId) === Number(itemId))
+    .map((favorite) => Number(favorite.userId));
+}
+
+function notifyMatchResult(database, match) {
+  const championship = findChampionshipById(database, Number(match.championshipId));
+  const homeTeam = findTeamById(database, Number(match.homeTeamId));
+  const awayTeam = findTeamById(database, Number(match.awayTeamId));
+  const score = getDefaultMatchScore(match.score);
+  const resultLine = `${homeTeam ? homeTeam.name : "Time mandante"} ${score.home} x ${score.away} ${awayTeam ? awayTeam.name : "Time visitante"}`;
+  const message = `${resultLine} (${match.stage} - ${match.round}).`;
+  const notifiedUsers = new Set();
+
+  [match.homeTeamId, match.awayTeamId].forEach((teamId) => {
+    const team = findTeamById(database, Number(teamId));
+
+    if (!team) {
+      return;
+    }
+
+    getUsersWhoFavorited(database, "time", Number(team.id)).forEach((userId) => {
+      if (notifiedUsers.has(userId) || !isNotificationPreferenceEnabled(database, userId, "times_favoritos")) {
+        return;
+      }
+
+      notifiedUsers.add(userId);
+      pushNotification(database, {
+        userId,
+        type: "jogo_resultado",
+        title: `${team.name}: resultado atualizado`,
+        message,
+        contextType: "time",
+        contextId: team.id,
+        contextLabel: team.name
+      });
+    });
+  });
+
+  if (championship) {
+    getUsersWhoFavorited(database, "campeonato", championship.id).forEach((userId) => {
+      if (notifiedUsers.has(userId) || !isNotificationPreferenceEnabled(database, userId, "campeonatos_favoritos")) {
+        return;
+      }
+
+      notifiedUsers.add(userId);
+      pushNotification(database, {
+        userId,
+        type: "jogo_resultado",
+        title: `Resultado no ${championship.name}`,
+        message,
+        contextType: "campeonato",
+        contextId: championship.id,
+        contextLabel: championship.name
+      });
+    });
+  }
+}
+
+function notifyUpcomingMatch(database, match) {
+  const championship = findChampionshipById(database, Number(match.championshipId));
+  const homeTeam = findTeamById(database, Number(match.homeTeamId));
+  const awayTeam = findTeamById(database, Number(match.awayTeamId));
+  const matchup = `${homeTeam ? homeTeam.name : "Time mandante"} x ${awayTeam ? awayTeam.name : "Time visitante"}`;
+  const message = `${matchup} (${match.stage} - ${match.round}) em ${match.date} as ${match.time} no ${match.field}.`;
+  const notifiedUsers = new Set();
+
+  [match.homeTeamId, match.awayTeamId].forEach((teamId) => {
+    const team = findTeamById(database, Number(teamId));
+
+    if (!team) {
+      return;
+    }
+
+    getUsersWhoFavorited(database, "time", Number(team.id)).forEach((userId) => {
+      if (notifiedUsers.has(userId) || !isNotificationPreferenceEnabled(database, userId, "proximos_jogos")) {
+        return;
+      }
+
+      notifiedUsers.add(userId);
+      pushNotification(database, {
+        userId,
+        type: "proximo_jogo",
+        title: `Proximo jogo: ${matchup}`,
+        message,
+        contextType: "jogo",
+        contextId: match.id,
+        contextLabel: matchup
+      });
+    });
+  });
+
+  if (championship) {
+    getUsersWhoFavorited(database, "campeonato", championship.id).forEach((userId) => {
+      if (notifiedUsers.has(userId) || !isNotificationPreferenceEnabled(database, userId, "proximos_jogos")) {
+        return;
+      }
+
+      notifiedUsers.add(userId);
+      pushNotification(database, {
+        userId,
+        type: "proximo_jogo",
+        title: `Proximo jogo no ${championship.name}`,
+        message,
+        contextType: "campeonato",
+        contextId: championship.id,
+        contextLabel: championship.name
+      });
+    });
+  }
+}
+
+function notifyMatchEvents(database, match, previousStatus) {
+  if (match.status === "encerrado" && previousStatus !== "encerrado") {
+    notifyMatchResult(database, match);
+  } else if (match.status === "agendado" && previousStatus !== "agendado") {
+    notifyUpcomingMatch(database, match);
+  }
+}
+
+function notifyNewsPublished(database, article) {
+  database.users.forEach((user) => {
+    if (user.status === "bloqueado" || Number(user.id) === Number(article.authorId)) {
+      return;
+    }
+
+    if (!isNotificationPreferenceEnabled(database, user.id, "noticias")) {
+      return;
+    }
+
+    pushNotification(database, {
+      userId: user.id,
+      type: "noticia_nova",
+      title: "Nova noticia publicada",
+      message: `${article.title}${article.category ? ` (${article.category})` : ""}`,
+      contextType: "noticia",
+      contextId: article.id,
+      contextLabel: article.title
+    });
+  });
 }
 
 function getPublicChampionship(championship) {
@@ -1692,6 +1915,7 @@ async function handleApi(request, response) {
       };
 
       database.matches.push(match);
+      notifyMatchEvents(database, match, null);
       writeDatabase(database);
 
       sendJson(response, 201, { match: getPublicMatch(match, database) });
@@ -1731,11 +1955,14 @@ async function handleApi(request, response) {
         return;
       }
 
+      const previousMatchStatus = match.status;
+
       Object.assign(match, validation.match, {
         closedAt: validation.match.status === "encerrado" ? match.closedAt || new Date().toISOString() : null,
         updatedAt: new Date().toISOString()
       });
 
+      notifyMatchEvents(database, match, previousMatchStatus);
       writeDatabase(database);
       sendJson(response, 200, { match: getPublicMatch(match, database) });
     } catch (error) {
@@ -1788,6 +2015,9 @@ async function handleApi(request, response) {
       };
 
       database.news.push(article);
+      if (validation.article.status === "publicado") {
+        notifyNewsPublished(database, article);
+      }
       writeDatabase(database);
 
       sendJson(response, 201, { article: getPublicNewsArticle(article, database, { includeContent: true }) });
@@ -1838,6 +2068,7 @@ async function handleApi(request, response) {
 
       if (!wasPublished && willPublish) {
         article.publishedAt = new Date().toISOString();
+        notifyNewsPublished(database, article);
       }
 
       writeDatabase(database);
@@ -2057,6 +2288,143 @@ async function handleApi(request, response) {
       sendJson(response, 200, { comment });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel moderar o comentario." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/notifications") {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na conta para ver suas notificacoes." });
+      return;
+    }
+
+    const notifications = database.notifications
+      .filter((notification) => Number(notification.userId) === Number(sessionUser.id))
+      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
+      .map(getPublicNotification);
+
+    sendJson(response, 200, {
+      notifications,
+      unreadCount: notifications.filter((notification) => !notification.isRead).length
+    });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/notifications/read") {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na sua conta para gerenciar notificacoes." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter(Boolean) : [];
+      let updated = 0;
+
+      database.notifications.forEach((notification) => {
+        if (Number(notification.userId) !== Number(sessionUser.id) || notification.isRead) {
+          return;
+        }
+
+        if (ids.length === 0 || ids.includes(notification.id)) {
+          notification.isRead = true;
+          updated += 1;
+        }
+      });
+
+      writeDatabase(database);
+      sendJson(response, 200, {
+        message: updated ? "Notificacoes marcadas como lidas." : "Nenhuma notificacao para marcar como lida.",
+        updated
+      });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar as notificacoes." });
+    }
+
+    return;
+  }
+
+  if (request.method === "DELETE" && url.pathname.startsWith("/api/notifications/")) {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na sua conta para gerenciar notificacoes." });
+      return;
+    }
+
+    const notificationId = Number(url.pathname.split("/").pop());
+    const notification = database.notifications.find((item) => item.id === notificationId);
+
+    if (!notification || Number(notification.userId) !== Number(sessionUser.id)) {
+      sendJson(response, 404, { message: "Notificacao nao encontrada." });
+      return;
+    }
+
+    database.notifications = database.notifications.filter((item) => item.id !== notificationId);
+    writeDatabase(database);
+    sendJson(response, 200, { message: "Notificacao excluida." });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/notification-preferences") {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na sua conta para configurar notificacoes." });
+      return;
+    }
+
+    sendJson(response, 200, {
+      preferences: getNotificationPreferencesForUser(database, sessionUser)
+    });
+    return;
+  }
+
+  if (request.method === "PUT" && request.url === "/api/notification-preferences") {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na sua conta para configurar notificacoes." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const requested = Array.isArray(body.preferences) ? body.preferences : [];
+
+      NOTIFICATION_PREFERENCES.forEach((definition) => {
+        const requestedValue = requested.find((item) => item.id === definition.id);
+        let row = database.notificationPreferences.find((item) => {
+          return Number(item.userId) === Number(sessionUser.id) && item.key === definition.id;
+        });
+
+        if (!row) {
+          row = {
+            id: database.notificationPreferences.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+            userId: sessionUser.id,
+            key: definition.id,
+            enabled: true
+          };
+          database.notificationPreferences.push(row);
+        }
+
+        if (requestedValue && typeof requestedValue.enabled === "boolean") {
+          row.enabled = requestedValue.enabled;
+        }
+      });
+
+      writeDatabase(database);
+      sendJson(response, 200, {
+        message: "Preferencias de notificacoes atualizadas.",
+        preferences: getNotificationPreferencesForUser(database, sessionUser)
+      });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar as preferencias." });
     }
 
     return;

@@ -41,11 +41,17 @@
         <a href="#estatisticas">Estatisticas</a>
         <a href="#noticias">Noticias</a>
         <a href="#galeria">Galeria</a>
+        <a href="#notificacoes">Notificacoes</a>
         <a href="#conta">Conta</a>
         <a href="admin.html">Admin</a>
       </nav>
 
       <div class="header-actions">
+        <button class="icon-button notification-button" id="notification-bell" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="notificacoes" aria-label="Ver notificacoes" title="Notificacoes">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span class="notification-badge" id="notification-badge" hidden>0</span>
+        </button>
+
         <button class="icon-button theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema">
           <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -103,6 +109,31 @@
           <p>Times e campeonatos que voce acompanha de perto, reunidos para acesso rapido.</p>
         </div>
         <div class="favorites-list" id="favorites-list"></div>
+      </section>
+
+      <section class="section notifications-section" id="notificacoes" hidden>
+        <div class="section-heading">
+          <p class="eyebrow">Fase 12</p>
+          <h2>Notificacoes</h2>
+          <p>Resultados dos times e campeonatos favoritos, novas noticias e proximos jogos reunidos para voce.</p>
+        </div>
+
+        <form class="preferences-panel" id="preferences-form">
+          <div class="preferences-heading">
+            <h3>Preferencias de notificacao</h3>
+            <p>Escolha quais tipos de aviso voce quer receber.</p>
+          </div>
+          <div class="preferences-grid" id="preferences-grid"></div>
+          <div class="form-actions">
+            <button class="button secondary compact" type="submit">Salvar preferencias</button>
+          </div>
+        </form>
+
+        <div class="notifications-toolbar">
+          <p id="notifications-status" role="status"></p>
+          <button class="button secondary compact" id="mark-all-notifications" type="button">Marcar todas como lidas</button>
+        </div>
+        <div class="notification-list" id="notifications-list"></div>
       </section>
 
       <section class="section" id="campeonatos">
@@ -320,6 +351,7 @@
       <a href="#jogos">Jogos</a>
       <a href="#estatisticas">Estatisticas</a>
       <a href="#galeria">Galeria</a>
+      <a href="#notificacoes">Notificacoes</a>
       <a href="#resultados">Busca</a>
       <a href="#favoritos">Favoritos</a>
       <a href="#perfis">Perfis</a>
@@ -329,7 +361,7 @@
 
     <footer class="app-footer">
       <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento da fase 11 - Favoritos</span>
+      <span>Ambiente de desenvolvimento da fase 12 - Notificacoes</span>
     </footer>
 
     <script src="scripts/app.js"></script>

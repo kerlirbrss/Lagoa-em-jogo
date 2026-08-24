@@ -1,7 +1,7 @@
 # Avaliação de MVP — Lagoa em Jogo
 
 > Data da análise: 05/08/2026
-> Última atualização: 05/08/2026 — Node confirmado instalado, execução validada e skill de design aplicada à interface.
+> Última atualização: 24/08/2026 — Fase 12 (Notificações) implementada em backend e frontend, com rotas, preferências, geração automática e testes de integração validados.
 > Base: `backend/server.js`, `frontend/` (index.html, app.js, app.css), `backend/database/db.json`, `docs/implementation-plan.md` e `docs/PRD.md`.
 
 ## 1. Objetivo desta análise
@@ -40,16 +40,24 @@ Itens fora desse núcleo (pesquisa global, favoritos, notificações, palpites, 
 | Comentários | `POST /api/news/:id/comments` + `GET/PATCH /api/admin/comments` (moderação) | ✅ |
 | Admin — usuários | `GET /api/admin/users`, `PATCH /api/admin/users/:id` (role/status) | ✅ |
 | Admin — dashboard | `GET /api/admin/dashboard` | ✅ |
+| Favoritos (Fase 11) | `POST /api/favorites`, `GET /api/favorites`, `DELETE /api/favorites/:type/:id` | ✅ |
+| Notificações (Fase 12) | `GET /api/notifications`, `POST /api/notifications/read`, `DELETE /api/notifications/:id`, `GET/PUT /api/notification-preferences` | ✅ |
 
 Controle de acesso por papel (visitante, usuário, organizador, fotógrafo, administrador) presente via `requireAdmin`, `requireNewsPublisher`, `requireGalleryPublisher` e sessão por cookie (`lej_session`).
 
+**Notificações (Fase 12)** — além das rotas de listagem/leitura/exclusão/preferências, o servidor **gera automaticamente** as notificações:
+- **Resultado de jogo** (`jogo_resultado`) para usuários que favoritam os times participantes (pref. "times favoritos") ou o campeonato (pref. "campeonatos favoritos") quando uma partida é encerrada com placar;
+- **Próximo jogo** (`proximo_jogo`) para usuários que favoritam os times/campeonato quando uma partida é agendada (pref. "próximos jogos");
+- **Nova notícia** (`noticia_nova`) para usuários ativos com a pref. "notícias" ativada quando uma notícia é publicada (autor e bloqueados são excluídos).
+
 ### 3.2 Frontend
 - Página única com seções: Hero, Campeonatos, Times, Atletas, Jogos (agenda + jogo em destaque), Estatísticas (filtro por campeonato, classificação, rankings), Notícias (com comentários), Galeria, Perfis (papéis), Conta (login/cadastro/perfil/recuperação) e Painel Admin.
+- **Notificações (Fase 12)**: sino no cabeçalho com contador de não lidas, seção dedicada (listar, marcar como lida/remover, "marcar todas como lidas") e painel de preferências com 4 tipos de aviso (times favoritos, campeonatos favoritos, notícias e próximos jogos).
 - **Responsividade mobile-first**, **tema claro/escuro** e **preparação para PWA** (manifest + service worker + ícone) — adicionados recentemente (ver §5), com refinamentos da skill `ui-ux-pro-max` (tipografia Barlow, foco visível, transições 150–300ms, `inputmode="numeric"` em campos numéricos).
-- Barra de navegação inferior no celular (Início, Campeonatos, Times, Notícias, Mais) e navegação completa no desktop.
+- Barra de navegação inferior no celular (Início, Campeonatos, Times, Notícias, Mais) e navegação completa no desktop, com link "Notificações" no menu principal e no menu "Mais".
 
 ### 3.3 Dados de demonstração
-- `db.json` com: 1 admin (`admin@lagoaemjogo.local` / `admin123`), 4 campeonatos (Rural, Copa Lagoa, Trabalhador, Trabalhador das Cabeceiras), 2 times, 2 atletas, 1 jogo, 1 jogo em destaque, 1 notícia, 1 galeria, 2 comentários e a definição de 5 papéis/permissões.
+- `db.json` com: 1 admin (`admin@lagoaemjogo.local` / `admin123`), 4 campeonatos (Rural, Copa Lagoa, Trabalhador e Cabeceiras), 8 times, 12 atletas, 9 jogos (6 encerrados com placar), 1 jogo em destaque, 4 notícias, 3 galerias, 5 comentários, favoritos de demonstração, **6 notificações** e **8 preferências de notificação** e a definição de 5 papéis/permissões.
 
 ---
 
@@ -82,7 +90,7 @@ Priorização:
 | Item | Módulo | Observação |
 |---|---|---|
 | Favoritos | Fase 11 | ✅ Implementado — favoritar times/campeonatos com seção personalizada na página inicial; exige sessão |
-| Notificações | Fase 12 | Não implementado — evolução |
+| Notificações | Fase 12 | ✅ Implementado — sino com contador, seção de notificações e preferências por tipo de aviso; geração automática ao agendar/encerrar jogos e publicar notícias |
 | Palpites | Fase 13 | Não implementado — evolução |
 | Auditoria/logs administrativos | Fase 22 | Não implementado — evolução |
 | PWA completo (instalação, offline robusto, ícones PNG) | Fase 15/17 | Preparação feita; falta icon 192/512 PNG, prompt de instalação e testes offline |
@@ -96,6 +104,7 @@ Foram adicionados, já alinhados ao MVP:
 - **Tema claro/escuro** com persistência em `localStorage` e respeito a `prefers-color-scheme`.
 - **Preparação para PWA**: `manifest.webmanifest`, `sw.js` (service worker com cache do shell) e `frontend/icons/icon.svg`, com content-type `.webmanifest` adicionado no servidor.
 - **Skill `ui-ux-pro-max`**: instalada em `.claude/skills/ui-ux-pro-max/` e registrada em `AGENTS.md` (regra obrigatória para futuras implementações de frontend). Aplicada à interface: tipografia Barlow/Barlow Condensed (Google Fonts) com tokens `--font-heading`/`--font-body`, estados de foco visíveis (WCAG), `cursor`/`touch-action: manipulation`, transições 150–300ms, `scroll-margin-top` para o header fixo, hover sutil em cards e `inputmode="numeric"` nos campos numéricos (teclado correto no mobile).
+- **Notificações (Fase 12)**: sino SVG no cabeçalho com badge de não lidas (≥44px, foco visível, `aria-label` dinâmico), seção `#notificacoes` com cards de notificação (pill de tipo, contexto, data, ações "Ler"/"Excluir" e "marcar todas como lidas") e painel de preferências com checkboxes grandes (`accent-color` verde) e estados de foco/hover, respeitando o tema claro/escuro.
 
 ---
 
@@ -105,8 +114,9 @@ Foram adicionados, já alinhados ao MVP:
 2. **Hash de senha** e remover qualquer vazamento de senha nas respostas (`getPublicUser` já omite, mas o banco guarda em texto plano).
 3. **Enriquecer dados demo**: incluir pelo menos 6–8 times, 4–6 jogos (alguns encerrados com placar), 2–3 notícias e 1–2 galerias para que classificação, artilharia, "próximos jogos" e "últimos resultados" fiquem preenchidos na tela.
 4. **Teste rápido de punho**: logar como admin → cadastrar time/jogo → encerrar jogo com placar → conferir classificação e rankings.
-5. **Um formulário de contato** simples e **páginas 403/404** para polir a apresentação.
-6. (Opcional) **campo de pesquisa** consumindo as listagens públicas já existentes.
+5. **Validar notificações (Fase 12)**: logar como `pedro@lagoaemjogo.local` / `pedro123` (tem favoritos de demonstração) → sino mostra contador → abrir a seção, marcar/ler/excluir e salvar preferências; como admin, encerrar um jogo e publicar notícia para ver os avisos automáticos chegarem.
+6. **Um formulário de contato** simples e **páginas 403/404** para polir a apresentação.
+7. (Opcional) **campo de pesquisa** consumindo as listagens públicas já existentes.
 
 ---
 
@@ -119,18 +129,19 @@ O que separa o "pronto para uso" do "pronto para apresentar com segurança":
 2. **Enriquecer os dados de demonstração**.
 3. Tratar **segurança (hash de senha)**, **páginas de erro** e idealmente **contato** e **upload básico de imagem**.
 
-Itens de evolução (favoritos, notificações, palpites, auditoria, deploy, PWA completo) **não são impeditivos** para o MVP.
+Itens de evolução (palpites, auditoria, deploy, PWA completo) **não são impeditivos** para o MVP. As Fases 10 (Pesquisa), 11 (Favoritos) e 12 (Notificações) já estão implementadas como diferenciais acima do núcleo obrigatório.
 
 ---
 
 ## 8. Sugestão de plano de curto prazo (antes da apresentação)
 
 - [x] Instalar Node.js e validar a execução (`http://localhost:3000` respondendo).
-- [ ] Rodar `npm run check` e o teste manual fim-a-fim (login admin → CRUD → classificação).
-- [ ] Enriquecer `db.json` com cenário demo (times, jogos encerrados, notícias, galeria).
+- [x] Rodar `npm run check` — estrutura das fases 10, 11 e 12 validada.
+- [x] Enriquecer `db.json` com cenário demo (times, jogos encerrados, notícias, galeria, favoritos e notificações).
+- [x] Implementar Fase 12 — Notificações (backend + frontend) com teste de integração automatizado (22 afirmações passando).
 - [ ] Aplicar hash de senha em `register`/`login` e proteger o banco.
 - [ ] Criar páginas de erro 403/404/500 e uma página de contato.
-- [ ] (Opcional) Adicionar upload básico de imagem e campo de pesquisa.
+- [ ] (Opcional) Adicionar upload básico de imagem.
 - [ ] Realizar teste manual fim-a-fim e gravar roteiro de apresentação.
 
 

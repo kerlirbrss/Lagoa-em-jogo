@@ -2,7 +2,10 @@ const state = {
   user: null,
   favorites: [],
   championships: [],
-  teams: []
+  teams: [],
+  notifications: [],
+  unreadCount: 0,
+  notificationPreferences: []
 };
 
 const elements = {
@@ -33,7 +36,15 @@ const elements = {
   searchStatus: document.querySelector("#search-status"),
   searchResults: document.querySelector("#search-results"),
   favoritesSection: document.querySelector("#favoritos"),
-  favoritesList: document.querySelector("#favorites-list")
+  favoritesList: document.querySelector("#favorites-list"),
+  notificationBell: document.querySelector("#notification-bell"),
+  notificationBadge: document.querySelector("#notification-badge"),
+  notificationsSection: document.querySelector("#notificacoes"),
+  notificationsList: document.querySelector("#notifications-list"),
+  notificationsStatus: document.querySelector("#notifications-status"),
+  markAllNotifications: document.querySelector("#mark-all-notifications"),
+  preferencesForm: document.querySelector("#preferences-form"),
+  preferencesGrid: document.querySelector("#preferences-grid")
 };
 
 async function api(path, options = {}) {
@@ -264,6 +275,303 @@ async function loadFavorites() {
   renderFavorites();
   renderChampionships(state.championships);
   renderTeams(state.teams);
+}
+
+/* ============================================================
+   Notificacoes (Fase 12)
+   ============================================================ */
+
+function getNotificationTypeLabel(type) {
+  const labels = {
+    jogo_resultado: "Resultado",
+    proximo_jogo: "Proximo jogo",
+    noticia_nova: "Noticia"
+  };
+
+  return labels[type] || "Aviso";
+}
+
+function formatNotificationDate(value) {
+  if (!value) {
+    return "";
+  }
+
+  return new Date(value).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function renderNotificationBadge() {
+  if (!elements.notificationBell || !elements.notificationBadge) {
+    return;
+  }
+
+  const hasSession = Boolean(state.user);
+  elements.notificationBell.hidden = !hasSession;
+
+  if (!hasSession) {
+    return;
+  }
+
+  const count = state.unreadCount;
+  elements.notificationBadge.hidden = count === 0;
+  elements.notificationBadge.textContent = count > 99 ? "99+" : String(count);
+  elements.notificationBell.setAttribute("aria-label", count
+    ? `${count} notificacao${count === 1 ? "" : "oes"} nao lida${count === 1 ? "" : "s"}`
+    : "Nenhuma notificacao nao lida");
+}
+
+function renderNotificationPreferences() {
+  if (!elements.preferencesGrid) {
+    return;
+  }
+
+  const preferences = state.notificationPreferences;
+
+  if (!preferences.length) {
+    elements.preferencesGrid.innerHTML = "<p class=\"search-empty\">Entre na sua conta para configurar as notificacoes.</p>";
+    return;
+  }
+
+  elements.preferencesGrid.innerHTML = preferences.map((preference) => {
+    const checked = preference.enabled ? " checked" : "";
+    return `
+      <label class="preference-item">
+        <input type="checkbox" name="preference" value="${preference.id}"${checked}>
+        <span>
+          <strong>${preference.name}</strong>
+          <small>${preference.description}</small>
+        </span>
+      </label>
+    `;
+  }).join("");
+}
+
+function renderNotifications() {
+  if (!elements.notificationsSection || !elements.notificationsList) {
+    return;
+  }
+
+  const loggedIn = Boolean(state.user);
+  elements.notificationsSection.hidden = !loggedIn;
+
+  if (!loggedIn) {
+    return;
+  }
+
+  const notifications = state.notifications;
+  const unread = state.unreadCount;
+
+  elements.notificationsStatus.textContent = notifications.length
+    ? `${notifications.length} notificacao${notifications.length === 1 ? "" : "s"}${unread ? `, ${unread} nao lida${unread === 1 ? "" : "s"}` : " - tudo lido"}.`
+    : "Voce ainda nao tem notificacoes. Favorite times e campeonatos para comecar a receber avisos.";
+
+  elements.notificationsList.innerHTML = notifications.length
+    ? notifications.map((notification) => {
+      const typeLabel = getNotificationTypeLabel(notification.type);
+      const readClass = notification.isRead ? "" : " unread";
+      const date = notification.createdAt ? formatNotificationDate(notification.createdAt) : "";
+      const contextBadge = notification.contextLabel
+        ? `<span class="notification-context">${notification.contextLabel}</span>`
+        : "";
+      const actions = notification.isRead
+        ? `<button class="notification-action" type="button" data-notification-delete="${notification.id}" aria-label="Excluir notificacao">Excluir</button>`
+        : `
+          <button class="notification-action" type="button" data-notification-read="${notification.id}" aria-label="Marcar como lida">Ler</button>
+          <button class="notification-action" type="button" data-notification-delete="${notification.id}" aria-label="Excluir notificacao">Excluir</button>
+        `;
+
+      return `
+        <article class="notification-card${readClass}">
+          <div class="notification-header">
+            <span class="notification-type">${typeLabel}</span>
+            <time datetime="${notification.createdAt || ""}">${date}</time>
+          </div>
+          <div class="notification-body">
+            <h3>${notification.title}</h3>
+            <p>${notification.message}</p>
+          </div>
+          <div class="notification-footer">
+            ${contextBadge}
+            <span class="notification-actions">${actions}</span>
+          </div>
+        </article>
+      `;
+    }).join("")
+    : '<p class="search-empty">Nenhuma notificacao por aqui ainda.</p>';
+}
+async function loadNotifications() {
+  if (!state.user) {
+    state.notifications = [];
+    state.unreadCount = 0;
+    renderNotificationBadge();
+    renderNotifications();
+    return;
+  }
+
+  try {
+    const data = await api("/api/notifications");
+    state.notifications = data.notifications || [];
+    state.unreadCount = data.unreadCount || 0;
+    renderNotificationBadge();
+    renderNotifications();
+  } catch (error) {
+    state.notifications = [];
+    state.unreadCount = 0;
+    renderNotificationBadge();
+    renderNotifications();
+  }
+}
+
+async function loadNotificationPreferences() {
+  if (!state.user) {
+    state.notificationPreferences = [];
+    renderNotificationPreferences();
+    return;
+  }
+
+  try {
+    const data = await api("/api/notification-preferences");
+    state.notificationPreferences = data.preferences || [];
+    renderNotificationPreferences();
+  } catch (error) {
+    state.notificationPreferences = [];
+    renderNotificationPreferences();
+  }
+}
+
+async function markNotificationRead(notificationId) {
+  try {
+    await api("/api/notifications/read", {
+      method: "POST",
+      body: JSON.stringify({ ids: [notificationId] })
+    });
+
+    const notification = state.notifications.find((item) => item.id === notificationId);
+
+    if (notification) {
+      notification.isRead = true;
+      state.unreadCount = Math.max(0, state.unreadCount - 1);
+    }
+
+    renderNotificationBadge();
+    renderNotifications();
+  } catch (error) {
+    if (elements.notificationsStatus) {
+      elements.notificationsStatus.textContent = error.message;
+    }
+  }
+}
+
+async function deleteNotification(notificationId) {
+  try {
+    const notification = state.notifications.find((item) => item.id === notificationId);
+    await api(`/api/notifications/${notificationId}`, { method: "DELETE" });
+
+    if (notification && !notification.isRead) {
+      state.unreadCount = Math.max(0, state.unreadCount - 1);
+    }
+
+    state.notifications = state.notifications.filter((item) => item.id !== notificationId);
+    renderNotificationBadge();
+    renderNotifications();
+  } catch (error) {
+    if (elements.notificationsStatus) {
+      elements.notificationsStatus.textContent = error.message;
+    }
+  }
+}
+
+async function markAllNotificationsRead() {
+  try {
+    await api("/api/notifications/read", { method: "POST", body: JSON.stringify({}) });
+    state.notifications.forEach((notification) => {
+      notification.isRead = true;
+    });
+    state.unreadCount = 0;
+    renderNotificationBadge();
+    renderNotifications();
+  } catch (error) {
+    if (elements.notificationsStatus) {
+      elements.notificationsStatus.textContent = error.message;
+    }
+  }
+}
+
+/* Delegacao: acoes dentro da lista de notificacoes */
+if (elements.notificationsList) {
+  elements.notificationsList.addEventListener("click", (event) => {
+    const readButton = event.target.closest("[data-notification-read]");
+    const deleteButton = event.target.closest("[data-notification-delete]");
+
+    if (readButton) {
+      markNotificationRead(Number(readButton.dataset.notificationRead));
+    }
+
+    if (deleteButton) {
+      deleteNotification(Number(deleteButton.dataset.notificationDelete));
+    }
+  });
+}
+
+if (elements.markAllNotifications) {
+  elements.markAllNotifications.addEventListener("click", () => {
+    markAllNotificationsRead();
+  });
+}
+
+if (elements.preferencesForm && elements.preferencesGrid) {
+  elements.preferencesForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!state.user) {
+      return;
+    }
+
+    const selected = Array.from(elements.preferencesGrid.querySelectorAll('input[name="preference"]:checked')).map((checkbox) => checkbox.value);
+
+    const payload = state.notificationPreferences.map((preference) => ({
+      id: preference.id,
+      enabled: selected.includes(preference.id)
+    }));
+
+    try {
+      const data = await api("/api/notification-preferences", {
+        method: "PUT",
+        body: JSON.stringify({ preferences: payload })
+      });
+
+      state.notificationPreferences = data.preferences || [];
+      if (elements.notificationsStatus) {
+        elements.notificationsStatus.textContent = data.message || "Preferencias atualizadas.";
+      }
+    } catch (error) {
+      if (elements.notificationsStatus) {
+        elements.notificationsStatus.textContent = error.message;
+      }
+    }
+  });
+}
+
+/* Sino de notificacoes: abre a secao e rola ate ela */
+if (elements.notificationBell && elements.notificationsSection) {
+  elements.notificationBell.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (!state.user) {
+      openTab("login");
+      setMessage("Entre na sua conta para ver notificacoes.");
+      return;
+    }
+
+    elements.notificationsSection.hidden = false;
+    elements.notificationBell.setAttribute("aria-expanded", "true");
+    elements.notificationsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }
 
 function renderMatches(matches) {
@@ -614,6 +922,8 @@ async function loadBootstrap() {
   renderFeaturedMatch(data.matches[0] || data.featuredMatches[0]);
   renderRoles(data.roles);
   renderSession();
+  await loadNotifications();
+  await loadNotificationPreferences();
 }
 
 elements.statisticsChampionship.addEventListener("change", () => {
@@ -702,6 +1012,8 @@ elements.loginForm.addEventListener("submit", async (event) => {
 
     state.user = data.user;
     await loadFavorites();
+    await loadNotifications();
+    await loadNotificationPreferences();
     renderSession();
     openTab("profile", { clearMessage: false });
     setMessage("Login realizado com sucesso.");
@@ -731,6 +1043,8 @@ elements.registerForm.addEventListener("submit", async (event) => {
     state.user = data.user;
     elements.registerForm.reset();
     await loadFavorites();
+    await loadNotifications();
+    await loadNotificationPreferences();
     renderSession();
     openTab("profile", { clearMessage: false });
     setMessage("Conta criada e login realizado.");
@@ -789,6 +1103,8 @@ elements.logoutButton.addEventListener("click", async () => {
   await api("/api/logout", { method: "POST" });
   state.user = null;
   await loadFavorites();
+  await loadNotifications();
+  await loadNotificationPreferences();
   renderSession();
   openTab("login", { clearMessage: false });
   setMessage("Sessao encerrada.");

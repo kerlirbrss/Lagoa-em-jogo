@@ -904,5 +904,129 @@
       "itemId": 2,
       "createdAt": "2026-07-04T11:10:00.000Z"
     }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "userId": 4,
+      "type": "jogo_resultado",
+      "title": "Estrela do Sertao: resultado atualizado",
+      "message": "Time da Lagoa 2 x 3 Estrela do Sertao (Primeira fase - Rodada 2).",
+      "contextType": "time",
+      "contextId": 3,
+      "contextLabel": "Estrela do Sertao",
+      "isRead": false,
+      "createdAt": "2026-07-12T20:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "userId": 4,
+      "type": "proximo_jogo",
+      "title": "Proximo jogo: Estrela do Sertao x Boa Esperanca EC",
+      "message": "Estrela do Sertao x Boa Esperanca EC (Primeira fase - Rodada 3) em 2026-08-17 as 16:00 no Campo municipal.",
+      "contextType": "jogo",
+      "contextId": 8,
+      "contextLabel": "Estrela do Sertao x Boa Esperanca EC",
+      "isRead": false,
+      "createdAt": "2026-07-14T19:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "userId": 4,
+      "type": "noticia_nova",
+      "title": "Nova noticia publicada",
+      "message": "Copa Lagoa abre inscricoes para equipes da regiao (Campeonatos).",
+      "contextType": "noticia",
+      "contextId": 4,
+      "contextLabel": "Copa Lagoa abre inscricoes para equipes da regiao",
+      "isRead": true,
+      "createdAt": "2026-07-15T14:05:00.000Z"
+    },
+    {
+      "id": 4,
+      "userId": 1,
+      "type": "jogo_resultado",
+      "title": "Time da Lagoa: resultado atualizado",
+      "message": "Time da Lagoa 2 x 3 Estrela do Sertao (Primeira fase - Rodada 2).",
+      "contextType": "time",
+      "contextId": 1,
+      "contextLabel": "Time da Lagoa",
+      "isRead": true,
+      "createdAt": "2026-07-12T20:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "userId": 1,
+      "type": "proximo_jogo",
+      "title": "Proximo jogo: Time da Lagoa x Vila Nova FC",
+      "message": "Time da Lagoa x Vila Nova FC (Primeira fase - Rodada 3) em 2026-08-16 as 16:00 no Campo municipal.",
+      "contextType": "jogo",
+      "contextId": 7,
+      "contextLabel": "Time da Lagoa x Vila Nova FC",
+      "isRead": true,
+      "createdAt": "2026-07-14T18:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "userId": 1,
+      "type": "noticia_nova",
+      "title": "Nova noticia publicada",
+      "message": "Estrela do Sertao lidera a classificacao na segunda rodada (Classificacao).",
+      "contextType": "noticia",
+      "contextId": 3,
+      "contextLabel": "Estrela do Sertao lidera a classificacao na segunda rodada",
+      "isRead": true,
+      "createdAt": "2026-07-14T08:35:00.000Z"
+    }
+  ],
+  "notificationPreferences": [
+    {
+      "id": 1,
+      "userId": 1,
+      "key": "times_favoritos",
+      "enabled": true
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "key": "campeonatos_favoritos",
+      "enabled": true
+    },
+    {
+      "id": 3,
+      "userId": 1,
+      "key": "noticias",
+      "enabled": true
+    },
+    {
+      "id": 4,
+      "userId": 1,
+      "key": "proximos_jogos",
+      "enabled": true
+    },
+    {
+      "id": 5,
+      "userId": 4,
+      "key": "times_favoritos",
+      "enabled": true
+    },
+    {
+      "id": 6,
+      "userId": 4,
+      "key": "campeonatos_favoritos",
+      "enabled": true
+    },
+    {
+      "id": 7,
+      "userId": 4,
+      "key": "noticias",
+      "enabled": true
+    },
+    {
+      "id": 8,
+      "userId": 4,
+      "key": "proximos_jogos",
+      "enabled": true
+    }
   ]
 }

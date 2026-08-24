@@ -53,6 +53,16 @@ if (!Array.isArray(database.favorites)) {
   process.exit(1);
 }
 
+if (!Array.isArray(database.notifications)) {
+  console.error("Colecao de notificacoes ausente no banco de dados.");
+  process.exit(1);
+}
+
+if (!Array.isArray(database.notificationPreferences)) {
+  console.error("Colecao de preferencias de notificacao ausente no banco de dados.");
+  process.exit(1);
+}
+
 require("./server");
 
 const source = fs.readFileSync(path.join(__dirname, "server.js"), "utf8");
@@ -67,4 +77,14 @@ if (!source.includes('"/api/favorites"')) {
   process.exit(1);
 }
 
-console.log("Estrutura da fase 11 validada.");
+if (!source.includes('"/api/notifications"')) {
+  console.error("Rotas de notificacoes da fase 12 ausentes no server.js.");
+  process.exit(1);
+}
+
+if (!source.includes('"/api/notification-preferences"')) {
+  console.error("Rotas de preferencias de notificacao da fase 12 ausentes no server.js.");
+  process.exit(1);
+}
+
+console.log("Estrutura da fase 12 validada.");

@@ -30,7 +30,7 @@ Desenvolver uma plataforma web que permita:
 
 ## Status atual do desenvolvimento
 
-O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 11 do plano de evolução, conforme documentação do produto e da implementação.
+O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 12 do plano de evolução, conforme documentação do produto e da implementação.
 
 ### Fases implementadas
 
@@ -105,7 +105,13 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
   - lista de favoritos por usuário (autenticado);
   - exibição de conteúdos personalizados na página inicial.
 
-> A partir da Fase 12, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
+- Fase 12 — Notificações
+  - sino com contador de não lidas no cabeçalho;
+  - seção de notificações (listar, marcar como lida, excluir e marcar todas como lidas);
+  - preferências por tipo de aviso (times favoritos, campeonatos favoritos, notícias e próximos jogos);
+  - geração automática ao encerrar/agendar jogos e publicar notícias.
+
+> A partir da Fase 13, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
 
 ---
 
@@ -256,7 +262,9 @@ Para ambiente local de desenvolvimento, o projeto já inclui usuário administra
 
 - realiza cadastro e login;
 - edita perfil;
-- participa de comentários e interações disponíveis.
+- participa de comentários e interações disponíveis;
+- favorita times e campeonatos;
+- recebe e gerencia notificações (preferências e leitura).
 
 ### Administrador / organizador
 
@@ -286,7 +294,6 @@ A estrutura atual permite demonstrar de forma clara o valor do produto, com uma 
 
 As próximas etapas previstas pela documentação do projeto e pelo roadmap de evolução são:
 
-- Notificações para usuários;
 - Sistema de palpites;
 - Conta do usuário com gestão mais completa;
 - Página inicial agregada (banner, destaque, artilheiros);
