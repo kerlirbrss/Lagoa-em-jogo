@@ -6,7 +6,7 @@ const path = require("path");
 const PORT = Number(process.env.PORT || 3000);
 const ROOT_DIR = path.join(__dirname, "..");
 const FRONTEND_DIR = path.join(ROOT_DIR, "frontend");
-const DB_PATH = path.join(__dirname, "database", "db.json");
+const DB_PATH = process.env.LEJ_DB_PATH ? path.resolve(process.env.LEJ_DB_PATH) : path.join(__dirname, "database", "db.json");
 
 const sessions = new Map();
 const USER_ROLES = ["usuario", "organizador", "fotografo", "administrador"];
@@ -2760,3 +2760,54 @@ if (require.main === module) {
 }
 
 module.exports = server;
+
+/* ============================================================
+   Exportacoes auxiliares para testes (Fase 16 - Testes)
+   Nao alteram o contrato de uso: o modulo continua exportando
+   o servidor HTTP por padrao. `__testing` expoe funcoes puras
+   e constantes para os testes unitarios.
+   ============================================================ */
+module.exports.__testing = {
+  getDefaultMatchScore,
+  getDefaultTeamStats,
+  getDefaultAthleteStats,
+  hasFinishedScore,
+  getPredictionOutcome,
+  getPredictionSummary,
+  getAutomaticTeamStats,
+  getChampionshipStatistics,
+  getPublicChampionship,
+  getPublicTeam,
+  getPublicMatch,
+  getPublicAthlete,
+  getPublicNewsArticle,
+  getPublicGallery,
+  getGalleryContext,
+  buildHomePage,
+  buildSearchResults,
+  normalizeEmail,
+  normalizeText,
+  normalizeDate,
+  normalizeList,
+  normalizeOptionalYear,
+  normalizeSearchText,
+  matchesSearchQuery,
+  isValidRole,
+  isAdmin,
+  canPublishNews,
+  canPublishGallery,
+  validateChampionshipPayload,
+  validateTeamPayload,
+  validateAthletePayload,
+  validateMatchPayload,
+  validateNewsPayload,
+  validateGalleryPayload,
+  USER_ROLES,
+  COMMENT_STATUSES,
+  CHAMPIONSHIP_STATUSES,
+  MATCH_STATUSES,
+  NEWS_STATUSES,
+  GALLERY_STATUSES,
+  GALLERY_TYPES,
+  NOTIFICATION_TYPES
+};
