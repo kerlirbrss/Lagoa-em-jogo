@@ -30,7 +30,7 @@ Desenvolver uma plataforma web que permita:
 
 ## Status atual do desenvolvimento
 
-O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 14 do plano de evolução, conforme documentação do produto e da implementação.
+O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 15 do plano de evolução, conforme documentação do produto e da implementação.
 
 ### Fases implementadas
 
@@ -124,7 +124,14 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
   - notícias em destaque e prévia da galeria;
   - rota pública `GET /api/home` agregando os destaques.
 
-> A partir da Fase 15, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
+- Fase 15 — Responsividade
+  - barra inferior no celular: Início, Campeonatos, Times, Notícias e "Mais";
+  - menu "Mais" reestruturado em grupos (Galeria, Contato, Pesquisa e Conta do Usuário em destaque);
+  - breakpoints para telas pequenas (≤380px), tablets (≥768px) e desktops grandes (≥1200px);
+  - compatibilidade com tablets e otimização da navegação (botão de fechar, tecla Esc);
+  - melhorias de desempenho com carregamento lento de imagens (lazy loading).
+
+> A partir da Fase 16, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
 
 ---
 
@@ -133,6 +140,8 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
 ### Frontend público
 
 - página inicial com apresentação do projeto e destaques (próximos jogos, últimos resultados, classificação, artilheiros, atleta da semana, notícias e galeria);
+- navegação responsiva: barra inferior no celular (Início, Campeonatos, Times, Notícias, Mais) e menu "Mais" agrupado (Galeria, Contato, Pesquisa, Conta do Usuário);
+- rodapé com colunas de contato e navegação;
 - listagem de campeonatos;
 - listagem de times e atletas;
 - agenda de jogos;

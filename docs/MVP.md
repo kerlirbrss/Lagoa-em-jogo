@@ -1,7 +1,7 @@
 # Avaliação de MVP — Lagoa em Jogo
 
 > Data da análise: 05/08/2026
-> Última atualização: 26/08/2026 — Fase 14 (Página Inicial) concluída, com banner, próximos jogos, últimos resultados, classificação resumida, artilheiros, atleta da semana, notícias e prévia da galeria agrupados na home.
+> Última atualização: 26/08/2026 — Fase 15 (Responsividade) concluída, com barra inferior e menu "Mais" agrupado no celular, breakpoints para telas pequenas/tablets/desktops grandes e melhorias de desempenho.
 > Base: `backend/server.js`, `frontend/` (index.html, app.js, app.css), `backend/database/db.json`, `docs/implementation-plan.md` e `docs/PRD.md`.
 
 ## 1. Objetivo desta análise
@@ -100,6 +100,7 @@ Priorização:
 | Notificações | Fase 12 | ✅ Concluído — sino com contador, preferências, leitura/exclusão, navegação direta e geração automática ao agendar/encerrar jogos e publicar notícias |
 | Palpites | Fase 13 | ✅ Concluído — palpite autenticado por placar, atualização do próprio voto, totais/percentuais por resultado e comentários pós-palpite |
 | Página inicial | Fase 14 | ✅ Concluído — banner, próximos jogos, últimos resultados, classificação resumida, artilheiros, atleta da semana, notícias e prévia da galeria agregados em uma única home via `GET /api/home` |
+| Responsividade | Fase 15 | ✅ Concluído — barra inferior (Início, Campeonatos, Times, Notícias, Mais), menu "Mais" agrupado com Galeria/Contato/Pesquisa/Conta, rodapé em colunas com contato, breakpoints ≤380px/≥768px/≥1200px, lazy loading de imagens e fechamento de menus com Esc |
 | Auditoria/logs administrativos | Fase 22 | Não implementado — evolução |
 | PWA completo (instalação, offline robusto, ícones PNG) | Fase 15/17 | Preparação feita; falta icon 192/512 PNG, prompt de instalação e testes offline |
 | Deploy em produção (HTTPS, backup, monitoramento) | Fase 17 | Não feito — pós-MVP |
@@ -115,6 +116,7 @@ Foram adicionados, já alinhados ao MVP:
 - **Notificações (Fase 12)**: sino SVG no cabeçalho com badge de não lidas (≥44px, foco visível, `aria-label` dinâmico), seção `#notificacoes` com cards de notificação (pill de tipo, contexto, data, ações "Ler"/"Excluir" e "marcar todas como lidas") e painel de preferências com checkboxes grandes (`accent-color` verde) e estados de foco/hover, respeitando o tema claro/escuro.
 - **Palpites (Fase 13)**: cartões responsivos com campos de placar de no mínimo 44px, barras de votação que também exibem o percentual em texto, estados de envio desabilitados e área de comentários. A implementação utiliza os tokens de tema azul/verde/branco, foco visível e `prefers-reduced-motion` já definidos na folha de estilos.
 - **Página inicial (Fase 14)**: painel "Em destaque" logo após o banner com lista de próximos jogos, últimos resultados, classificação resumida do campeonato em andamento, artilheiros em destaque, card do atleta da semana, notícias em destaque e prévia da galeria — tudo com links para as seções completas correspondentes, seguindo a identidade visual azul/verde/branco.
+- **Responsividade (Fase 15)**: barra inferior fixa no celular com os 5 itens principais (Início, Campeonatos, Times, Notícias e "Mais"), menu "Mais" reorganizado em grupos ("Destaques" com Galeria/Contato/Pesquisa/Conta do Usuário, além de "Conteúdos" e "Minha conta"), rodapé expandido em colunas com contato institucional e navegação, breakpoints dedicados (≤380px, ≥640px, ≥768px, ≥900px e ≥1200px), carregamento lento das imagens, fechamento dos menus por botão/tecla Esc.
 
 ---
 
@@ -139,18 +141,19 @@ O que separa o "pronto para uso" do "pronto para apresentar com segurança":
 2. **Enriquecer os dados de demonstração**.
 3. Tratar **segurança (hash de senha)**, **páginas de erro** e idealmente **contato** e **upload básico de imagem**.
 
-Itens de evolução (auditoria, deploy e PWA completo) **não são impeditivos** para o MVP. As Fases 10 (Pesquisa), 11 (Favoritos), 12 (Notificações), 13 (Palpites) e 14 (Página Inicial) já estão implementadas como diferenciais acima do núcleo obrigatório.
+Itens de evolução (auditoria, deploy e PWA completo) **não são impeditivos** para o MVP. As Fases 10 (Pesquisa), 11 (Favoritos), 12 (Notificações), 13 (Palpites), 14 (Página Inicial) e 15 (Responsividade) já estão implementadas como diferenciais acima do núcleo obrigatório.
 
 ---
 
 ## 8. Sugestão de plano de curto prazo (antes da apresentação)
 
 - [x] Instalar Node.js e validar a execução (`http://localhost:3000` respondendo).
-- [x] Rodar `npm run check` — estrutura das fases 10, 11, 12, 13 e 14 validada, incluindo a rota da página inicial.
+- [x] Rodar `npm run check` — estrutura das fases 10, 11, 12, 13, 14 e 15 validada, incluindo a rota da página inicial e os requisitos de responsividade.
 - [x] Enriquecer `db.json` com cenário demo (times, jogos encerrados, notícias, galeria, favoritos e notificações).
 - [x] Implementar Fase 12 — Notificações (backend + frontend): preferências, geração automática, leitura/exclusão e navegação para o conteúdo relacionado.
 - [x] Implementar Fase 13 — Palpites (backend + frontend): placar por usuário, votação agregada e comentários após o palpite.
 - [x] Implementar Fase 14 — Página Inicial (backend + frontend): home com banner, próximos jogos, últimos resultados, classificação resumida, artilheiros, atleta da semana, notícias e prévia da galeria via `GET /api/home`.
+- [x] Implementar Fase 15 — Responsividade (frontend): barra inferior, menu "Mais" agrupado, rodapé em colunas com contato, breakpoints para telas pequenas/tablets/desktops e lazy loading de imagens.
 - [ ] Aplicar hash de senha em `register`/`login` e proteger o banco.
 - [ ] Criar páginas de erro 403/404/500 e uma página de contato.
 - [ ] (Opcional) Adicionar upload básico de imagem.

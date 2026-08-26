@@ -102,7 +102,7 @@ function renderTeams(teams) {
     .map((team) => {
       const stats = team.stats || {};
       const crest = team.crestUrl
-        ? `<img src="${team.crestUrl}" alt="Escudo do ${team.name}">`
+        ? `<img src="${team.crestUrl}" alt="Escudo do ${team.name}" loading="lazy" decoding="async">`
         : `<span>${getTeamInitials(team.name)}</span>`;
 
       return `
@@ -142,7 +142,7 @@ function renderAthletes(athletes) {
     .map((athlete) => {
       const stats = athlete.stats || {};
       const photo = athlete.photoUrl
-        ? `<img src="${athlete.photoUrl}" alt="Foto de ${athlete.fullName}">`
+        ? `<img src="${athlete.photoUrl}" alt="Foto de ${athlete.fullName}" loading="lazy" decoding="async">`
         : `<span>${getTeamInitials(athlete.fullName)}</span>`;
 
       return `
@@ -212,7 +212,7 @@ function renderFavorites() {
       }
 
       const crest = favorite.type === "time" && item.crestUrl
-        ? `<img src="${item.crestUrl}" alt="Escudo do ${item.name}">`
+        ? `<img src="${item.crestUrl}" alt="Escudo do ${item.name}" loading="lazy" decoding="async">`
         : `<span>${getTeamInitials(item.name)}</span>`;
 
       const detail = favorite.type === "time"
@@ -781,9 +781,9 @@ async function loadPredictions() {
 function renderNews(news) {
   elements.newsList.innerHTML = news.length
     ? news.map((article) => {
-      const cover = article.coverImageUrl ? `<img class="news-cover" src="${article.coverImageUrl}" alt="Imagem da noticia ${article.title}">` : "";
+      const cover = article.coverImageUrl ? `<img class="news-cover" src="${article.coverImageUrl}" alt="Imagem da noticia ${article.title}" loading="lazy" decoding="async">` : "";
       const gallery = article.galleryImages.length
-        ? `<div class="news-gallery">${article.galleryImages.slice(0, 3).map((imageUrl) => `<img src="${imageUrl}" alt="Imagem complementar de ${article.title}">`).join("")}</div>`
+        ? `<div class="news-gallery">${article.galleryImages.slice(0, 3).map((imageUrl) => `<img src="${imageUrl}" alt="Imagem complementar de ${article.title}" loading="lazy" decoding="async">`).join("")}</div>`
         : "";
       const comments = article.comments.length
         ? article.comments.map((comment) => `<li><strong>${comment.authorName}:</strong> ${comment.content}</li>`).join("")
@@ -817,9 +817,9 @@ function renderGalleries(galleries) {
     ? galleries.map((gallery) => {
       const firstImage = gallery.images[0] || "";
       const thumbImages = gallery.images.slice(1, 4);
-      const cover = firstImage ? `<img class="gallery-cover" src="${firstImage}" alt="Imagem de capa da galeria ${gallery.title}">` : "";
+      const cover = firstImage ? `<img class="gallery-cover" src="${firstImage}" alt="Imagem de capa da galeria ${gallery.title}" loading="lazy" decoding="async">` : "";
       const thumbs = thumbImages.length
-        ? `<div class="gallery-thumbs">${thumbImages.map((imageUrl) => `<img src="${imageUrl}" alt="Imagem da galeria ${gallery.title}">`).join("")}</div>`
+        ? `<div class="gallery-thumbs">${thumbImages.map((imageUrl) => `<img src="${imageUrl}" alt="Imagem da galeria ${gallery.title}" loading="lazy" decoding="async">`).join("")}</div>`
         : "";
       const saleLink = gallery.saleUrl
         ? `<a class="button secondary" href="${gallery.saleUrl}" target="_blank" rel="noopener">Adquirir fotos</a>`
@@ -1421,6 +1421,13 @@ if (moreButton && navDrawer) {
   });
 }
 
+/* Botao de fechar dentro do menu \"Mais\" */
+const navDrawerClose = document.querySelector("#nav-drawer-close");
+
+if (navDrawerClose) {
+  navDrawerClose.addEventListener("click", closeMenuPanels);
+}
+
 /* Fecha os paineis ao clicar em qualquer link do menu */
 document.querySelectorAll(".main-nav a, .nav-drawer a").forEach((link) => {
   link.addEventListener("click", closeMenuPanels);
@@ -1429,6 +1436,13 @@ document.querySelectorAll(".main-nav a, .nav-drawer a").forEach((link) => {
 if (navBackdrop) {
   navBackdrop.addEventListener("click", closeMenuPanels);
 }
+
+/* Fecha os menus com a tecla Esc (acessibilidade) */
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeMenuPanels();
+  }
+});
 
 /* Destaque da secao ativa na navegacao (scrollspy) */
 function setupScrollSpy() {

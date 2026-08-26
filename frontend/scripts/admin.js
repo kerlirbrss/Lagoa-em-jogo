@@ -1190,6 +1190,13 @@ if (navToggle && mainNav) {
   });
 }
 
+/* Botao de fechar dentro do menu \"Mais\" */
+const navDrawerClose = document.querySelector("#nav-drawer-close");
+
+if (navDrawerClose) {
+  navDrawerClose.addEventListener("click", closeMenuPanels);
+}
+
 /* Fecha os paineis ao clicar em qualquer link do menu */
 document.querySelectorAll(".main-nav a, .nav-drawer a").forEach((link) => {
   link.addEventListener("click", closeMenuPanels);
@@ -1198,6 +1205,13 @@ document.querySelectorAll(".main-nav a, .nav-drawer a").forEach((link) => {
 if (navBackdrop) {
   navBackdrop.addEventListener("click", closeMenuPanels);
 }
+
+/* Fecha os menus com a tecla Esc (acessibilidade) */
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeMenuPanels();
+  }
+});
 
 /* Registro do service worker (PWA) */
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {

@@ -107,4 +107,60 @@ if (!source.includes('"/api/home"')) {
   process.exit(1);
 }
 
-console.log("Estrutura das fases 10, 11, 12, 13 e 14 validada.");
+const indexPath = path.join(__dirname, "..", "frontend", "index.html");
+const appCssPath = path.join(__dirname, "..", "frontend", "styles", "app.css");
+const appJsPath = path.join(__dirname, "..", "frontend", "scripts", "app.js");
+const adminJsPath = path.join(__dirname, "..", "frontend", "scripts", "admin.js");
+
+const indexHtml = fs.readFileSync(indexPath, "utf8");
+const appCss = fs.readFileSync(appCssPath, "utf8");
+const appJs = fs.readFileSync(appJsPath, "utf8");
+const adminJs = fs.readFileSync(adminJsPath, "utf8");
+
+const fase15Checks = [
+  {
+    condition: !indexHtml.includes('<nav class="nav-drawer" id="nav-drawer"'),
+    message: "Menu 'Mais' (nav-drawer) da fase 15 ausente no index.html."
+  },
+  {
+    condition: !indexHtml.includes("nav-group-label"),
+    message: "Agrupamento do menu 'Mais' da fase 15 ausente no index.html."
+  },
+  {
+    condition: !indexHtml.includes('href="#contato"') || !indexHtml.includes('class="app-footer" id="contato"'),
+    message: "Rodape com secao de contato da fase 15 ausente no index.html."
+  },
+  {
+    condition: !indexHtml.includes("footer-cols"),
+    message: "Colunas do rodape da fase 15 ausentes no index.html."
+  },
+  {
+    condition: !appCss.includes("@media (max-width: 380px)") || !appCss.includes("@media (min-width: 768px)") || !appCss.includes("@media (min-width: 1200px)"),
+    message: "Breakpoints de responsividade da fase 15 ausentes no app.css."
+  },
+  {
+    condition: !appCss.includes(".footer-cols") || !appCss.includes(".nav-group-label"),
+    message: "Estilos de rodape e menu da fase 15 ausentes no app.css."
+  },
+  {
+    condition: !appJs.includes("nav-drawer-close") || !adminJs.includes("nav-drawer-close"),
+    message: "Botao de fechar do menu da fase 15 ausente nos scripts."
+  },
+  {
+    condition: !appJs.includes("event.key === \"Escape\"") || !adminJs.includes("event.key === \"Escape\""),
+    message: "Fechamento com a tecla Esc da fase 15 ausente nos scripts."
+  },
+  {
+    condition: !appJs.includes("loading=\"lazy\""),
+    message: "Carregamento lento de imagens (lazy loading) da fase 15 ausente no app.js."
+  }
+];
+
+const failed = fase15Checks.filter((check) => check.condition);
+
+if (failed.length > 0) {
+  failed.forEach((check) => console.error(check.message));
+  process.exit(1);
+}
+
+console.log("Estrutura das fases 10, 11, 12, 13, 14 e 15 validada.");

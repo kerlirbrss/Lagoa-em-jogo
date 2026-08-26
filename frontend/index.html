@@ -399,22 +399,67 @@
     </nav>
 
     <nav class="nav-drawer" id="nav-drawer" aria-label="Mais opcoes">
+      <div class="nav-drawer-heading">
+        <strong>Mais opcoes</strong>
+        <button class="icon-button nav-drawer-close" id="nav-drawer-close" type="button" aria-label="Fechar menu">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+        </button>
+      </div>
+
+      <span class="nav-group-label">Destaques</span>
+      <a href="#galeria">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5L7 22"/></svg>
+        Galeria
+      </a>
+      <a href="#contato">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+        Contato
+      </a>
+      <a href="#resultados">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Pesquisa
+      </a>
+      <a href="#conta">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Conta do Usuario
+      </a>
+
+      <span class="nav-group-label">Conteudos</span>
+      <a href="#campeonatos">Campeonatos</a>
+      <a href="#times">Times</a>
       <a href="#atletas">Atletas</a>
       <a href="#jogos">Jogos</a>
       <a href="#palpites">Palpites</a>
       <a href="#estatisticas">Estatisticas</a>
-      <a href="#galeria">Galeria</a>
-      <a href="#notificacoes">Notificacoes</a>
-      <a href="#resultados">Busca</a>
+      <a href="#noticias">Noticias</a>
+
+      <span class="nav-group-label">Minha conta</span>
       <a href="#favoritos">Favoritos</a>
+      <a href="#notificacoes">Notificacoes</a>
       <a href="#perfis">Perfis</a>
-      <a href="#conta">Conta</a>
       <a href="admin.html">Admin</a>
     </nav>
 
-    <footer class="app-footer">
-      <span>Lagoa em Jogo</span>
-      <span>Ambiente de desenvolvimento - MVP com favoritos personalizados</span>
+    <footer class="app-footer" id="contato">
+      <div class="footer-cols">
+        <div class="footer-col">
+          <strong>Lagoa em Jogo</strong>
+          <span>Futebol amador e comunitario de Lagoa de Sao Francisco - PI.</span>
+        </div>
+        <div class="footer-col">
+          <strong>Contato</strong>
+          <a href="mailto:contato@lagoaemjogo.local">contato@lagoaemjogo.local</a>
+          <span>Instagram: @lagoaemjogo</span>
+        </div>
+        <div class="footer-col">
+          <strong>Navegacao</strong>
+          <a href="#campeonatos">Campeonatos</a>
+          <a href="#times">Times</a>
+          <a href="#noticias">Noticias</a>
+          <a href="#galeria">Galeria</a>
+        </div>
+      </div>
+      <small>Ambiente de desenvolvimento - fase 15 Responsividade</small>
     </footer>
 
     <script src="scripts/app.js"></script>

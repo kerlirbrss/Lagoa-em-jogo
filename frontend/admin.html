@@ -496,6 +496,19 @@
     <div class="nav-backdrop" id="nav-backdrop"></div>
 
     <nav class="nav-drawer" id="nav-drawer" aria-label="Mais opcoes">
+      <div class="nav-drawer-heading">
+        <strong>Mais opcoes</strong>
+        <button class="icon-button nav-drawer-close" id="nav-drawer-close" type="button" aria-label="Fechar menu">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+        </button>
+      </div>
+
+      <span class="nav-group-label">Destaques</span>
+      <a href="index.html#galeria">Galeria</a>
+      <a href="index.html#resultados">Pesquisa</a>
+      <a href="index.html#conta">Conta do Usuario</a>
+
+      <span class="nav-group-label">Conteudos</span>
       <a href="index.html">Inicio</a>
       <a href="index.html#campeonatos">Campeonatos</a>
       <a href="index.html#times">Times</a>
@@ -503,15 +516,30 @@
       <a href="index.html#jogos">Jogos</a>
       <a href="index.html#estatisticas">Estatisticas</a>
       <a href="index.html#noticias">Noticias</a>
-      <a href="index.html#galeria">Galeria</a>
-      <a href="index.html#conta">Conta</a>
+
+      <span class="nav-group-label">Acesso</span>
       <a href="admin.html" class="active" aria-current="page">Admin</a>
       <button id="logout-nav" type="button">Sair da sessao</button>
     </nav>
 
-    <footer class="app-footer">
-      <span>Lagoa em Jogo</span>
-      <span>Painel administrativo fase 12 - Notificacoes</span>
+    <footer class="app-footer" id="contato">
+      <div class="footer-cols">
+        <div class="footer-col">
+          <strong>Lagoa em Jogo</strong>
+          <span>Painel administrativo da plataforma de futebol local.</span>
+        </div>
+        <div class="footer-col">
+          <strong>Contato</strong>
+          <a href="mailto:contato@lagoaemjogo.local">contato@lagoaemjogo.local</a>
+        </div>
+        <div class="footer-col">
+          <strong>Navegacao</strong>
+          <a href="index.html">Site</a>
+          <a href="index.html#noticias">Noticias</a>
+          <a href="index.html#galeria">Galeria</a>
+        </div>
+      </div>
+      <small>Ambiente de desenvolvimento - fase 15 Responsividade</small>
     </footer>
 
     <script src="scripts/admin.js"></script>
