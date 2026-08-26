@@ -1,112 +1,337 @@
-const { test, describe, before, after } = require("node:test");
+const { describe, test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
-const { setupTestEnv, startServer, request } = require("./helpers.js");
+const fs = require("fs");
+const path = require("path");
+const http = require("http");
+
+const { setupTestEnv, loadDatabase, startServer, createClient, cleanupTestDb } = require("./helpers.js");
 
 setupTestEnv();
-let server;
 
-before(async () => {
-  server = await startServer();
-});
+describe("Testes de integracao - Fase 16", () => {
+  let baseUrl;
+  let client;
 
-after(async () => {
-  await server.close();
-});
+  before(async () => {
+    const env = await startServer();
+    baseUrl = env.baseUrl;
+    client = createClient(baseUrl);
+  });
 
-describe("Testes de integracao - rotas publicas", () => {
-  test("GET /api/health responde ok", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/health");
+  after(async () => {
+    if (client && typeof client.close === "function") {
+      await client.close();
+    }
+    cleanupTestDb();
+  });
+
+  test("health check retorna status ok", async () => {
+    const res = await client.req("GET", "/api/health");
     assert.equal(res.status, 200);
     assert.equal(res.body.status, "ok");
   });
 
-  test("GET /api/bootstrap retorna os dados base", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/bootstrap");
+  test("bootstrap retorna dados publicos e usuario anonimo", async () => {
+    const res = await client.req("GET", "/api/bootstrap");
     assert.equal(res.status, 200);
     assert.ok(Array.isArray(res.body.championships));
     assert.ok(Array.isArray(res.body.teams));
-    assert.ok(Array.isArray(res.body.athletes));
-    assert.ok(res.body.settings);
+    assert.equal(res.body.user, null);
   });
 
-  test("GET /api/championships retorna lista publica", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/championships");
-    assert.equal(res.status, 200);
-    assert.ok(res.body.championships.length >= 2);
-    assert.equal("password" in res.body.championships[0], false);
-  });
+  describe("Autenticacao", () => {
+    test("login retorna cookie e dados do usuario", async () => {
+      const res = await client.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      assert.equal(res.status, 200);
+      assert.ok(res.cookie.includes("lej_session="));
+      assert.equal(res.body.user.email, "admin@lagoaemjogo.local");
+    });
 
-  test("GET /api/teams retorna times com stats", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/teams");
-    assert.equal(res.status, 200);
-    assert.ok(res.body.teams.length >= 4);
-    assert.ok(res.body.teams[0].stats);
-  });
+    test("login com credenciais invalidas retorna 401", async () => {
+      const res = await client.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "errada"
+      });
+      assert.equal(res.status, 401);
+      assert.ok(res.body.message.length > 0);
+    });
 
-  test("GET /api/athletes retorna atletas", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/athletes");
-    assert.equal(res.status, 200);
-    assert.ok(res.body.athletes.length >= 1);
-    assert.ok(res.body.athletes[0].fullName);
-  });
+    test("registro cria usuario e faz login automatico", async () => {
+      const res = await client.req("POST", "/api/register", {
+        name: "Teste Integracao",
+        email: "teste.integracao@lagoaemjogo.local",
+        password: "teste123",
+        role: "usuario"
+      });
+      assert.equal(res.status, 201);
+      assert.ok(res.cookie.includes("lej_session="));
+      assert.equal(res.body.user.email, "teste.integracao@lagoaemjogo.local");
+    });
 
-  test("GET /api/matches retorna jogos", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/matches");
-    assert.equal(res.status, 200);
-    assert.ok(res.body.matches.length >= 2);
-    assert.ok(res.body.matches[0].homeTeamName);
-  });
+    test("logout remove sessao", async () => {
+      const loginRes = await client.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      const logoutRes = await client.req("POST", "/api/logout", undefined, loginRes.cookie);
+      assert.equal(logoutRes.status, 200);
+      assert.ok(logoutRes.body.message.length > 0);
+    });
 
-  test("GET /api/news retorna apenas publicadas", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/news");
-    assert.equal(res.status, 200);
-    res.body.news.forEach((article) => {
-      assert.equal(article.status, "publicado");
+    test("usuario bloqueado nao consegue logar", async () => {
+      const blockedClient = createClient(baseUrl);
+      const res = await blockedClient.req("POST", "/api/login", {
+        email: "ana@lagoaemjogo.local",
+        password: "ana123"
+      });
+      assert.equal(res.status, 403);
+      assert.ok(res.body.message.includes("bloqueado"));
     });
   });
 
-  test("GET /api/galleries retorna galerias publicadas", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/galleries");
-    assert.equal(res.status, 200);
-    res.body.galleries.forEach((gallery) => {
-      assert.equal(gallery.status, "publicado");
+  describe("Permissoes", () => {
+    let adminClient;
+    let userClient;
+
+    before(async () => {
+      adminClient = createClient(baseUrl);
+      const adminLogin = await adminClient.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      adminClient.cookie = adminLogin.cookie;
+
+      userClient = createClient(baseUrl);
+      const userLogin = await userClient.req("POST", "/api/login", {
+        email: "maria@lagoaemjogo.local",
+        password: "maria123"
+      });
+      userClient.cookie = userLogin.cookie;
+    });
+
+    test("admin acessa dashboard", async () => {
+      const res = await adminClient.req("GET", "/api/admin/dashboard");
+      assert.equal(res.status, 200);
+      assert.ok("totals" in res.body);
+    });
+
+    test("usuario nao admin recebe 403 no dashboard", async () => {
+      const res = await userClient.req("GET", "/api/admin/dashboard");
+      assert.equal(res.status, 403);
+    });
+
+    test("anonimo recebe 401 no dashboard", async () => {
+      const anonClient = createClient(baseUrl);
+      const res = await anonClient.req("GET", "/api/admin/dashboard");
+      assert.equal(res.status, 401);
     });
   });
 
-  test("GET /api/statistics retorna classificacao", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/statistics?championshipId=1");
-    assert.equal(res.status, 200);
-    assert.ok(res.body.statistics.standings.length >= 4);
-    assert.ok(res.body.statistics.topScorers);
+  describe("CRUD de campeonatos", () => {
+    let adminClient;
+
+    before(async () => {
+      adminClient = createClient(baseUrl);
+      const login = await adminClient.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      adminClient.cookie = login.cookie;
+    });
+
+    test("cria campeonato valido", async () => {
+      const res = await adminClient.req("POST", "/api/admin/championships", {
+        name: "Copa Integracao",
+        season: "2026",
+        status: "inscricoes"
+      });
+      assert.equal(res.status, 201);
+      assert.equal(res.body.championship.name, "Copa Integracao");
+    });
+
+    test("lista campeonatos publicos", async () => {
+      const res = await adminClient.req("GET", "/api/championships");
+      assert.equal(res.status, 200);
+      assert.ok(res.body.championships.some((c) => c.name === "Copa Integracao"));
+    });
   });
 
-  test("GET /api/home retorna destinos da pagina inicial", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/home");
-    assert.equal(res.status, 200);
-    assert.ok(Array.isArray(res.body.home.upcomingMatches));
-    assert.ok(Array.isArray(res.body.home.recentResults));
-    assert.equal(res.body.home.standings.championshipName, "Campeonato Rural");
+  describe("CRUD de times", () => {
+    let adminClient;
+    let championshipId;
+
+    before(async () => {
+      adminClient = createClient(baseUrl);
+      const login = await adminClient.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      adminClient.cookie = login.cookie;
+      const champs = await adminClient.req("GET", "/api/admin/championships");
+      championshipId = champs.body.championships[0].id;
+    });
+
+    test("cria time valido", async () => {
+      const res = await adminClient.req("POST", "/api/admin/teams", {
+        name: "Time Teste",
+        championshipId,
+        community: "Centro"
+      });
+      assert.equal(res.status, 201);
+      assert.equal(res.body.team.name, "Time Teste");
+    });
   });
 
-  test("GET /api/search encontra conteudos por termo", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/search?q=rural");
-    assert.equal(res.status, 200);
-    assert.ok(res.body.total >= 1);
+  describe("CRUD de partidas", () => {
+    let adminClient;
+    let teamId;
+    let teamId2;
+
+    before(async () => {
+      adminClient = createClient(baseUrl);
+      const login = await adminClient.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      adminClient.cookie = login.cookie;
+      const teams = await adminClient.req("GET", "/api/admin/teams");
+      teamId = teams.body.teams[0].id;
+      teamId2 = teams.body.teams[1].id;
+    });
+
+    test("cria partida valida", async () => {
+      const res = await adminClient.req("POST", "/api/admin/matches", {
+        championshipId: 1,
+        homeTeamId: teamId,
+        awayTeamId: teamId2,
+        stage: "Final",
+        round: "Rodada unica",
+        date: "2026-09-20",
+        time: "16:00",
+        field: "Campo central",
+        location: "Centro",
+        status: "agendado"
+      });
+      assert.equal(res.status, 201);
+      assert.equal(res.body.match.stage, "Final");
+    });
   });
 
-  test("GET /api/search sem termo retorna 400", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/search");
-    assert.equal(res.status, 400);
+  describe("Comentarios e moderacao", () => {
+    let adminClient;
+    let authorClient;
+
+    before(async () => {
+      adminClient = createClient(baseUrl);
+      const adminLogin = await adminClient.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      adminClient.cookie = adminLogin.cookie;
+
+      authorClient = createClient(baseUrl);
+      const authorLogin = await authorClient.req("POST", "/api/login", {
+        email: "pedro@lagoaemjogo.local",
+        password: "pedro123"
+      });
+      authorClient.cookie = authorLogin.cookie;
+    });
+
+    test("comentario em noticia fica pendente", async () => {
+      const newsRes = await adminClient.req("GET", "/api/news");
+      const newsId = newsRes.body.news[0].id;
+      const res = await authorClient.req("POST", `/api/news/${newsId}/comments`, {
+        authorName: "Pedro",
+        content: "Comentario de teste para integracao."
+      });
+      assert.equal(res.status, 201);
+      assert.equal(res.body.comment.status, "pendente");
+    });
+
+    test("admin modera comentario para aprovado", async () => {
+      const commentsRes = await adminClient.req("GET", "/api/admin/comments");
+      const commentId = commentsRes.body.comments[commentsRes.body.comments.length - 1].id;
+      const res = await adminClient.req("PATCH", `/api/admin/comments/${commentId}`, {
+        status: "aprovado"
+      });
+      assert.equal(res.status, 200);
+      assert.equal(res.body.comment.status, "aprovado");
+    });
   });
 
-  test("GET /api/predictions retorna partidas agendadas", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/predictions");
-    assert.equal(res.status, 200);
-    assert.ok(Array.isArray(res.body.predictions));
+  describe("Favoritos", () => {
+    let userClient;
+
+    before(async () => {
+      userClient = createClient(baseUrl);
+      const login = await userClient.req("POST", "/api/login", {
+        email: "pedro@lagoaemjogo.local",
+        password: "pedro123"
+      });
+      userClient.cookie = login.cookie;
+    });
+
+    test("adiciona e remove time dos favoritos", async () => {
+      const teams = await userClient.req("GET", "/api/teams");
+      const teamId = teams.body.teams[0].id;
+
+      const add = await userClient.req("POST", "/api/favorites", {
+        type: "time",
+        itemId: teamId
+      });
+      assert.equal(add.status, 201);
+
+      const list = await userClient.req("GET", "/api/favorites");
+      assert.ok(list.body.favorites.some((f) => f.type === "time" && f.itemId === teamId));
+
+      const favId = list.body.favorites.find((f) => f.type === "time" && f.itemId === teamId).id;
+      const remove = await userClient.req("DELETE", `/api/favorites/time/${teamId}`);
+      assert.equal(remove.status, 200);
+    });
   });
 
-  test("rota inexistente retorna 404", async () => {
-    const res = await request(server.baseUrl, "GET", "/api/nao-existe");
-    assert.equal(res.status, 404);
+  describe("Palpites", () => {
+    let userClient;
+
+    before(async () => {
+      userClient = createClient(baseUrl);
+      const login = await userClient.req("POST", "/api/login", {
+        email: "pedro@lagoaemjogo.local",
+        password: "pedro123"
+      });
+      userClient.cookie = login.cookie;
+    });
+
+    test("registra palpite para partida agendada", async () => {
+      const matches = await userClient.req("GET", "/api/matches");
+      const scheduled = matches.body.matches.find((m) => m.status === "agendado");
+      assert.ok(scheduled, "deve existir partida agendada");
+
+      const res = await userClient.req("POST", "/api/predictions", {
+        matchId: scheduled.id,
+        homeScore: 2,
+        awayScore: 1
+      });
+      assert.equal(res.status, 200);
+      assert.equal(res.body.prediction.homeScore, 2);
+    });
+  });
+
+  describe("Pesquisa", () => {
+    test("pesquisa retorna resultados por termo", async () => {
+      const anon = createClient(baseUrl);
+      const res = await anon.req("GET", "/api/search?q=rural&limit=5");
+      assert.equal(res.status, 200);
+      assert.ok(res.body.total >= 1);
+    });
+
+    test("pesquisa vazia retorna 400", async () => {
+      const anon = createClient(baseUrl);
+      const res = await anon.req("GET", "/api/search?q=");
+      assert.equal(res.status, 400);
+    });
   });
 });

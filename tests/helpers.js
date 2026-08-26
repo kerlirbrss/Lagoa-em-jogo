@@ -41,9 +41,27 @@ function cleanupTestDb() {
  * de forma lazy para respeitar o LEJ_DB_PATH configurado no setup.
  */
 async function startServer() {
-  const { server } = require(SERVER_PATH);
+  const server = require(SERVER_PATH);
 
   return new Promise((resolve, reject) => {
+    const alreadyListening = server.listening;
+
+    if (alreadyListening) {
+      const address = server.address();
+      resolve({
+        baseUrl: `http://127.0.0.1:${address.port}`,
+        server,
+        close: () => new Promise((res) => {
+          if (server.listening) {
+            server.close(res);
+          } else {
+            res();
+          }
+        })
+      });
+      return;
+    }
+
     server.once("error", reject);
     server.listen(0, () => {
       const port = server.address().port;

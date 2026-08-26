@@ -7,7 +7,7 @@
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
     "check": "node backend/check.js",
-    "test": "node --test tests/"
+    "test": "node --test tests/*.test.js"
   },
   "keywords": [
     "futebol",
