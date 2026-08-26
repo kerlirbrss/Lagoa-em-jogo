@@ -102,4 +102,9 @@ if (!source.includes('"/api/predictions"')) {
   process.exit(1);
 }
 
-console.log("Estrutura das fases 10, 11, 12 e 13 validada.");
+if (!source.includes('"/api/home"')) {
+  console.error("Rota da pagina inicial da fase 14 ausente no server.js.");
+  process.exit(1);
+}
+
+console.log("Estrutura das fases 10, 11, 12, 13 e 14 validada.");

@@ -2190,3 +2190,312 @@ section[id] {
     box-shadow: var(--shadow-md);
   }
 }
+
+/* ---------- Página inicial (Fase 14) ---------- */
+.home-hub {
+  display: grid;
+  gap: 24px;
+  background: var(--color-surface);
+}
+
+.home-hub-heading p:last-child {
+  min-height: 1.5em;
+  margin-bottom: 0;
+  color: var(--color-muted);
+}
+
+.home-match-columns,
+.home-stats-grid,
+.home-content-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.home-panel,
+.home-athlete-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-panel-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.home-panel-heading h3,
+.home-panel-heading h4 {
+  margin: 0;
+}
+
+.home-panel-heading a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-blue-dark);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.home-match-list {
+  display: grid;
+  gap: 8px;
+}
+
+.home-match-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  transition: border-color 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+}
+
+.home-match-item > span {
+  min-width: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.home-match-item > span:last-of-type {
+  text-align: right;
+}
+
+.home-match-item strong {
+  padding: 3px 7px;
+  border-radius: 6px;
+  color: var(--color-white);
+  background: var(--color-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-match-item small {
+  grid-column: 1 / -1;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
+
+.home-panel-context {
+  margin: -6px 0 0;
+  color: var(--color-muted);
+  font-size: 0.84rem;
+}
+
+.home-standings,
+.home-scorers {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-standings li,
+.home-scorers li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.home-standings li:last-child,
+.home-scorers li:last-child {
+  border-bottom: 0;
+}
+
+.home-standings li span,
+.home-scorers li span {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.home-standings li b,
+.home-scorers li b {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--color-blue-dark);
+  background: var(--color-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-standings li > strong,
+.home-scorers li > strong {
+  flex: 0 0 auto;
+  color: var(--color-green-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-scorers li span {
+  flex-wrap: wrap;
+}
+
+.home-scorers li small {
+  flex-basis: calc(100% - 32px);
+  margin-left: 32px;
+  color: var(--color-muted);
+}
+
+.home-athlete-card {
+  align-content: start;
+  color: var(--color-white);
+  background: linear-gradient(135deg, var(--color-blue-dark), var(--color-green-dark));
+  border-color: transparent;
+}
+
+.home-athlete-card .eyebrow,
+.home-athlete-card > p {
+  color: var(--accent-green-soft);
+}
+
+.home-athlete-card h3 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.home-athlete-card > strong {
+  font-size: 1.1rem;
+}
+
+.home-athlete-card .button {
+  justify-self: start;
+  border-color: var(--color-white);
+  color: var(--color-white);
+  background: transparent;
+}
+
+.home-content-grid > div {
+  display: grid;
+  gap: 12px;
+}
+
+.home-news-list {
+  display: grid;
+  gap: 12px;
+}
+
+.home-news-item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  column-gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--surface-card);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.home-news-item img {
+  grid-row: 1 / span 3;
+  width: 96px;
+  height: 100%;
+  min-height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.home-news-item span {
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.home-news-item h4 {
+  margin: 4px 0;
+  font-size: 1rem;
+}
+
+.home-news-item p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.home-gallery-preview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.home-gallery-item {
+  position: relative;
+  display: grid;
+  min-height: 130px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--color-blue-dark);
+}
+
+.home-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-gallery-item span {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 18px 8px 8px;
+  color: var(--color-white);
+  background: linear-gradient(transparent, rgba(11, 47, 107, 0.94));
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.home-empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+@media (min-width: 768px) {
+  .home-match-columns,
+  .home-content-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (hover: hover) {
+  .home-match-item:hover,
+  .home-news-item:hover {
+    border-color: var(--color-blue);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .home-gallery-item:hover img {
+    transform: scale(1.03);
+  }
+}
+
+.home-gallery-item img {
+  transition: transform 200ms ease;
+}

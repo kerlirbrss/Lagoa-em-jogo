@@ -30,7 +30,7 @@ Desenvolver uma plataforma web que permita:
 
 ## Status atual do desenvolvimento
 
-O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 12 do plano de evolução, conforme documentação do produto e da implementação.
+O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 14 do plano de evolução, conforme documentação do produto e da implementação.
 
 ### Fases implementadas
 
@@ -111,7 +111,20 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
   - preferências por tipo de aviso (times favoritos, campeonatos favoritos, notícias e próximos jogos);
   - geração automática ao encerrar/agendar jogos e publicar notícias.
 
-> A partir da Fase 13, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
+- Fase 13 — Palpites
+  - registro e atualização de palpite por placar em partidas agendadas;
+  - resultado da votação da torcida (percentuais por resultado);
+  - comentários liberados após o envio do palpite.
+
+- Fase 14 — Página Inicial
+  - banner principal da plataforma;
+  - próximos jogos e últimos resultados;
+  - classificação resumida do campeonato em andamento;
+  - artilheiros em destaque e atleta da semana;
+  - notícias em destaque e prévia da galeria;
+  - rota pública `GET /api/home` agregando os destaques.
+
+> A partir da Fase 15, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
 
 ---
 
@@ -119,10 +132,11 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
 
 ### Frontend público
 
-- página inicial com apresentação do projeto;
+- página inicial com apresentação do projeto e destaques (próximos jogos, últimos resultados, classificação, artilheiros, atleta da semana, notícias e galeria);
 - listagem de campeonatos;
 - listagem de times e atletas;
 - agenda de jogos;
+- palpites da torcida em partidas agendadas;
 - classificação e estatísticas por campeonato;
 - notícias com comentários;
 - galeria de imagens;
@@ -294,9 +308,7 @@ A estrutura atual permite demonstrar de forma clara o valor do produto, com uma 
 
 As próximas etapas previstas pela documentação do projeto e pelo roadmap de evolução são:
 
-- Sistema de palpites;
 - Conta do usuário com gestão mais completa;
-- Página inicial agregada (banner, destaque, artilheiros);
 - Central de contato;
 - Melhorias em páginas de erro e SEO;
 - Testes automatizados e validação de qualidade;

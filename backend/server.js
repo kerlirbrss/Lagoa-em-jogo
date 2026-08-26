@@ -631,6 +631,43 @@ function getChampionshipStatistics(database, championshipId) {
   };
 }
 
+function buildHomePage(database) {
+  const byMatchDateAscending = (a, b) => `${a.date}T${a.time || "00:00"}`.localeCompare(`${b.date}T${b.time || "00:00"}`);
+  const byMatchDateDescending = (a, b) => byMatchDateAscending(b, a);
+  const activeChampionship = database.championships.find((championship) => championship.status === "em_andamento") || database.championships[0];
+  const statistics = activeChampionship ? getChampionshipStatistics(database, Number(activeChampionship.id)) : null;
+  const athleteOfWeek = statistics?.topScorers[0] || statistics?.mostMatches[0] || null;
+
+  return {
+    upcomingMatches: database.matches
+      .filter((match) => match.status !== "encerrado")
+      .sort(byMatchDateAscending)
+      .slice(0, 3)
+      .map((match) => getPublicMatch(match, database)),
+    recentResults: database.matches
+      .filter(hasFinishedScore)
+      .sort(byMatchDateDescending)
+      .slice(0, 3)
+      .map((match) => getPublicMatch(match, database)),
+    standings: statistics ? {
+      championshipName: statistics.championship.name,
+      teams: statistics.standings.slice(0, 4)
+    } : null,
+    topScorers: statistics?.topScorers.slice(0, 3) || [],
+    athleteOfWeek,
+    featuredNews: database.news
+      .filter((article) => article.status === "publicado")
+      .sort((a, b) => String(b.publishedAt || b.createdAt || "").localeCompare(String(a.publishedAt || a.createdAt || "")))
+      .slice(0, 2)
+      .map((article) => getPublicNewsArticle(article, database)),
+    galleryPreview: database.galleries
+      .filter((gallery) => gallery.status === "publicado")
+      .sort((a, b) => String(b.publishedAt || b.createdAt || "").localeCompare(String(a.publishedAt || a.createdAt || "")))
+      .slice(0, 3)
+      .map((gallery) => getPublicGallery(gallery, database))
+  };
+}
+
 function getPublicAthlete(athlete, database) {
   const team = findTeamById(database, Number(athlete.teamId));
 
@@ -1310,6 +1347,11 @@ async function handleApi(request, response) {
     sendJson(response, 200, {
       matches: database.matches.map((match) => getPublicMatch(match, database))
     });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/home") {
+    sendJson(response, 200, { home: buildHomePage(database) });
     return;
   }
 

@@ -17,6 +17,15 @@ const elements = {
   matches: document.querySelector("#matches"),
   predictionsList: document.querySelector("#predictions-list"),
   predictionsStatus: document.querySelector("#predictions-status"),
+  homeHubStatus: document.querySelector("#home-hub-status"),
+  homeUpcomingMatches: document.querySelector("#home-upcoming-matches"),
+  homeRecentResults: document.querySelector("#home-recent-results"),
+  homeStandingsContext: document.querySelector("#home-standings-context"),
+  homeStandings: document.querySelector("#home-standings"),
+  homeTopScorers: document.querySelector("#home-top-scorers"),
+  homeAthleteWeek: document.querySelector("#home-athlete-week"),
+  homeFeaturedNews: document.querySelector("#home-featured-news"),
+  homeGalleryPreview: document.querySelector("#home-gallery-preview"),
   newsList: document.querySelector("#news-list"),
   featuredMatch: document.querySelector("#featured-match"),
   statisticsChampionship: document.querySelector("#statistics-championship"),
@@ -646,6 +655,61 @@ function renderMatches(matches) {
     .join("");
 }
 
+function renderHomeMatchList(element, matches, isResult = false) {
+  element.innerHTML = matches.length
+    ? matches.map((match) => `
+      <a class="home-match-item" href="#jogos" aria-label="Ver ${match.homeTeamName} contra ${match.awayTeamName}">
+        <span>${match.homeTeamName}</span>
+        <strong>${isResult ? formatMatchScore(match) : "x"}</strong>
+        <span>${match.awayTeamName}</span>
+        <small>${isResult ? `${match.stage} · ${match.round}` : formatMatchDateTime(match)}</small>
+      </a>`).join("")
+    : "<p class=\"home-empty\">Nenhuma partida disponível.</p>";
+}
+
+function renderHome(home) {
+  if (!home || !elements.homeUpcomingMatches) {
+    return;
+  }
+
+  renderHomeMatchList(elements.homeUpcomingMatches, home.upcomingMatches || []);
+  renderHomeMatchList(elements.homeRecentResults, home.recentResults || [], true);
+
+  const standings = home.standings;
+  elements.homeStandingsContext.textContent = standings?.championshipName || "Classificação indisponível";
+  elements.homeStandings.innerHTML = standings?.teams?.length
+    ? standings.teams.map((team) => `<li><span><b>${team.position}</b>${team.teamName}</span><strong>${team.points} pts</strong></li>`).join("")
+    : "<li class=\"home-empty\">Ainda não há classificação.</li>";
+
+  elements.homeTopScorers.innerHTML = home.topScorers?.length
+    ? home.topScorers.map((athlete) => `<li><span><b>${athlete.position}</b>${athlete.athleteName}<small>${athlete.teamName}</small></span><strong>${athlete.goals} gol${athlete.goals === 1 ? "" : "s"}</strong></li>`).join("")
+    : "<li class=\"home-empty\">Ainda não há artilharia.</li>";
+
+  const athlete = home.athleteOfWeek;
+  elements.homeAthleteWeek.innerHTML = athlete
+    ? `<p class="eyebrow">Atleta da semana</p><h3>${athlete.athleteName}</h3><p>${athlete.teamName}</p><strong>${athlete.goals || athlete.matches} ${athlete.goals ? "gols na temporada" : "jogos disputados"}</strong><a class="button secondary compact" href="#atletas">Conhecer atleta</a>`
+    : "<p class=\"eyebrow\">Atleta da semana</p><h3>Em breve</h3><p>Os destaques aparecerão após os primeiros jogos.</p>";
+
+  elements.homeFeaturedNews.innerHTML = home.featuredNews?.length
+    ? home.featuredNews.map((article) => `<a class="home-news-item" href="#noticias">${article.coverImageUrl ? `<img src="${article.coverImageUrl}" alt="" loading="lazy">` : ""}<span>${article.category}</span><h4>${article.title}</h4><p>${article.summary}</p></a>`).join("")
+    : "<p class=\"home-empty\">Nenhuma notícia publicada.</p>";
+
+  elements.homeGalleryPreview.innerHTML = home.galleryPreview?.length
+    ? home.galleryPreview.map((gallery) => `<a href="#galeria" class="home-gallery-item" aria-label="Ver galeria ${gallery.title}">${gallery.images[0] ? `<img src="${gallery.images[0]}" alt="" loading="lazy">` : ""}<span>${gallery.title}</span></a>`).join("")
+    : "<p class=\"home-empty\">Nenhuma galeria publicada.</p>";
+
+  elements.homeHubStatus.textContent = "Destaques atualizados a partir dos dados da plataforma.";
+}
+
+async function loadHome() {
+  try {
+    const data = await api("/api/home");
+    renderHome(data.home);
+  } catch (error) {
+    elements.homeHubStatus.textContent = "Não foi possível carregar os destaques. Tente novamente mais tarde.";
+  }
+}
+
 function renderPredictions(predictions) {
   if (!elements.predictionsList) {
     return;
@@ -1045,6 +1109,7 @@ async function loadBootstrap() {
   renderFeaturedMatch(data.matches[0] || data.featuredMatches[0]);
   renderRoles(data.roles);
   renderSession();
+  await loadHome();
   await loadFavorites();
   await loadNotifications();
   await loadNotificationPreferences();
