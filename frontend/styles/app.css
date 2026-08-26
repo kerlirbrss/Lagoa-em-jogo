@@ -1984,3 +1984,209 @@ section[id] {
   font-weight: 800;
   letter-spacing: 0;
 }
+
+/* ---------- Palpites (Fase 13) ---------- */
+.predictions-section {
+  background: var(--color-surface);
+}
+
+.predictions-status {
+  min-height: 1.5em;
+  margin-bottom: 14px;
+  color: var(--color-muted);
+}
+
+.predictions-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.prediction-card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.prediction-match-heading,
+.prediction-result-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--color-muted);
+  font-size: 0.84rem;
+}
+
+.prediction-match-heading span {
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.prediction-card h3,
+.prediction-card p,
+.prediction-result h4,
+.prediction-comments h4 {
+  margin: 0;
+}
+
+.prediction-card > p {
+  margin-top: -10px;
+  color: var(--color-muted);
+}
+
+.prediction-form fieldset {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+}
+
+.prediction-form legend {
+  padding: 0 5px;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.prediction-form label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--color-ink);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.prediction-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.prediction-form fieldset > span {
+  padding-bottom: 11px;
+  color: var(--color-muted);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.prediction-login-hint,
+.predictions-empty {
+  padding: 14px;
+  border-radius: 10px;
+  color: var(--color-blue-dark);
+  background: var(--color-surface);
+}
+
+.prediction-result,
+.prediction-comments {
+  display: grid;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-line);
+}
+
+.prediction-result-heading span {
+  font-weight: 700;
+}
+
+.vote-row {
+  display: grid;
+  grid-template-columns: minmax(84px, 0.9fr) minmax(80px, 1.4fr) 40px;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.vote-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vote-row strong {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.vote-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+
+.vote-track i {
+  display: block;
+  width: var(--vote-width);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-green);
+  transition: width 200ms ease;
+}
+
+.prediction-comments ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prediction-comments li {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--color-surface);
+  line-height: 1.45;
+}
+
+.prediction-comment-form {
+  display: grid;
+  gap: 8px;
+}
+
+.prediction-comment-form textarea {
+  min-height: 72px;
+  padding: 10px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--bg);
+  resize: vertical;
+}
+
+.prediction-comment-form .button,
+.prediction-form .button {
+  justify-self: start;
+}
+
+.prediction-card .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (min-width: 768px) {
+  .predictions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (hover: hover) {
+  .prediction-card:hover {
+    border-color: var(--color-blue);
+    box-shadow: var(--shadow-md);
+  }
+}

@@ -4,6 +4,7 @@ const state = {
   personalizedHome: null,
   championships: [],
   teams: [],
+  predictions: [],
   notifications: [],
   unreadCount: 0,
   notificationPreferences: []
@@ -14,6 +15,8 @@ const elements = {
   teams: document.querySelector("#teams"),
   athletes: document.querySelector("#athletes"),
   matches: document.querySelector("#matches"),
+  predictionsList: document.querySelector("#predictions-list"),
+  predictionsStatus: document.querySelector("#predictions-status"),
   newsList: document.querySelector("#news-list"),
   featuredMatch: document.querySelector("#featured-match"),
   statisticsChampionship: document.querySelector("#statistics-championship"),
@@ -643,6 +646,74 @@ function renderMatches(matches) {
     .join("");
 }
 
+function renderPredictions(predictions) {
+  if (!elements.predictionsList) {
+    return;
+  }
+
+  elements.predictionsList.innerHTML = predictions.length
+    ? predictions.map((item) => {
+      const { match, summary, ownPrediction, comments } = item;
+      const homePercent = summary.percentages.casa;
+      const drawPercent = summary.percentages.empate;
+      const awayPercent = summary.percentages.fora;
+      const commentsHtml = comments.length
+        ? comments.map((comment) => `<li><strong>${comment.authorName}:</strong> ${comment.content}</li>`).join("")
+        : "<li>Nenhum comentario ainda. Seja o primeiro a participar.</li>";
+      const predictionForm = state.user
+        ? `<form class="prediction-form" data-prediction-match="${match.id}">
+            <fieldset>
+              <legend>Seu palpite</legend>
+              <label>${match.homeTeamName}<input name="homeScore" type="number" inputmode="numeric" min="0" max="99" required value="${ownPrediction ? ownPrediction.homeScore : ""}"></label>
+              <span aria-hidden="true">x</span>
+              <label>${match.awayTeamName}<input name="awayScore" type="number" inputmode="numeric" min="0" max="99" required value="${ownPrediction ? ownPrediction.awayScore : ""}"></label>
+            </fieldset>
+            <button class="button primary compact" type="submit">${ownPrediction ? "Atualizar palpite" : "Enviar palpite"}</button>
+          </form>`
+        : `<p class="prediction-login-hint">Entre na sua conta para dar seu palpite.</p>`;
+      const commentForm = ownPrediction
+        ? `<form class="prediction-comment-form" data-prediction-comment="${ownPrediction.id}">
+            <label class="visually-hidden" for="prediction-comment-${ownPrediction.id}">Comentar sobre ${match.homeTeamName} x ${match.awayTeamName}</label>
+            <textarea id="prediction-comment-${ownPrediction.id}" name="content" rows="2" maxlength="500" placeholder="Comente seu palpite"></textarea>
+            <button class="button secondary compact" type="submit">Comentar</button>
+          </form>`
+        : "";
+
+      return `<article class="prediction-card">
+        <div class="prediction-match-heading">
+          <span>${match.championshipName}</span>
+          <small>${formatMatchDateTime(match)}</small>
+        </div>
+        <h3>${match.homeTeamName} <span aria-hidden="true">x</span> ${match.awayTeamName}</h3>
+        <p>${match.stage} · ${match.round} · ${match.field}</p>
+        ${predictionForm}
+        <div class="prediction-result" aria-label="Resultado da votação com ${summary.total} palpites">
+          <div class="prediction-result-heading"><h4>Votação da torcida</h4><span>${summary.total} ${summary.total === 1 ? "palpite" : "palpites"}</span></div>
+          <div class="vote-row"><span>${match.homeTeamName}</span><div class="vote-track"><i style="--vote-width: ${homePercent}%"></i></div><strong>${homePercent}%</strong></div>
+          <div class="vote-row"><span>Empate</span><div class="vote-track"><i style="--vote-width: ${drawPercent}%"></i></div><strong>${drawPercent}%</strong></div>
+          <div class="vote-row"><span>${match.awayTeamName}</span><div class="vote-track"><i style="--vote-width: ${awayPercent}%"></i></div><strong>${awayPercent}%</strong></div>
+        </div>
+        <div class="prediction-comments"><h4>Conversa da torcida</h4><ul>${commentsHtml}</ul>${commentForm}</div>
+      </article>`;
+    }).join("")
+    : "<p class=\"predictions-empty\">Não há partidas agendadas para receber palpites.</p>";
+}
+
+async function loadPredictions() {
+  try {
+    const data = await api("/api/predictions");
+    state.predictions = data.predictions || [];
+    renderPredictions(state.predictions);
+    if (elements.predictionsStatus) {
+      elements.predictionsStatus.textContent = "";
+    }
+  } catch (error) {
+    if (elements.predictionsStatus) {
+      elements.predictionsStatus.textContent = error.message;
+    }
+  }
+}
+
 function renderNews(news) {
   elements.newsList.innerHTML = news.length
     ? news.map((article) => {
@@ -958,6 +1029,7 @@ async function loadBootstrap() {
   state.personalizedHome = null;
   state.championships = data.championships;
   state.teams = data.teams;
+  state.predictions = data.predictions || [];
   renderFavorites();
   renderChampionships(data.championships);
   renderStatisticsChampionshipOptions(data.championships, data.championships[0]?.id);
@@ -967,6 +1039,7 @@ async function loadBootstrap() {
   renderTeams(data.teams);
   renderAthletes(data.athletes);
   renderMatches(data.matches);
+  renderPredictions(state.predictions);
   renderNews(data.news || []);
   renderGalleries(data.galleries || []);
   renderFeaturedMatch(data.matches[0] || data.featuredMatches[0]);
@@ -1010,6 +1083,46 @@ elements.newsList.addEventListener("submit", async (event) => {
     setMessage(data.message);
   } catch (error) {
     setMessage(error.message);
+  }
+});
+
+elements.predictionsList.addEventListener("submit", async (event) => {
+  const predictionForm = event.target.closest("[data-prediction-match]");
+  const commentForm = event.target.closest("[data-prediction-comment]");
+
+  if (!predictionForm && !commentForm) {
+    return;
+  }
+
+  event.preventDefault();
+  const form = predictionForm || commentForm;
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+
+  try {
+    const formData = new FormData(form);
+    let data;
+    if (predictionForm) {
+      data = await api("/api/predictions", {
+        method: "POST",
+        body: JSON.stringify({
+          matchId: Number(predictionForm.dataset.predictionMatch),
+          homeScore: Number(formData.get("homeScore")),
+          awayScore: Number(formData.get("awayScore"))
+        })
+      });
+    } else {
+      data = await api(`/api/predictions/${commentForm.dataset.predictionComment}/comments`, {
+        method: "POST",
+        body: JSON.stringify({ content: formData.get("content") })
+      });
+    }
+    await loadPredictions();
+    elements.predictionsStatus.textContent = data.message;
+  } catch (error) {
+    elements.predictionsStatus.textContent = error.message;
+  } finally {
+    submitButton.disabled = false;
   }
 });
 
@@ -1065,6 +1178,7 @@ elements.loginForm.addEventListener("submit", async (event) => {
     await loadFavorites();
     await loadNotifications();
     await loadNotificationPreferences();
+    await loadPredictions();
     renderSession();
     openTab("profile", { clearMessage: false });
     setMessage("Login realizado com sucesso.");
@@ -1096,6 +1210,7 @@ elements.registerForm.addEventListener("submit", async (event) => {
     await loadFavorites();
     await loadNotifications();
     await loadNotificationPreferences();
+    await loadPredictions();
     renderSession();
     openTab("profile", { clearMessage: false });
     setMessage("Conta criada e login realizado.");
@@ -1156,6 +1271,7 @@ elements.logoutButton.addEventListener("click", async () => {
   await loadFavorites();
   await loadNotifications();
   await loadNotificationPreferences();
+  await loadPredictions();
   renderSession();
   openTab("login", { clearMessage: false });
   setMessage("Sessao encerrada.");

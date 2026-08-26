@@ -979,6 +979,36 @@
       "createdAt": "2026-07-14T08:35:00.000Z"
     }
   ],
+  "predictions": [
+    {
+      "id": 1,
+      "userId": 4,
+      "matchId": 7,
+      "homeScore": 2,
+      "awayScore": 1,
+      "createdAt": "2026-08-10T12:00:00.000Z",
+      "updatedAt": "2026-08-10T12:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "matchId": 7,
+      "homeScore": 1,
+      "awayScore": 1,
+      "createdAt": "2026-08-11T14:30:00.000Z",
+      "updatedAt": "2026-08-11T14:30:00.000Z"
+    }
+  ],
+  "predictionComments": [
+    {
+      "id": 1,
+      "predictionId": 1,
+      "matchId": 7,
+      "userId": 4,
+      "content": "Acredito em uma partida equilibrada, mas a Lagoa joga forte em casa.",
+      "createdAt": "2026-08-10T12:02:00.000Z"
+    }
+  ],
   "notificationPreferences": [
     {
       "id": 1,

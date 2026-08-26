@@ -51,6 +51,8 @@ function readDatabase() {
   database.favorites = database.favorites || [];
   database.notifications = database.notifications || [];
   database.notificationPreferences = database.notificationPreferences || [];
+  database.predictions = database.predictions || [];
+  database.predictionComments = database.predictionComments || [];
   return database;
 }
 
@@ -166,6 +168,81 @@ function getPublicFavorites(database, user) {
     .map((favorite) => getPublicFavorite(favorite, database))
     .filter(Boolean)
     .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+}
+
+/* ============================================================
+   Palpites (Fase 13)
+   ============================================================ */
+
+function getPredictionOutcome(homeScore, awayScore) {
+  if (homeScore > awayScore) return "casa";
+  if (awayScore > homeScore) return "fora";
+  return "empate";
+}
+
+function getPredictionSummary(database, matchId, user) {
+  const predictions = database.predictions.filter((prediction) => Number(prediction.matchId) === Number(matchId));
+  const votes = { casa: 0, empate: 0, fora: 0 };
+
+  predictions.forEach((prediction) => {
+    votes[getPredictionOutcome(Number(prediction.homeScore), Number(prediction.awayScore))] += 1;
+  });
+
+  const total = predictions.length;
+  const percentages = Object.fromEntries(Object.entries(votes).map(([outcome, count]) => [
+    outcome,
+    total ? Math.round((count / total) * 100) : 0
+  ]));
+  const ownPrediction = user
+    ? predictions.find((prediction) => Number(prediction.userId) === Number(user.id)) || null
+    : null;
+
+  return { total, votes, percentages, ownPrediction };
+}
+
+function getPublicPredictionComment(comment, database) {
+  const author = database.users.find((user) => Number(user.id) === Number(comment.userId));
+  return {
+    id: comment.id,
+    predictionId: Number(comment.predictionId),
+    authorName: author ? author.name : "Torcedor",
+    content: comment.content,
+    createdAt: comment.createdAt || null
+  };
+}
+
+function getPublicPredictionCard(database, match, user) {
+  const summary = getPredictionSummary(database, match.id, user);
+  const comments = database.predictionComments
+    .filter((comment) => Number(comment.matchId) === Number(match.id))
+    .sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)))
+    .map((comment) => getPublicPredictionComment(comment, database));
+
+  return {
+    match: getPublicMatch(match, database),
+    summary: {
+      total: summary.total,
+      votes: summary.votes,
+      percentages: summary.percentages
+    },
+    ownPrediction: summary.ownPrediction
+      ? {
+        id: summary.ownPrediction.id,
+        homeScore: Number(summary.ownPrediction.homeScore),
+        awayScore: Number(summary.ownPrediction.awayScore),
+        createdAt: summary.ownPrediction.createdAt || null,
+        updatedAt: summary.ownPrediction.updatedAt || null
+      }
+      : null,
+    comments
+  };
+}
+
+function getPredictionCards(database, user) {
+  return database.matches
+    .filter((match) => match.status === "agendado")
+    .sort((a, b) => `${a.date}T${a.time || "00:00"}`.localeCompare(`${b.date}T${b.time || "00:00"}`))
+    .map((match) => getPublicPredictionCard(database, match, user));
 }
 
 function buildPersonalizedHome(database, user) {
@@ -1202,7 +1279,8 @@ async function handleApi(request, response) {
         .map((gallery) => getPublicGallery(gallery, database)),
       featuredMatches: database.featuredMatches,
       user: getPublicUser(getSessionUser(request)),
-      favorites: getPublicFavorites(database, getSessionUser(request))
+      favorites: getPublicFavorites(database, getSessionUser(request)),
+      predictions: getPredictionCards(database, getSessionUser(request))
     });
     return;
   }
@@ -1232,6 +1310,85 @@ async function handleApi(request, response) {
     sendJson(response, 200, {
       matches: database.matches.map((match) => getPublicMatch(match, database))
     });
+    return;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/predictions") {
+    sendJson(response, 200, { predictions: getPredictionCards(database, getSessionUser(request)) });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/predictions") {
+    const sessionUser = getSessionUser(request);
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na sua conta para registrar um palpite." });
+      return;
+    }
+    if (sessionUser.status === "bloqueado") {
+      sendJson(response, 403, { message: "Sua conta esta bloqueada para participar de palpites." });
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const matchId = Number(body.matchId);
+      const homeScore = Number(body.homeScore);
+      const awayScore = Number(body.awayScore);
+      const match = findMatchById(database, matchId);
+      if (!match || match.status !== "agendado") {
+        sendJson(response, 400, { message: "Palpites sao permitidos apenas para partidas agendadas." });
+        return;
+      }
+      if (!Number.isInteger(homeScore) || !Number.isInteger(awayScore) || homeScore < 0 || awayScore < 0) {
+        sendJson(response, 400, { message: "Informe um placar valido, com numeros inteiros a partir de zero." });
+        return;
+      }
+
+      let prediction = database.predictions.find((item) => Number(item.matchId) === matchId && Number(item.userId) === Number(sessionUser.id));
+      const now = new Date().toISOString();
+      const isNew = !prediction;
+      if (prediction) {
+        prediction.homeScore = homeScore;
+        prediction.awayScore = awayScore;
+        prediction.updatedAt = now;
+      } else {
+        prediction = { id: database.predictions.reduce((highest, item) => Math.max(highest, Number(item.id) || 0), 0) + 1, userId: sessionUser.id, matchId, homeScore, awayScore, createdAt: now, updatedAt: now };
+        database.predictions.push(prediction);
+      }
+      writeDatabase(database);
+      sendJson(response, 200, { message: isNew ? "Palpite registrado. Agora voce pode participar da conversa." : "Palpite atualizado.", prediction: getPublicPredictionCard(database, match, sessionUser) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel registrar o palpite." });
+    }
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname.startsWith("/api/predictions/") && url.pathname.endsWith("/comments")) {
+    const sessionUser = getSessionUser(request);
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na sua conta para comentar um palpite." });
+      return;
+    }
+    try {
+      const predictionId = Number(url.pathname.split("/")[3]);
+      const prediction = database.predictions.find((item) => Number(item.id) === predictionId);
+      const body = await parseBody(request);
+      const content = normalizeText(body.content);
+      if (!prediction || Number(prediction.userId) !== Number(sessionUser.id)) {
+        sendJson(response, 403, { message: "Registre seu palpite antes de comentar nesta partida." });
+        return;
+      }
+      if (!content || content.length > 500) {
+        sendJson(response, 400, { message: "Escreva um comentario de ate 500 caracteres." });
+        return;
+      }
+      const comment = { id: database.predictionComments.reduce((highest, item) => Math.max(highest, Number(item.id) || 0), 0) + 1, predictionId, matchId: prediction.matchId, userId: sessionUser.id, content, createdAt: new Date().toISOString() };
+      database.predictionComments.push(comment);
+      writeDatabase(database);
+      sendJson(response, 201, { message: "Comentario publicado.", comment: getPublicPredictionComment(comment, database) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel publicar o comentario." });
+    }
     return;
   }
 

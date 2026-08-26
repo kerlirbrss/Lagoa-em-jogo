@@ -63,6 +63,11 @@ if (!Array.isArray(database.notificationPreferences)) {
   process.exit(1);
 }
 
+if (!Array.isArray(database.predictions) || !Array.isArray(database.predictionComments)) {
+  console.error("Colecoes de palpites da fase 13 ausentes no banco de dados.");
+  process.exit(1);
+}
+
 require("./server");
 
 const source = fs.readFileSync(path.join(__dirname, "server.js"), "utf8");
@@ -92,4 +97,9 @@ if (!source.includes('"/api/notification-preferences"')) {
   process.exit(1);
 }
 
-console.log("Estrutura das fases 10, 11 e 12 validada.");
+if (!source.includes('"/api/predictions"')) {
+  console.error("Rotas de palpites da fase 13 ausentes no server.js.");
+  process.exit(1);
+}
+
+console.log("Estrutura das fases 10, 11, 12 e 13 validada.");
