@@ -58,7 +58,9 @@ const elements = {
   notificationsStatus: document.querySelector("#notifications-status"),
   markAllNotifications: document.querySelector("#mark-all-notifications"),
   preferencesForm: document.querySelector("#preferences-form"),
-  preferencesGrid: document.querySelector("#preferences-grid")
+  preferencesGrid: document.querySelector("#preferences-grid"),
+  contactForm: document.querySelector("#contact-form"),
+  contactStatus: document.querySelector("#contact-status")
 };
 
 async function api(path, options = {}) {
@@ -1217,6 +1219,34 @@ elements.searchForm.addEventListener("submit", async (event) => {
     elements.searchStatus.textContent = error.message;
   }
 });
+
+if (elements.contactForm) {
+  elements.contactForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(elements.contactForm);
+    const payload = {
+      name: String(formData.get("name") || "").trim(),
+      email: String(formData.get("email") || "").trim(),
+      subject: String(formData.get("subject") || "").trim(),
+      message: String(formData.get("message") || "").trim()
+    };
+
+    try {
+      const data = await api("/api/contact", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      elements.contactForm.reset();
+      elements.contactStatus.textContent = data.message;
+      elements.contactStatus.dataset.state = "success";
+    } catch (error) {
+      elements.contactStatus.textContent = error.message;
+      elements.contactStatus.dataset.state = "error";
+    }
+  });
+}
 
 /* Link "Busca" do menu: leva o foco ao campo de pesquisa no hero */
 document.querySelectorAll('a[href="#resultados"]').forEach((link) => {

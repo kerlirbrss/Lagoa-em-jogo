@@ -91,6 +91,7 @@ function ensureDatabaseFile() {
     news: [],
     galleries: [],
     comments: [],
+    contacts: [],
     favorites: [],
     notifications: [],
     notificationPreferences: [],
@@ -111,6 +112,7 @@ function readDatabase() {
   database.matches = database.matches || [];
   database.news = database.news || [];
   database.galleries = database.galleries || [];
+  database.contacts = database.contacts || [];
   database.favorites = database.favorites || [];
   database.notifications = database.notifications || [];
   database.notificationPreferences = database.notificationPreferences || [];
@@ -1427,6 +1429,57 @@ async function handleApi(request, response) {
 
   if (request.method === "GET" && request.url === "/api/health") {
     sendJson(response, 200, getHealthDetails(database));
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/contact") {
+    try {
+      const body = await parseBody(request);
+      const name = normalizeText(body.name);
+      const email = normalizeEmail(body.email);
+      const subject = normalizeText(body.subject);
+      const message = normalizeText(body.message);
+
+      if (name.length < 2) {
+        sendJson(response, 400, { message: "Informe seu nome para continuar." });
+        return;
+      }
+
+      if (!email || !email.includes("@") || !email.includes(".")) {
+        sendJson(response, 400, { message: "Informe um e-mail valido." });
+        return;
+      }
+
+      if (subject.length < 3) {
+        sendJson(response, 400, { message: "Informe o assunto da mensagem." });
+        return;
+      }
+
+      if (message.length < 10) {
+        sendJson(response, 400, { message: "Escreva uma mensagem com pelo menos 10 caracteres." });
+        return;
+      }
+
+      const contact = {
+        id: database.contacts.reduce((highest, item) => Math.max(highest, Number(item.id) || 0), 0) + 1,
+        name,
+        email,
+        subject,
+        message,
+        createdAt: new Date().toISOString(),
+        status: "recebido"
+      };
+
+      database.contacts.push(contact);
+      writeDatabase(database);
+
+      sendJson(response, 201, {
+        message: "recebemos sua mensagem. Nossa equipe entrará em contato em breve.",
+        contact
+      });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel enviar a mensagem de contato." });
+    }
     return;
   }
 

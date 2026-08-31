@@ -326,6 +326,20 @@ describe("Testes de integracao - Fase 16", () => {
     });
   });
 
+  describe("Contato", () => {
+    test("formulario de contato envia mensagem com sucesso", async () => {
+      const res = await client.req("POST", "/api/contact", {
+        name: "Contato Teste",
+        email: "contato@teste.local",
+        subject: "Dúvida sobre campeonato",
+        message: "Gostaria de saber mais sobre as inscricoes."
+      });
+      assert.equal(res.status, 201);
+      assert.ok(res.body.message.includes("recebemos"));
+      assert.equal(res.body.contact.subject, "Dúvida sobre campeonato");
+    });
+  });
+
   describe("Favoritos", () => {
     let userClient;
 

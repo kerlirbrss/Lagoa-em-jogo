@@ -48,6 +48,11 @@ if (!Array.isArray(database.galleries)) {
   process.exit(1);
 }
 
+if (!Array.isArray(database.contacts)) {
+  console.error("Colecao de contatos ausente no banco de dados.");
+  process.exit(1);
+}
+
 if (!Array.isArray(database.favorites)) {
   console.error("Colecao de favoritos ausente no banco de dados.");
   process.exit(1);
