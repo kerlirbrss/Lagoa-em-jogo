@@ -90,6 +90,7 @@ function ensureDatabaseFile() {
     matches: [],
     news: [],
     galleries: [],
+    images: [],
     comments: [],
     contacts: [],
     favorites: [],
@@ -112,6 +113,7 @@ function readDatabase() {
   database.matches = database.matches || [];
   database.news = database.news || [];
   database.galleries = database.galleries || [];
+  database.images = database.images || [];
   database.contacts = database.contacts || [];
   database.favorites = database.favorites || [];
   database.notifications = database.notifications || [];
@@ -1365,6 +1367,60 @@ function validateNewsPayload(body, currentArticle = {}) {
   return { article };
 }
 
+function isValidImageUrl(value) {
+  if (!value) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(value);
+    return ["http:", "https:"].includes(parsed.protocol);
+  } catch (error) {
+    return false;
+  }
+}
+
+function getPublicImage(image) {
+  if (!image) {
+    return null;
+  }
+
+  return {
+    id: image.id,
+    title: image.title,
+    category: image.category,
+    url: image.url,
+    altText: image.altText || "",
+    isPublic: Boolean(image.isPublic),
+    createdAt: image.createdAt || null,
+    updatedAt: image.updatedAt || null
+  };
+}
+
+function validateImagePayload(body, currentImage = {}) {
+  const image = {
+    title: normalizeText(body.title ?? currentImage.title),
+    category: normalizeText(body.category ?? currentImage.category),
+    url: normalizeText(body.url ?? currentImage.url),
+    altText: normalizeText(body.altText ?? currentImage.altText),
+    isPublic: body.isPublic !== undefined ? Boolean(body.isPublic) : Boolean(currentImage.isPublic)
+  };
+
+  if (image.title.length < 3) {
+    return { error: "Informe um titulo para a imagem com pelo menos 3 caracteres." };
+  }
+
+  if (!image.category) {
+    return { error: "Informe a categoria da imagem." };
+  }
+
+  if (!isValidImageUrl(image.url)) {
+    return { error: "Informe uma URL valida para a imagem." };
+  }
+
+  return { image };
+}
+
 function validateGalleryPayload(database, body, currentGallery = {}) {
   const type = normalizeText(body.type ?? currentGallery.type ?? "evento");
   const status = normalizeText(body.status ?? currentGallery.status ?? "rascunho");
@@ -1704,6 +1760,16 @@ async function handleApi(request, response) {
       .map((gallery) => getPublicGallery(gallery, database));
 
     sendJson(response, 200, { galleries });
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/images") {
+    const images = database.images
+      .filter((image) => image.isPublic)
+      .sort((a, b) => String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")))
+      .map(getPublicImage);
+
+    sendJson(response, 200, { images });
     return;
   }
 
@@ -2552,6 +2618,77 @@ async function handleApi(request, response) {
       sendJson(response, 200, { article: getPublicNewsArticle(article, database, { includeContent: true }) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar a noticia." });
+    }
+
+    return;
+  }
+
+  if (request.method === "GET" && request.url === "/api/admin/images") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    sendJson(response, 200, {
+      images: database.images
+        .slice()
+        .sort((a, b) => String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")))
+        .map(getPublicImage)
+    });
+    return;
+  }
+
+  if (request.method === "POST" && request.url === "/api/admin/images") {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    try {
+      const body = await parseBody(request);
+      const validation = validateImagePayload(body);
+
+      if (validation.error) {
+        sendJson(response, 400, { message: validation.error });
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const image = {
+        id: database.images.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+        ...validation.image,
+        createdAt: now,
+        updatedAt: now
+      };
+
+      database.images.push(image);
+      writeDatabase(database);
+
+      sendJson(response, 201, { image: getPublicImage(image) });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel criar a imagem." });
+    }
+
+    return;
+  }
+
+  if (request.method === "DELETE" && url.pathname.startsWith("/api/admin/images/")) {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    try {
+      const imageId = Number(url.pathname.split("/").pop());
+      const imageIndex = database.images.findIndex((item) => Number(item.id) === imageId);
+
+      if (imageIndex === -1) {
+        sendJson(response, 404, { message: "Imagem nao encontrada." });
+        return;
+      }
+
+      database.images.splice(imageIndex, 1);
+      writeDatabase(database);
+      sendJson(response, 200, { deleted: true, imageId });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel excluir a imagem." });
     }
 
     return;

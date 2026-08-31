@@ -398,6 +398,40 @@ describe("Testes de integracao - Fase 16", () => {
     });
   });
 
+  describe("Gerenciamento de imagens", () => {
+    let adminClient;
+
+    before(async () => {
+      adminClient = createClient(baseUrl);
+      const login = await adminClient.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      adminClient.cookie = login.cookie;
+    });
+
+    test("admin cadastra, lista e remove imagem centralizada", async () => {
+      const createRes = await adminClient.req("POST", "/api/admin/images", {
+        title: "Logo oficial",
+        category: "marca",
+        url: "https://cdn.example.com/logo.png",
+        altText: "Logo do Lagoa em Jogo",
+        isPublic: true
+      });
+      assert.equal(createRes.status, 201);
+      assert.equal(createRes.body.image.title, "Logo oficial");
+
+      const listRes = await adminClient.req("GET", "/api/admin/images");
+      assert.equal(listRes.status, 200);
+      assert.ok(listRes.body.images.some((image) => image.title === "Logo oficial"));
+
+      const imageId = listRes.body.images.find((image) => image.title === "Logo oficial").id;
+      const deleteRes = await adminClient.req("DELETE", `/api/admin/images/${imageId}`);
+      assert.equal(deleteRes.status, 200);
+      assert.equal(deleteRes.body.deleted, true);
+    });
+  });
+
   describe("Pesquisa", () => {
     test("pesquisa retorna resultados por termo", async () => {
       const anon = createClient(baseUrl);
