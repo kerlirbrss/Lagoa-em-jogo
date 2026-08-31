@@ -459,6 +459,21 @@ describe("Testes de integracao - Fase 16", () => {
     });
   });
 
+  describe("Tratamento de erros e SEO", () => {
+    test("pagina inexistente retorna 404 com mensagem amigavel", async () => {
+      const html = await fetch(`${baseUrl}/rota-inexistente-para-fase-23`).then((response) => response.text());
+      assert.match(html, /404|nao encontrado|pagina nao encontrada/i);
+    });
+
+    test("pagina inicial inclui meta tags basicas de seo", async () => {
+      const html = await fetch(`${baseUrl}/`).then((response) => response.text());
+      assert.match(html, /<title>.*Lagoa em Jogo.*<\/title>/i);
+      assert.match(html, /<meta name="description"/i);
+      assert.match(html, /<meta property="og:title"/i);
+      assert.match(html, /<meta property="og:description"/i);
+    });
+  });
+
   describe("Pesquisa", () => {
     test("pesquisa retorna resultados por termo", async () => {
       const anon = createClient(baseUrl);

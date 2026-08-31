@@ -3198,29 +3198,61 @@ function getContentType(filePath) {
   return types[extension] || "application/octet-stream";
 }
 
+function renderErrorPage(statusCode, title, message) {
+  return `<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${statusCode} - ${title}</title>
+    <meta name="description" content="${message}">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${message}">
+    <meta property="og:type" content="website">
+    <style>
+      body { font-family: Arial, sans-serif; background: #f5f7fb; color: #123; margin: 0; min-height: 100vh; display: grid; place-items: center; }
+      .card { max-width: 560px; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 14px 40px rgba(17, 85, 204, 0.12); }
+      .eyebrow { letter-spacing: .12em; text-transform: uppercase; color: #1155cc; font-size: 12px; font-weight: 700; }
+      h1 { margin: 12px 0 10px; font-size: 2.4rem; }
+      p { color: #3b4a5c; line-height: 1.6; }
+      a { color: #1155cc; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <p class="eyebrow">Lagoa em Jogo</p>
+      <h1>${statusCode}</h1>
+      <h2>${title}</h2>
+      <p>${message}</p>
+      <p><a href="/">Voltar para a página inicial</a></p>
+    </main>
+  </body>
+</html>`;
+}
+
 function serveStatic(request, response) {
   const requestPath = decodeURIComponent(request.url.split("?")[0]);
   const safePath = requestPath === "/" ? "/index.html" : requestPath;
   const filePath = path.normalize(path.join(FRONTEND_DIR, safePath));
 
   if (!filePath.startsWith(FRONTEND_DIR)) {
-    response.writeHead(403);
-    response.end("Acesso negado.");
+    response.writeHead(403, { "Content-Type": "text/html; charset=utf-8" });
+    response.end(renderErrorPage(403, "Acesso negado", "Você não tem permissão para acessar este conteúdo."));
     return;
   }
 
   fs.readFile(filePath, (error, content) => {
     if (error) {
-      fs.readFile(path.join(FRONTEND_DIR, "index.html"), (fallbackError, fallbackContent) => {
-        if (fallbackError) {
-          response.writeHead(404);
-          response.end("Arquivo nao encontrado.");
-          return;
-        }
+      const errorStatus = requestPath === "/403" ? 403 : requestPath === "/500" ? 500 : 404;
+      const title = errorStatus === 403 ? "Acesso negado" : errorStatus === 500 ? "Erro interno" : "Página não encontrada";
+      const message = errorStatus === 403
+        ? "Você não tem permissão para acessar este conteúdo."
+        : errorStatus === 500
+          ? "Ocorreu um problema ao processar a solicitação."
+          : "A página solicitada não foi encontrada. Verifique a URL ou retorne à página inicial.";
 
-        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(fallbackContent);
-      });
+      response.writeHead(errorStatus, { "Content-Type": "text/html; charset=utf-8" });
+      response.end(renderErrorPage(errorStatus, title, message));
       return;
     }
 
