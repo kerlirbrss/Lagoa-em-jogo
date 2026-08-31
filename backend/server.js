@@ -91,6 +91,7 @@ function ensureDatabaseFile() {
     news: [],
     galleries: [],
     images: [],
+    auditLogs: [],
     comments: [],
     contacts: [],
     favorites: [],
@@ -114,6 +115,7 @@ function readDatabase() {
   database.news = database.news || [];
   database.galleries = database.galleries || [];
   database.images = database.images || [];
+  database.auditLogs = database.auditLogs || [];
   database.contacts = database.contacts || [];
   database.favorites = database.favorites || [];
   database.notifications = database.notifications || [];
@@ -1022,6 +1024,42 @@ function updateSessionUser(user) {
       sessions.set(token, user);
     }
   }
+}
+
+function recordAuditLog(database, action, entityType, details = {}, actor = null) {
+  const logEntry = {
+    id: database.auditLogs.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
+    action,
+    entityType,
+    entityId: details.entityId ?? null,
+    userId: actor ? actor.id : null,
+    userName: actor ? actor.name : null,
+    details: {
+      ...(details || {})
+    },
+    createdAt: new Date().toISOString()
+  };
+
+  database.auditLogs.push(logEntry);
+  writeDatabase(database);
+  return logEntry;
+}
+
+function getPublicAuditLog(entry) {
+  if (!entry) {
+    return null;
+  }
+
+  return {
+    id: entry.id,
+    action: entry.action,
+    entityType: entry.entityType,
+    entityId: entry.entityId,
+    userId: entry.userId,
+    userName: entry.userName,
+    details: entry.details || {},
+    createdAt: entry.createdAt
+  };
 }
 
 function isValidRole(role) {
@@ -2147,6 +2185,22 @@ async function handleApi(request, response) {
     return;
   }
 
+  if (request.method === "GET" && request.url === "/api/admin/logs") {
+    const admin = requireAdmin(request, response);
+
+    if (!admin) {
+      return;
+    }
+
+    const logs = database.auditLogs
+      .slice()
+      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
+      .map(getPublicAuditLog);
+
+    sendJson(response, 200, { logs });
+    return;
+  }
+
   if (request.method === "GET" && request.url === "/api/admin/dashboard") {
     if (!requireAdmin(request, response)) {
       return;
@@ -2191,6 +2245,11 @@ async function handleApi(request, response) {
 
       database.championships.push(championship);
       writeDatabase(database);
+      recordAuditLog(database, "championship_created", "championship", {
+        entityId: championship.id,
+        championshipName: championship.name,
+        status: championship.status
+      }, getSessionUser(request));
 
       sendJson(response, 201, { championship: getPublicChampionship(championship) });
     } catch (error) {
@@ -2214,8 +2273,13 @@ async function handleApi(request, response) {
     }
 
     if (request.method === "DELETE") {
+      const removedName = championship.name;
       database.championships = database.championships.filter((item) => item.id !== championshipId);
       writeDatabase(database);
+      recordAuditLog(database, "championship_deleted", "championship", {
+        entityId: championshipId,
+        championshipName: removedName
+      }, getSessionUser(request));
       sendJson(response, 200, { message: "Campeonato excluido." });
       return;
     }
@@ -2234,6 +2298,11 @@ async function handleApi(request, response) {
       });
 
       writeDatabase(database);
+      recordAuditLog(database, "championship_updated", "championship", {
+        entityId: championship.id,
+        championshipName: championship.name,
+        status: championship.status
+      }, getSessionUser(request));
       sendJson(response, 200, { championship: getPublicChampionship(championship) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar o campeonato." });
@@ -2898,6 +2967,12 @@ async function handleApi(request, response) {
       comment.status = status;
       comment.moderatedAt = new Date().toISOString();
       writeDatabase(database);
+      recordAuditLog(database, "comment_status_changed", "comment", {
+        entityId: comment.id,
+        status,
+        context: comment.context,
+        authorName: comment.authorName
+      }, getSessionUser(request));
 
       sendJson(response, 200, { comment });
     } catch (error) {
@@ -2922,6 +2997,8 @@ async function handleApi(request, response) {
         return;
       }
 
+      const removedComment = newsIndex !== -1 ? database.comments[newsIndex] : database.predictionComments[predictionIndex];
+
       if (newsIndex !== -1) {
         database.comments.splice(newsIndex, 1);
       }
@@ -2931,6 +3008,11 @@ async function handleApi(request, response) {
       }
 
       writeDatabase(database);
+      recordAuditLog(database, "comment_deleted", "comment", {
+        entityId: commentId,
+        context: removedComment ? removedComment.context : "comentario",
+        authorName: removedComment ? removedComment.authorName : "desconhecido"
+      }, getSessionUser(request));
       sendJson(response, 200, { deleted: true, commentId });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel excluir o comentario." });

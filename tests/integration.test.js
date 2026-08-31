@@ -340,6 +340,33 @@ describe("Testes de integracao - Fase 16", () => {
     });
   });
 
+  describe("Auditoria e logs", () => {
+    let adminClient;
+
+    before(async () => {
+      adminClient = createClient(baseUrl);
+      const login = await adminClient.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      adminClient.cookie = login.cookie;
+    });
+
+    test("admin consulta historico de auditoria com registros de alteracoes", async () => {
+      const createRes = await adminClient.req("POST", "/api/admin/championships", {
+        name: "Copa Auditoria",
+        season: "2027",
+        status: "inscricoes"
+      });
+      assert.equal(createRes.status, 201);
+
+      const logsRes = await adminClient.req("GET", "/api/admin/logs");
+      assert.equal(logsRes.status, 200);
+      assert.ok(logsRes.body.logs.some((entry) => entry.action === "championship_created"));
+      assert.ok(logsRes.body.logs.some((entry) => entry.entityType === "championship"));
+    });
+  });
+
   describe("Favoritos", () => {
     let userClient;
 
