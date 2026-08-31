@@ -11,8 +11,15 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const REAL_DB = path.join(ROOT, "backend", "database", "db.json");
-const TMP_DB = path.join(__dirname, ".tmp-db.json");
 const SERVER_PATH = path.join(ROOT, "backend", "server.js");
+
+/*
+ * Arquivo temporario exclusivo por processo: como o `node --test` roda cada
+ * arquivo de teste em um processo separado (e, em paralelo), um nome fixo
+ * (`tests/.tmp-db.json`) causaria corrupcao e travamento quando dois processos
+ * lessem/escrevessem o mesmo arquivo ao mesmo tempo.
+ */
+const TMP_DB = path.join(__dirname, `.tmp-db-${process.pid}.json`);
 
 /**
  * Copia o banco real para um arquivo temporario e define LEJ_DB_PATH.
@@ -46,18 +53,20 @@ async function startServer() {
   return new Promise((resolve, reject) => {
     const alreadyListening = server.listening;
 
+    const buildClose = () => new Promise((res) => {
+      if (server.listening) {
+        server.close(res);
+      } else {
+        res();
+      }
+    });
+
     if (alreadyListening) {
       const address = server.address();
       resolve({
         baseUrl: `http://127.0.0.1:${address.port}`,
         server,
-        close: () => new Promise((res) => {
-          if (server.listening) {
-            server.close(res);
-          } else {
-            res();
-          }
-        })
+        close: buildClose
       });
       return;
     }
@@ -68,7 +77,7 @@ async function startServer() {
       resolve({
         baseUrl: `http://127.0.0.1:${port}`,
         server,
-        close: () => new Promise((res) => server.close(res))
+        close: buildClose
       });
     });
   });

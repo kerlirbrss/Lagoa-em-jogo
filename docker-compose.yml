@@ -1,0 +1,40 @@
+# ============================================================
+# Lagoa em Jogo - docker-compose (Fase 17 - Deploy)
+# Subir em producao:
+#   cp .env.example .env   (ajuste as variaveis)
+#   docker compose up -d --build
+# ============================================================
+services:
+  app:
+    build: .
+    container_name: lagoa-em-jogo
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      LEJ_TRUST_PROXY: "1"
+      LEJ_FORCE_HTTPS: "1"
+      LEJ_SECURE_COOKIES: "1"
+      LEJ_DB_PATH: /app/data/db.json
+      LEJ_BACKUP_DIR: /app/backups
+      LEJ_BACKUP_KEEP: "14"
+      LEJ_LOG_REQUESTS: "1"
+      SESSION_SECRET: ${SESSION_SECRET:-troque-este-valor-por-um-segredo-forte}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - lej-data:/app/data
+      - lej-backups:/app/backups
+    healthcheck:
+      test: ["CMD", "node", "scripts/monitor.js", "http://127.0.0.1:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  lej-data:
+  lej-backups:

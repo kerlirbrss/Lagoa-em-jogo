@@ -1,0 +1,34 @@
+# ============================================================
+# Lagoa em Jogo - unit do systemd (Fase 17 - Deploy)
+# Install:
+#   sudo mkdir -p /opt/lagoa-em-jogo /etc/lagoa-em-jogo /var/log/lagoa-em-jogo
+#   sudo cp -r backend frontend scripts package.json /opt/lagoa-em-jogo/
+#   sudo cp deploy/lagoa-em-jogo.service /etc/systemd/system/
+#   sudo cp .env /etc/lagoa-em-jogo/sistema.env    (ajuste caminhos)
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now lagoa-em-jogo
+# ============================================================
+[Unit]
+Description=Lagoa em Jogo (servidor Node.js)
+Documentation=https://github.com/lagoa-em-jogo
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/lagoa-em-jogo
+EnvironmentFile=/etc/lagoa-em-jogo/sistema.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node backend/server.js
+Restart=on-failure
+RestartSec=5
+# Saude: se o servidor sair do ar mais de 3 vezes em 30s, reinicia
+StartLimitIntervalSec=30
+StartLimitBurst=3
+StandardOutput=append:/var/log/lagoa-em-jogo/app.log
+StandardError=append:/var/log/lagoa-em-jogo/error.log
+
+[Install]
+WantedBy=multi-user.target

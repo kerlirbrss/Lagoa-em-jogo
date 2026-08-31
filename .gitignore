@@ -3,3 +3,13 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# Fase 17 - Deploy: artefatos gerados
+backups/
+logs/
+*.gz
+.env.production
+write-probe-*.tmp
+
+# Arquivos temporarios dos testes
+tests/.tmp-*

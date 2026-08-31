@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const { performance } = require("node:perf_hooks");
 const { setupTestEnv, startServer, request } = require("./helpers.js");
 
-const MAX_RESPONSE_TIME_MS = 1500;
+const MAX_RESPONSE_MS = 1500;
 
 setupTestEnv();
 let server;

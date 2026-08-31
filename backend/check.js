@@ -163,4 +163,82 @@ if (failed.length > 0) {
   process.exit(1);
 }
 
-console.log("Estrutura das fases 10, 11, 12, 13, 14 e 15 validada.");
+/* ============================================================
+   Fase 17 - Deploy
+   Valida os artefatos de producao: scripts, configs, Docker,
+   variaveis de ambiente e recursos embutidos no server.js.
+   ============================================================ */
+
+const deployFiles = [
+  "Dockerfile",
+  "docker-compose.yml",
+  ".dockerignore",
+  "scripts/backup.js",
+  "scripts/monitor.js",
+  "scripts/check-production.js",
+  "deploy/nginx.conf",
+  "deploy/logrotate.conf",
+  "deploy/lagoa-em-jogo.service",
+  "deploy/lagoa-em-jogo-backup.service",
+  "deploy/lagoa-em-jogo-backup.timer",
+  "deploy/lagoa-em-jogo-monitor.service",
+  "deploy/lagoa-em-jogo-monitor.timer"
+];
+
+const missingDeployFiles = deployFiles.filter((file) => {
+  return !fs.existsSync(path.join(__dirname, "..", file));
+});
+
+if (missingDeployFiles.length > 0) {
+  console.error("Artefatos de deploy da fase 17 ausentes:");
+  missingDeployFiles.forEach((file) => console.error(`- ${file}`));
+  process.exit(1);
+}
+
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8"));
+const requiredScripts = ["backup", "monitor", "check:production"];
+const missingScripts = requiredScripts.filter((script) => {
+  return !packageJson.scripts || typeof packageJson.scripts[script] !== "string";
+});
+
+if (missingScripts.length > 0) {
+  console.error(`Scripts de deploy da fase 17 ausentes no package.json: ${missingScripts.join(", ")}`);
+  process.exit(1);
+}
+
+const deployServerChecks = [
+  { pattern: "LEJ_TRUST_PROXY", message: "Confianca no proxy reverso (LEJ_TRUST_PROXY) ausente no server.js." },
+  { pattern: "LEJ_FORCE_HTTPS", message: "Redirecionamento HTTP -> HTTPS (LEJ_FORCE_HTTPS) ausente no server.js." },
+  { pattern: "LEJ_SECURE_COOKIES", message: "Cookies de sessao seguros (LEJ_SECURE_COOKIES) ausentes no server.js." },
+  { pattern: "LEJ_LOG_REQUESTS", message: "Log estruturado de requisicoes (LEJ_LOG_REQUESTS) ausente no server.js." },
+  { pattern: "ensureDatabaseFile", message: "Criacao automatica do banco (ensureDatabaseFile) ausente no server.js." },
+  { pattern: "getHealthDetails", message: "Health check com metadados (getHealthDetails) ausente no server.js." }
+];
+
+const deployServerFailed = deployServerChecks.filter((check) => !source.includes(check.pattern));
+
+if (deployServerFailed.length > 0) {
+  deployServerFailed.forEach((check) => console.error(check.message));
+  process.exit(1);
+}
+
+const envExamplePath = path.join(__dirname, "..", ".env.example");
+const envExample = fs.readFileSync(envExamplePath, "utf8");
+const envVars = [
+  "LEJ_TRUST_PROXY",
+  "LEJ_FORCE_HTTPS",
+  "LEJ_SECURE_COOKIES",
+  "LEJ_DB_PATH",
+  "LEJ_LOG_REQUESTS",
+  "LEJ_BACKUP_DIR",
+  "LEJ_BACKUP_KEEP",
+  "LEJ_MONITOR_URL"
+];
+const missingEnvVars = envVars.filter((variable) => !envExample.includes(variable));
+
+if (missingEnvVars.length > 0) {
+  console.error(`Variaveis de ambiente da fase 17 ausentes no .env.example: ${missingEnvVars.join(", ")}`);
+  process.exit(1);
+}
+
+console.log("Estrutura das fases 10, 11, 12, 13, 14, 15 e 17 validada.");

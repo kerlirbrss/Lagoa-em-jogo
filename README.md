@@ -30,7 +30,7 @@ Desenvolver uma plataforma web que permita:
 
 ## Status atual do desenvolvimento
 
-O projeto está em um estado de desenvolvimento funcional, com implementação até a Fase 15 do plano de evolução, conforme documentação do produto e da implementação.
+O projeto está em estado de desenvolvimento funcional, com **implementação até a Fase 17 (Deploy)** do plano de evolução, conforme documentação do produto e da implementação.
 
 ### Fases implementadas
 
@@ -131,7 +131,24 @@ O projeto está em um estado de desenvolvimento funcional, com implementação a
   - compatibilidade com tablets e otimização da navegação (botão de fechar, tecla Esc);
   - melhorias de desempenho com carregamento lento de imagens (lazy loading).
 
-> A partir da Fase 16, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
+- Fase 16 — Testes
+  - suíte de testes automatizados com `node --test`;
+  - testes unitários (normalização, validação de payloads, permissões, estatísticas e agregados da home);
+  - testes de integração (health, bootstrap, autenticação, comentários, favoritos e palpites);
+  - testes de permissões, performance, responsividade e autenticação;
+  - ambiente de teste isolado via `LEJ_DB_PATH`.
+
+- Fase 17 — Deploy
+  - configurações de produção por variáveis de ambiente (`NODE_ENV`, `LEJ_TRUST_PROXY`, `LEJ_FORCE_HTTPS`, `LEJ_SECURE_COOKIES`, `LEJ_LOG_REQUESTS`);
+  - redirecionamento HTTP → HTTPS e cookies de sessão seguros;
+  - `/api/health` com ambiente, versão, uptime e timestamp;
+  - criação automática do banco em produção (`LEJ_DB_PATH`);
+  - backup automático (`npm run backup`) em gzip com retenção;
+  - monitoramento (`npm run monitor`) via health check;
+  - validação final (`npm run check:production`);
+  - Dockerfile, docker-compose, configs de Nginx (HTTPS), systemd, timers de backup/monitoramento e logrotate em `deploy/`.
+
+> A partir da Fase 18, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
 
 ---
 
@@ -199,6 +216,13 @@ Lagoa-em-jogo/
 │   ├── MVP.md
 │   ├── PRD.md
 │   └── implementation-plan.md
+├── deploy/
+│   ├── README.md
+│   ├── lagoa-em-jogo.service
+│   ├── lagoa-em-jogo-backup.service / .timer
+│   ├── lagoa-em-jogo-monitor.service / .timer
+│   ├── logrotate.conf
+│   └── nginx.conf
 ├── frontend/
 │   ├── admin.html
 │   ├── index.html
@@ -210,7 +234,14 @@ Lagoa-em-jogo/
 │   │   └── app.js
 │   └── styles/
 │       └── app.css
+├── scripts/
+│   ├── backup.js
+│   ├── check-production.js
+│   └── monitor.js
+├── tests/
 ├── AGENTS.md
+├── Dockerfile
+├── docker-compose.yml
 ├── package.json
 ├── README.md
 └── .gitignore
@@ -271,6 +302,23 @@ Para ambiente local de desenvolvimento, o projeto já inclui usuário administra
 
 ---
 
+## Deploy (Fase 17)
+
+O projeto está preparado para publicação em produção com:
+
+- **HTTPS** — redirecionamento HTTP → HTTPS, confiança no proxy reverso (`LEJ_TRUST_PROXY`) e cookies de sessão seguros (`LEJ_SECURE_COOKIES`);
+- **Banco em produção** — arquivo JSON persistente criado automaticamente no primeiro acesso (`LEJ_DB_PATH`);
+- **Backup automático** — `npm run backup` (gzip com data/hora e retenção configurável `LEJ_BACKUP_KEEP`);
+- **Monitoramento** — `npm run monitor` valida `/api/health` (usado também como healthcheck do Docker e timer do systemd);
+- **Logs** — cada requisição registrada em JSON quando `NODE_ENV=production` ou `LEJ_LOG_REQUESTS=1`, com rotação via logrotate;
+- **Validação final** — `npm run check:production -- --url https://dominio` verifica banco, arquivos, backup, variáveis de ambiente e rotas HTTP.
+
+Materiais incluídos: `Dockerfile`, `docker-compose.yml`, `scripts/` (backup, monitor, check-production) e `deploy/` (guia completo, Nginx com HTTPS, units/timers do systemd e logrotate).
+
+> Consulte [`deploy/README.md`](deploy/README.md) para o guia passo a passo (VPS + Nginx + Let's Encrypt, Docker e plataformas gerenciadas).
+
+---
+
 ## Fluxo de uso principal
 
 ### Usuário visitante
@@ -320,10 +368,10 @@ As próximas etapas previstas pela documentação do projeto e pelo roadmap de e
 - Conta do usuário com gestão mais completa;
 - Central de contato;
 - Melhorias em páginas de erro e SEO;
-- Testes automatizados e validação de qualidade;
-- Deploy em ambiente de produção;
 - Aplicativo mobile Android/iOS;
 - Ranking histórico, Hall da Fama e outros módulos de expansão.
+
+> Com a Fase 17 concluída, os testes automatizados e o preparo para produção já fazem parte da implementação atual.
 
 Esses itens representam evoluções futuras do ecossistema do Lagoa em Jogo e não fazem parte da implementação atual.
 

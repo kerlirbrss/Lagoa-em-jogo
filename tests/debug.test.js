@@ -7,15 +7,19 @@ setupTestEnv();
 describe("Debug Palpites", () => {
   let baseUrl;
   let client;
+  let serverHandle;
 
   before(async () => {
     const env = await startServer();
     baseUrl = env.baseUrl;
     client = createClient(baseUrl);
+    serverHandle = env;
   });
 
   after(async () => {
-    await client.close();
+    if (serverHandle && typeof serverHandle.close === "function") {
+      await serverHandle.close();
+    }
     cleanupTestDb();
   });
 
@@ -43,6 +47,6 @@ describe("Debug Palpites", () => {
 
     assert.equal(res.status, 200);
     assert.ok(res.body.prediction);
-    assert.equal(res.body.prediction.homeScore, 2);
+    assert.equal(res.body.prediction.ownPrediction.homeScore, 2);
   });
 });

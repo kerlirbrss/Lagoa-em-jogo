@@ -1,7 +1,7 @@
 # Avaliação de MVP — Lagoa em Jogo
 
 > Data da análise: 05/08/2026
-> Última atualização: 26/08/2026 — Fase 15 (Responsividade) concluída, com barra inferior e menu "Mais" agrupado no celular, breakpoints para telas pequenas/tablets/desktops grandes e melhorias de desempenho.
+> Última atualização: 31/08/2026 — Fase 17 (Deploy) concluída, com configurações de produção por variáveis de ambiente (`NODE_ENV`, `LEJ_TRUST_PROXY`, `LEJ_FORCE_HTTPS`, `LEJ_SECURE_COOKIES`, `LEJ_LOG_REQUESTS`), criação automática do banco em produção, `/api/health` com metadados, backup automático, monitoramento, logs estruturados e validação final (`npm run check:production`). A Fase 16 (Testes) também foi concluída, com suíte de testes unitários, de integração, permissões, performance e responsividade.
 > Base: `backend/server.js`, `frontend/` (index.html, app.js, app.css), `backend/database/db.json`, `docs/implementation-plan.md` e `docs/PRD.md`.
 
 ## 1. Objetivo desta análise
@@ -44,6 +44,7 @@ Itens fora desse núcleo (pesquisa global, favoritos, notificações, palpites, 
 | Notificações (Fase 12) | `GET /api/notifications`, `POST /api/notifications/read`, `DELETE /api/notifications/:id`, `GET/PUT /api/notification-preferences` | ✅ |
 | Palpites (Fase 13) | `GET/POST /api/predictions`, `POST /api/predictions/:id/comments` | ✅ |
 | Página inicial (Fase 14) | `GET /api/home` (próximos jogos, últimos resultados, classificação, artilheiros, atleta da semana, notícias e galeria em destaque) | ✅ |
+| Deploy (Fase 17) | Produção via env vars (`NODE_ENV`, `LEJ_TRUST_PROXY`, `LEJ_FORCE_HTTPS`, `LEJ_SECURE_COOKIES`, `LEJ_LOG_REQUESTS`), `/api/health` com metadados, `npm run backup` / `npm run monitor` / `npm run check:production`, Docker + Nginx + systemd + logrotate | ✅ |
 
 Controle de acesso por papel (visitante, usuário, organizador, fotógrafo, administrador) presente via `requireAdmin`, `requireNewsPublisher`, `requireGalleryPublisher` e sessão por cookie (`lej_session`).
 
@@ -141,7 +142,7 @@ O que separa o "pronto para uso" do "pronto para apresentar com segurança":
 2. **Enriquecer os dados de demonstração**.
 3. Tratar **segurança (hash de senha)**, **páginas de erro** e idealmente **contato** e **upload básico de imagem**.
 
-Itens de evolução (auditoria, deploy e PWA completo) **não são impeditivos** para o MVP. As Fases 10 (Pesquisa), 11 (Favoritos), 12 (Notificações), 13 (Palpites), 14 (Página Inicial) e 15 (Responsividade) já estão implementadas como diferenciais acima do núcleo obrigatório.
+Itens de evolução (auditoria, PWA completo, páginas de erro/SEO) **não são impeditivos** para o MVP. As Fases 10 (Pesquisa), 11 (Favoritos), 12 (Notificações), 13 (Palpites), 14 (Página Inicial), 15 (Responsividade), 16 (Testes) e 17 (Deploy) já estão implementadas como diferenciais acima do núcleo obrigatório.
 
 ---
 

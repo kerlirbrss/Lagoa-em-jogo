@@ -11,16 +11,18 @@ setupTestEnv();
 describe("Testes de integracao - Fase 16", () => {
   let baseUrl;
   let client;
+  let serverHandle;
 
   before(async () => {
     const env = await startServer();
     baseUrl = env.baseUrl;
     client = createClient(baseUrl);
+    serverHandle = env;
   });
 
   after(async () => {
-    if (client && typeof client.close === "function") {
-      await client.close();
+    if (serverHandle && typeof serverHandle.close === "function") {
+      await serverHandle.close();
     }
     cleanupTestDb();
   });
@@ -316,7 +318,7 @@ describe("Testes de integracao - Fase 16", () => {
         awayScore: 1
       });
       assert.equal(res.status, 200);
-      assert.equal(res.body.prediction.homeScore, 2);
+      assert.equal(res.body.prediction.ownPrediction.homeScore, 2);
     });
   });
 

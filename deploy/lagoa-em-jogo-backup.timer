@@ -1,0 +1,10 @@
+# Backup diario do Lagoa em Jogo - 03:00 (horario local)
+[Unit]
+Description=Executa o backup diario do Lagoa em Jogo
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

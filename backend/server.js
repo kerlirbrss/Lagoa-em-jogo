@@ -8,6 +8,24 @@ const ROOT_DIR = path.join(__dirname, "..");
 const FRONTEND_DIR = path.join(ROOT_DIR, "frontend");
 const DB_PATH = process.env.LEJ_DB_PATH ? path.resolve(process.env.LEJ_DB_PATH) : path.join(__dirname, "database", "db.json");
 
+/* ============================================================
+   Configuracoes de producao (Fase 17 - Deploy)
+   Controladas por variaveis de ambiente (ver .env.example).
+   - NODE_ENV: environment do processo (development | production)
+   - LEJ_TRUST_PROXY: confiar nos cabecalhos do proxy reverso
+   - LEJ_FORCE_HTTPS: redirecionar todo trafego HTTP para HTTPS
+   - LEJ_SECURE_COOKIES: marcar cookies de sessao como Secure
+   - LEJ_LOG_REQUESTS: registrar cada requisicao em log JSON
+   ============================================================ */
+const NODE_ENV = process.env.NODE_ENV || "development";
+const IS_PRODUCTION = NODE_ENV === "production";
+const APP_VERSION = require(path.join(ROOT_DIR, "package.json")).version || "0.0.0";
+const APP_STARTED_AT = Date.now();
+const TRUST_PROXY = toBoolean(process.env.LEJ_TRUST_PROXY);
+const FORCE_HTTPS = toBoolean(process.env.LEJ_FORCE_HTTPS);
+const SECURE_COOKIES = toBoolean(process.env.LEJ_SECURE_COOKIES);
+const LOG_REQUESTS = IS_PRODUCTION || toBoolean(process.env.LEJ_LOG_REQUESTS);
+
 const sessions = new Map();
 const USER_ROLES = ["usuario", "organizador", "fotografo", "administrador"];
 const COMMENT_STATUSES = ["pendente", "aprovado", "rejeitado"];
@@ -41,7 +59,52 @@ const NOTIFICATION_PREFERENCES = [
   }
 ];
 
+function ensureDatabaseFile() {
+  if (fs.existsSync(DB_PATH)) {
+    return;
+  }
+
+  const directory = path.dirname(DB_PATH);
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+
+  const baseDatabase = {
+    settings: {
+      appName: "Lagoa em Jogo",
+      slogan: "Feito por quem joga. Acompanhado por quem torce.",
+      city: "Lagoa de Sao Francisco - PI",
+      theme: { blue: "#1155cc", green: "#1f9d55", white: "#ffffff" }
+    },
+    roles: [
+      { id: "visitante", name: "Visitante", description: "Visualiza conteudos e pesquisa informacoes sem conta.", permissions: ["visualizar_conteudos", "pesquisar"] },
+      { id: "usuario", name: "Usuario", description: "Comenta, participa de palpites e acompanha favoritos.", permissions: ["comentar", "palpitar", "favoritar"] },
+      { id: "organizador", name: "Organizador", description: "Gerencia campeonatos, jogos, resultados e noticias autorizadas.", permissions: ["gerenciar_campeonatos", "cadastrar_jogos", "atualizar_resultados", "publicar_noticias"] },
+      { id: "fotografo", name: "Fotografo", description: "Publica galerias de fotos das partidas e eventos.", permissions: ["publicar_galerias"] },
+      { id: "administrador", name: "Administrador", description: "Controla a plataforma, usuarios, permissoes e modera conteudos.", permissions: ["gerenciar_tudo"] }
+    ],
+    users: [],
+    championships: [],
+    teams: [],
+    athletes: [],
+    matches: [],
+    news: [],
+    galleries: [],
+    comments: [],
+    favorites: [],
+    notifications: [],
+    notificationPreferences: [],
+    predictions: [],
+    predictionComments: [],
+    featuredMatches: []
+  };
+
+  console.log(`[${NODE_ENV}] Banco de dados nao encontrado em ${DB_PATH}. Criando arquivo inicial.`);
+  fs.writeFileSync(DB_PATH, `${JSON.stringify(baseDatabase, null, 2)}\n`);
+}
+
 function readDatabase() {
+  ensureDatabaseFile();
   const raw = fs.readFileSync(DB_PATH, "utf8");
   const database = JSON.parse(raw);
   database.athletes = database.athletes || [];
@@ -57,6 +120,10 @@ function readDatabase() {
 }
 
 function writeDatabase(database) {
+  const directory = path.dirname(DB_PATH);
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
   fs.writeFileSync(DB_PATH, `${JSON.stringify(database, null, 2)}\n`);
 }
 
@@ -92,6 +159,72 @@ function parseBody(request) {
         reject(error);
       }
     });
+  });
+}
+
+function toBoolean(value) {
+  if (value === undefined || value === null) {
+    return false;
+  }
+  return value === true || value === "1" || value === "true" || value === "yes";
+}
+
+function isSecureRequest(request) {
+  if (request.socket && request.socket.encrypted) {
+    return true;
+  }
+
+  if (TRUST_PROXY) {
+    const forwardedProto = String(request.headers["x-forwarded-proto"] || "")
+      .split(",")[0]
+      .trim()
+      .toLowerCase();
+    return forwardedProto === "https";
+  }
+
+  return false;
+}
+
+function buildRedirectUrl(request) {
+  const host = request.headers.host || `localhost:${PORT}`;
+  return `https://${host}${request.url || "/"}`;
+}
+
+function buildSessionCookie(token, { maxAge } = {}) {
+  let cookie = `lej_session=${token}; HttpOnly; Path=/; SameSite=Lax`;
+  if (maxAge !== undefined) {
+    cookie += `; Max-Age=${maxAge}`;
+  }
+  if (SECURE_COOKIES) {
+    cookie += "; Secure";
+  }
+  return cookie;
+}
+
+function getHealthDetails(database) {
+  return {
+    status: "ok",
+    app: database.settings.appName,
+    version: APP_VERSION,
+    environment: NODE_ENV,
+    uptimeSeconds: Math.floor((Date.now() - APP_STARTED_AT) / 1000),
+    timestamp: new Date().toISOString()
+  };
+}
+
+function logRequest(request, response) {
+  const startedAt = Date.now();
+
+  response.on("finish", () => {
+    console.log(JSON.stringify({
+      time: new Date().toISOString(),
+      level: "request",
+      method: request.method,
+      path: request.url,
+      status: response.statusCode,
+      durationMs: Date.now() - startedAt,
+      userAgent: String(request.headers["user-agent"] || "").slice(0, 160)
+    }));
   });
 }
 
@@ -1290,11 +1423,7 @@ async function handleApi(request, response) {
   const url = new URL(request.url, "http://localhost");
 
   if (request.method === "GET" && request.url === "/api/health") {
-    sendJson(response, 200, {
-      status: "ok",
-      app: database.settings.appName,
-      environment: "development"
-    });
+    sendJson(response, 200, getHealthDetails(database));
     return;
   }
 
@@ -1718,7 +1847,7 @@ async function handleApi(request, response) {
 
       response.writeHead(201, {
         "Content-Type": "application/json; charset=utf-8",
-        "Set-Cookie": `lej_session=${token}; HttpOnly; Path=/; SameSite=Lax`
+        "Set-Cookie": buildSessionCookie(token)
       });
       response.end(JSON.stringify({ user: getPublicUser(user) }));
     } catch (error) {
@@ -1751,7 +1880,7 @@ async function handleApi(request, response) {
 
       response.writeHead(200, {
         "Content-Type": "application/json; charset=utf-8",
-        "Set-Cookie": `lej_session=${token}; HttpOnly; Path=/; SameSite=Lax`
+        "Set-Cookie": buildSessionCookie(token)
       });
       response.end(JSON.stringify({ user: getPublicUser(user) }));
     } catch (error) {
@@ -2686,7 +2815,7 @@ async function handleApi(request, response) {
 
     response.writeHead(200, {
       "Content-Type": "application/json; charset=utf-8",
-      "Set-Cookie": "lej_session=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax"
+      "Set-Cookie": buildSessionCookie("", { maxAge: 0 })
     });
     response.end(JSON.stringify({ message: "Sessao encerrada." }));
     return;
@@ -2745,6 +2874,18 @@ function serveStatic(request, response) {
 }
 
 const server = http.createServer((request, response) => {
+  /* Redireciona trafego HTTP para HTTPS quando habilitado. */
+  if (FORCE_HTTPS && !isSecureRequest(request)) {
+    response.writeHead(301, { "Location": buildRedirectUrl(request) });
+    response.end();
+    return;
+  }
+
+  /* Log estruturado de requisicoes (JSON) em producao. */
+  if (LOG_REQUESTS) {
+    logRequest(request, response);
+  }
+
   if (request.url.startsWith("/api/")) {
     handleApi(request, response);
     return;
@@ -2755,7 +2896,8 @@ const server = http.createServer((request, response) => {
 
 if (require.main === module) {
   server.listen(PORT, () => {
-    console.log(`Lagoa em Jogo rodando em http://localhost:${PORT}`);
+    const protocol = FORCE_HTTPS ? "https" : "http";
+    console.log(`[${NODE_ENV}] Lagoa em Jogo ${APP_VERSION} rodando em ${protocol}://localhost:${PORT}`);
   });
 }
 
@@ -2809,5 +2951,17 @@ module.exports.__testing = {
   NEWS_STATUSES,
   GALLERY_STATUSES,
   GALLERY_TYPES,
-  NOTIFICATION_TYPES
+  NOTIFICATION_TYPES,
+  toBoolean,
+  isSecureRequest,
+  buildRedirectUrl,
+  buildSessionCookie,
+  getHealthDetails,
+  NODE_ENV,
+  IS_PRODUCTION,
+  APP_VERSION,
+  TRUST_PROXY,
+  FORCE_HTTPS,
+  SECURE_COOKIES,
+  LOG_REQUESTS
 };

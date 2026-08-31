@@ -1,0 +1,21 @@
+# ============================================================
+# Lagoa em Jogo - backup automatico (systemd)
+# Install:
+#   sudo cp deploy/lagoa-em-jogo-backup.service deploy/lagoa-em-jogo-backup.timer \
+#        /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now lagoa-em-jogo-backup.timer
+# ============================================================
+[Unit]
+Description=Backup automatico do banco de dados do Lagoa em Jogo
+After=network-online.target lagoa-em-jogo.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/lagoa-em-jogo
+EnvironmentFile=/etc/lagoa-em-jogo/sistema.env
+Environment=LEJ_DB_PATH=/opt/lagoa-em-jogo/backend/database/db.json
+Environment=LEJ_BACKUP_DIR=/opt/lagoa-em-jogo/backups
+ExecStart=/usr/bin/node scripts/backup.js

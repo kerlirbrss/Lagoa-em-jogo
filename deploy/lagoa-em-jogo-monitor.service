@@ -1,0 +1,19 @@
+# ============================================================
+# Lagoa em Jogo - monitoramento (systemd)
+# Executa um health check periodico em /api/health a cada 5 min.
+# Install:
+#   sudo cp deploy/lagoa-em-jogo-monitor.service deploy/lagoa-em-jogo-monitor.timer \
+#        /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now lagoa-em-jogo-monitor.timer
+# ============================================================
+[Unit]
+Description=Monitoramento do Lagoa em Jogo
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+ExecStart=/usr/bin/node /opt/lagoa-em-jogo/scripts/monitor.js http://127.0.0.1:3000
+# Em caso de falha, registre no log de erros (exit code 1)
+StandardError=append:/var/log/lagoa-em-jogo/monitor.err.log
