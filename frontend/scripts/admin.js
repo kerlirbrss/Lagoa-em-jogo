@@ -319,6 +319,7 @@ function renderAdminComments() {
           <div class="comment-actions">
             <button class="button compact" type="button" data-comment-status="aprovado" data-comment-id="${comment.id}">Aprovar</button>
             <button class="button compact danger" type="button" data-comment-status="rejeitado" data-comment-id="${comment.id}">Rejeitar</button>
+            <button class="button compact danger" type="button" data-delete-comment="${comment.id}">Excluir</button>
           </div>
         </article>
       `;
@@ -1118,20 +1119,31 @@ elements.adminUsers.addEventListener("click", async (event) => {
 });
 
 elements.adminComments.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-comment-id]");
+  const statusButton = event.target.closest("[data-comment-id]");
+  const deleteButton = event.target.closest("[data-delete-comment]");
 
-  if (!button) {
+  if (statusButton) {
+    try {
+      await api(`/api/admin/comments/${statusButton.dataset.commentId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: statusButton.dataset.commentStatus })
+      });
+      await refreshAdminPanel();
+    } catch (error) {
+      elements.adminStatus.textContent = error.message;
+    }
     return;
   }
 
-  try {
-    await api(`/api/admin/comments/${button.dataset.commentId}`, {
-      method: "PATCH",
-      body: JSON.stringify({ status: button.dataset.commentStatus })
-    });
-    await refreshAdminPanel();
-  } catch (error) {
-    elements.adminStatus.textContent = error.message;
+  if (deleteButton) {
+    try {
+      await api(`/api/admin/comments/${deleteButton.dataset.deleteComment}`, {
+        method: "DELETE"
+      });
+      await refreshAdminPanel();
+    } catch (error) {
+      elements.adminStatus.textContent = error.message;
+    }
   }
 });
 /* ============================================================

@@ -292,6 +292,38 @@ describe("Testes de integracao - Fase 16", () => {
       assert.equal(res.status, 200);
       assert.equal(res.body.comment.status, "aprovado");
     });
+
+    test("usuario pode editar seu comentario de palpite", async () => {
+      const predictionsRes = await authorClient.req("GET", "/api/predictions");
+      const predictionCard = predictionsRes.body.predictions.find((item) => item.ownPrediction);
+      assert.ok(predictionCard, "deveria haver um palpite do usuario para comentar");
+
+      const predictionId = predictionCard.ownPrediction.id;
+      const createCommentRes = await authorClient.req("POST", `/api/predictions/${predictionId}/comments`, {
+        content: "Comentario inicial para edicao."
+      });
+      assert.equal(createCommentRes.status, 201);
+
+      const editRes = await authorClient.req("PATCH", `/api/predictions/${predictionId}/comments/${createCommentRes.body.comment.id}`, {
+        content: "Comentario atualizado pelo autor."
+      });
+      assert.equal(editRes.status, 200);
+      assert.equal(editRes.body.comment.content, "Comentario atualizado pelo autor.");
+    });
+
+    test("admin remove comentario de noticia", async () => {
+      const newsRes = await adminClient.req("GET", "/api/news");
+      const newsId = newsRes.body.news[0].id;
+      const createRes = await adminClient.req("POST", `/api/news/${newsId}/comments`, {
+        authorName: "Moderador",
+        content: "Comentario de teste para exclusao pelo administrador."
+      });
+      assert.equal(createRes.status, 201);
+
+      const deleteRes = await adminClient.req("DELETE", `/api/admin/comments/${createRes.body.comment.id}`);
+      assert.equal(deleteRes.status, 200);
+      assert.equal(deleteRes.body.deleted, true);
+    });
   });
 
   describe("Favoritos", () => {

@@ -339,9 +339,11 @@ function getPublicPredictionComment(comment, database) {
   return {
     id: comment.id,
     predictionId: Number(comment.predictionId),
+    userId: Number(comment.userId),
     authorName: author ? author.name : "Torcedor",
     content: comment.content,
-    createdAt: comment.createdAt || null
+    createdAt: comment.createdAt || null,
+    updatedAt: comment.updatedAt || null
   };
 }
 
@@ -1564,6 +1566,52 @@ async function handleApi(request, response) {
     return;
   }
 
+  if (request.method === "PATCH" && url.pathname.startsWith("/api/predictions/") && url.pathname.includes("/comments/")) {
+    const sessionUser = getSessionUser(request);
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na sua conta para editar o comentario." });
+      return;
+    }
+
+    try {
+      const segments = url.pathname.split("/").filter(Boolean);
+      const predictionId = Number(segments[2]);
+      const commentId = Number(segments[4]);
+      const prediction = database.predictions.find((item) => Number(item.id) === predictionId);
+      const comment = database.predictionComments.find((item) => Number(item.id) === commentId && Number(item.predictionId) === predictionId);
+      const body = await parseBody(request);
+      const content = normalizeText(body.content);
+
+      if (!prediction || !comment) {
+        sendJson(response, 404, { message: "Comentario nao encontrado." });
+        return;
+      }
+
+      if (Number(comment.userId) !== Number(sessionUser.id)) {
+        sendJson(response, 403, { message: "Voce so pode editar seu proprio comentario." });
+        return;
+      }
+
+      if (!content || content.length > 500) {
+        sendJson(response, 400, { message: "Escreva um comentario de ate 500 caracteres." });
+        return;
+      }
+
+      comment.content = content;
+      comment.updatedAt = new Date().toISOString();
+      writeDatabase(database);
+
+      sendJson(response, 200, {
+        message: "Comentario atualizado.",
+        comment: getPublicPredictionComment(comment, database)
+      });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar o comentario." });
+    }
+
+    return;
+  }
+
   if (request.method === "GET" && url.pathname === "/api/news") {
     const category = normalizeText(url.searchParams.get("category")).toLowerCase();
     const news = database.news
@@ -2664,6 +2712,38 @@ async function handleApi(request, response) {
       sendJson(response, 200, { comment });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel moderar o comentario." });
+    }
+
+    return;
+  }
+
+  if (request.method === "DELETE" && url.pathname.startsWith("/api/admin/comments/")) {
+    if (!requireAdmin(request, response)) {
+      return;
+    }
+
+    try {
+      const commentId = Number(url.pathname.split("/").pop());
+      const newsIndex = database.comments.findIndex((item) => Number(item.id) === commentId);
+      const predictionIndex = database.predictionComments.findIndex((item) => Number(item.id) === commentId);
+
+      if (newsIndex === -1 && predictionIndex === -1) {
+        sendJson(response, 404, { message: "Comentario nao encontrado." });
+        return;
+      }
+
+      if (newsIndex !== -1) {
+        database.comments.splice(newsIndex, 1);
+      }
+
+      if (predictionIndex !== -1) {
+        database.predictionComments.splice(predictionIndex, 1);
+      }
+
+      writeDatabase(database);
+      sendJson(response, 200, { deleted: true, commentId });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel excluir o comentario." });
     }
 
     return;
