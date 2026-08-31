@@ -148,6 +148,12 @@ O projeto está em estado de desenvolvimento funcional, com **implementação at
   - validação final (`npm run check:production`);
   - Dockerfile, docker-compose, configs de Nginx (HTTPS), systemd, timers de backup/monitoramento e logrotate em `deploy/`.
 
+- Fase 24 — Homologação e Publicação Final
+  - checklist final de release com verificação de saúde da aplicação, backup e bootstrap;
+  - validação de arquivos essenciais, estrutura do banco e parâmetros de segurança;
+  - comando de homologação: `npm run release:check`;
+  - preparação para a publicação final com checklist do ambiente de produção.
+
 > A partir da Fase 18, os itens estão previstos como evoluções futuras e não fazem parte da implementação atual do projeto.
 
 ---

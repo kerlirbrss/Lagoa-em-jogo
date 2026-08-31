@@ -10,7 +10,8 @@
     "test": "node --test tests/*.test.js",
     "backup": "node scripts/backup.js",
     "monitor": "node scripts/monitor.js",
-    "check:production": "node scripts/check-production.js"
+    "check:production": "node scripts/check-production.js",
+    "release:check": "node scripts/homologation.js"
   },
   "keywords": [
     "futebol",
