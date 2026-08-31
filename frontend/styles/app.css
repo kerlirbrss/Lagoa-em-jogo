@@ -1396,6 +1396,33 @@ textarea {
   font-weight: 800;
 }
 
+#session-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 24px;
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.session-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--color-blue);
+  color: var(--color-white);
+  object-fit: cover;
+  font-weight: 800;
+  overflow: hidden;
+}
+
+.session-avatar.initials {
+  font-size: 0.78rem;
+}
+
 .form-message {
   min-height: 24px;
   margin: 12px 0 0;

@@ -73,6 +73,36 @@ describe("Testes de integracao - Fase 16", () => {
       assert.equal(res.body.user.email, "teste.integracao@lagoaemjogo.local");
     });
 
+    test("registro aceita foto de perfil e a retorna no perfil publico", async () => {
+      const res = await client.req("POST", "/api/register", {
+        name: "Usuario Foto",
+        email: "usuario.foto@lagoaemjogo.local",
+        password: "foto123",
+        role: "usuario",
+        photoUrl: "https://cdn.example.com/avatar.png"
+      });
+      assert.equal(res.status, 201);
+      assert.equal(res.body.user.photoUrl, "https://cdn.example.com/avatar.png");
+    });
+
+    test("perfil pode atualizar nome, comunidade e foto do usuario", async () => {
+      const loginRes = await client.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      const profileRes = await client.req("PUT", "/api/me", {
+        name: "Admin Atualizado",
+        email: "admin@lagoaemjogo.local",
+        community: "Centro",
+        phone: "88999990000",
+        photoUrl: "https://cdn.example.com/admin-avatar.png"
+      }, loginRes.cookie);
+      assert.equal(profileRes.status, 200);
+      assert.equal(profileRes.body.user.name, "Admin Atualizado");
+      assert.equal(profileRes.body.user.photoUrl, "https://cdn.example.com/admin-avatar.png");
+      assert.equal(profileRes.body.user.community, "Centro");
+    });
+
     test("logout remove sessao", async () => {
       const loginRes = await client.req("POST", "/api/login", {
         email: "admin@lagoaemjogo.local",

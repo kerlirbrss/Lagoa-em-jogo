@@ -1054,12 +1054,17 @@ function fillProfileForm() {
   elements.profileForm.elements.email.value = state.user.email || "";
   elements.profileForm.elements.community.value = state.user.community || "";
   elements.profileForm.elements.phone.value = state.user.phone || "";
+  elements.profileForm.elements.photoUrl.value = state.user.photoUrl || "";
   elements.profileForm.elements.password.value = "";
 }
 
 function renderSession() {
   if (state.user) {
-    elements.sessionStatus.textContent = `Conectado como ${state.user.name} (${state.user.role}).`;
+    const avatar = state.user.photoUrl
+      ? `<img class="session-avatar" src="${state.user.photoUrl}" alt="Foto de perfil de ${state.user.name}" loading="lazy" decoding="async">`
+      : `<span class="session-avatar initials">${getTeamInitials(state.user.name)}</span>`;
+
+    elements.sessionStatus.innerHTML = `${avatar}<span>Conectado como ${state.user.name} (${state.user.role}).</span>`;
     fillProfileForm();
     return;
   }
@@ -1266,7 +1271,8 @@ elements.registerForm.addEventListener("submit", async (event) => {
         password: formData.get("password"),
         role: formData.get("role"),
         community: formData.get("community"),
-        phone: formData.get("phone")
+        phone: formData.get("phone"),
+        photoUrl: formData.get("photoUrl")
       })
     });
 
@@ -1297,7 +1303,8 @@ elements.profileForm.addEventListener("submit", async (event) => {
         email: formData.get("email"),
         password: formData.get("password"),
         community: formData.get("community"),
-        phone: formData.get("phone")
+        phone: formData.get("phone"),
+        photoUrl: formData.get("photoUrl")
       })
     });
 

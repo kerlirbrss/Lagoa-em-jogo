@@ -256,6 +256,7 @@ function getPublicUser(user) {
     status: user.status || "ativo",
     phone: user.phone || "",
     community: user.community || "",
+    photoUrl: user.photoUrl || "",
     createdAt: user.createdAt || null
   };
 }
@@ -1836,6 +1837,7 @@ async function handleApi(request, response) {
         status: "ativo",
         phone: normalizeText(body.phone),
         community: normalizeText(body.community),
+        photoUrl: normalizeText(body.photoUrl),
         createdAt: new Date().toISOString()
       };
 
@@ -1910,6 +1912,7 @@ async function handleApi(request, response) {
       const name = normalizeText(body.name);
       const email = normalizeEmail(body.email);
       const password = String(body.password || "");
+      const photoUrl = normalizeText(body.photoUrl);
 
       if (name.length < 3) {
         sendJson(response, 400, { message: "Informe um nome com pelo menos 3 caracteres." });
@@ -1937,6 +1940,7 @@ async function handleApi(request, response) {
       user.email = email;
       user.phone = normalizeText(body.phone);
       user.community = normalizeText(body.community);
+      user.photoUrl = photoUrl;
 
       if (password) {
         user.password = password;
