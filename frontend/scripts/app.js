@@ -72,7 +72,18 @@ async function api(path, options = {}) {
     ...options
   });
 
-  const payload = await response.json();
+  let payload = null;
+  const text = await response.text();
+
+  if (text) {
+    try {
+      payload = JSON.parse(text);
+    } catch (error) {
+      payload = { message: "Resposta invalida do servidor." };
+    }
+  } else {
+    payload = { message: "Resposta vazia do servidor. Verifique se o backend esta rodando em http://localhost:3000." };
+  }
 
   if (!response.ok) {
     throw new Error(payload.message || "Erro na requisicao.");

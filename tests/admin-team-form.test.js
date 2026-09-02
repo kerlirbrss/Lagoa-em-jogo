@@ -45,6 +45,7 @@ describe("Formulário de times", () => {
   let document;
   let fetchCalls;
   let teamForm;
+  let loginForm;
 
   beforeEach(() => {
     const query = createQueryStub();
@@ -83,7 +84,20 @@ describe("Formulário de times", () => {
     query.add("#admin-status", { textContent: "", hidden: false });
     query.add("#admin-session", { textContent: "" });
     query.add("#admin-stats", { innerHTML: "", hidden: false });
-    query.add("#login-form", { addEventListener: () => {}, reset: () => {} });
+    loginForm = {
+      elements: {
+        email: { value: "admin@lagoaemjogo.local" },
+        password: { value: "admin123" }
+      },
+      addEventListener: () => {},
+      reset: () => {}
+    };
+    const loginFormHandlers = {};
+    loginForm.addEventListener = (eventName, handler) => {
+      loginFormHandlers[eventName] = handler;
+    };
+    loginForm.submitHandler = (event) => loginFormHandlers.submit?.(event);
+    query.add("#login-form", loginForm);
     query.add("#logout-button", { hidden: true, addEventListener: () => {} });
     query.add("#logout-nav", { addEventListener: () => {} });
     query.add("#form-message", { textContent: "" });
@@ -106,10 +120,6 @@ describe("Formulário de times", () => {
       querySelector: query.querySelector,
       querySelectorAll: () => [],
       addEventListener: () => {}
-   
-      querySelector: query.querySelector,
-      querySelectorAll: () => [],
-      addEventListener: () => {}
     };
     global.document = document;
     global.window = {};
@@ -126,6 +136,16 @@ describe("Formulário de times", () => {
     fetchCalls = [];
     global.fetch = async (url, options = {}) => {
       fetchCalls.push({ url, options });
+      if (url === "/api/login") {
+        return {
+          ok: true,
+          text: async () => "",
+          json: async () => {
+            throw new SyntaxError("Unexpected end of JSON input");
+          }
+        };
+      }
+
       return {
         ok: true,
         json: async () => ({ team: { id: 9, name: "Flamengo", championshipId: 1, community: "Centro" } })
@@ -154,5 +174,12 @@ describe("Formulário de times", () => {
     assert.equal(fetchCalls[0].url, "/api/admin/teams");
     assert.equal(fetchCalls[0].options.method, "POST");
     assert.equal(JSON.parse(fetchCalls[0].options.body).name, "Flamengo");
+  });
+
+  test("mostra mensagem amigável quando a API responde com JSON vazio no login", async () => {
+    const event = { preventDefault() {} };
+    await loginForm.submitHandler(event);
+
+    assert.equal(document.querySelector("#form-message").textContent, "Resposta vazia ou invalida da API.");
   });
 });
