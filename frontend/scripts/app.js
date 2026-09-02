@@ -316,7 +316,7 @@ async function loadFavorites() {
 }
 
 /* ============================================================
-   Notificacoes (Fase 12)
+   Notificacoes
    ============================================================ */
 
 function getNotificationTypeLabel(type) {
@@ -1359,8 +1359,7 @@ elements.resetForm.addEventListener("submit", async (event) => {
       })
     });
 
-    const tokenMessage = data.resetToken ? ` Token de desenvolvimento: ${data.resetToken}` : "";
-    setMessage(`${data.message}${tokenMessage}`);
+    setMessage(data.message || "Instrucao de recuperacao registrada.");
   } catch (error) {
     setMessage(error.message);
   }

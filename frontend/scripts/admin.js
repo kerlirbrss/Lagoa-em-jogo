@@ -788,6 +788,33 @@ elements.teamForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const formData = new FormData(elements.teamForm);
+  const teamId = formData.get("id");
+  const payload = {
+    name: formData.get("name"),
+    championshipId: formData.get("championshipId"),
+    community: formData.get("community"),
+    crestUrl: formData.get("crestUrl"),
+    foundedYear: formData.get("foundedYear"),
+    coach: formData.get("coach"),
+    colors: formData.get("colors"),
+    squad: formData.get("squad"),
+    upcomingMatches: formData.get("upcomingMatches"),
+    recentResults: formData.get("recentResults"),
+    gallery: formData.get("gallery")
+  };
+
+  try {
+    await api(teamId ? `/api/admin/teams/${teamId}` : "/api/admin/teams", {
+      method: teamId ? "PUT" : "POST",
+      body: JSON.stringify(payload)
+    });
+    fillTeamForm(null);
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
 elements.clearTeamForm.addEventListener("click", () => {
   fillTeamForm(null);
 });
@@ -875,6 +902,12 @@ elements.adminAthletes.addEventListener("click", async (event) => {
       method: "DELETE"
     });
     fillAthleteForm(null);
+    await refreshAdminPanel();
+  } catch (error) {
+    elements.adminStatus.textContent = error.message;
+  }
+});
+
 elements.matchForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -970,44 +1003,7 @@ elements.newsForm.addEventListener("submit", async (event) => {
 elements.clearNewsForm.addEventListener("click", () => {
   fillNewsForm(null);
 });
-    await refreshAdminPanel();
-  } catch (error) {
-    elements.adminStatus.textContent = error.message;
-  }
-});
 
-elements.matchChampionship.addEventListener("change", () => {
-  const championshipId = elements.matchChampionship.value;
-  const teams = state.admin.teams.filter((team) => team.championshipId === Number(championshipId));
-  elements.matchHomeTeam.innerHTML = getMatchTeamOptions(championshipId, teams[0]?.id);
-  elements.matchAwayTeam.innerHTML = getMatchTeamOptions(championshipId, teams[1]?.id);
-});
-  const teamId = formData.get("id");
-  const payload = {
-    name: formData.get("name"),
-    championshipId: formData.get("championshipId"),
-    community: formData.get("community"),
-    crestUrl: formData.get("crestUrl"),
-    foundedYear: formData.get("foundedYear"),
-    coach: formData.get("coach"),
-    colors: formData.get("colors"),
-    squad: formData.get("squad"),
-    upcomingMatches: formData.get("upcomingMatches"),
-    recentResults: formData.get("recentResults"),
-    gallery: formData.get("gallery")
-  };
-
-  try {
-    await api(teamId ? `/api/admin/teams/${teamId}` : "/api/admin/teams", {
-      method: teamId ? "PUT" : "POST",
-      body: JSON.stringify(payload)
-    });
-    fillTeamForm(null);
-    await refreshAdminPanel();
-  } catch (error) {
-    elements.adminStatus.textContent = error.message;
-  }
-});
 elements.adminNews.addEventListener("click", async (event) => {
   const editButton = event.target.closest("[data-edit-news]");
   const deleteButton = event.target.closest("[data-delete-news]");
@@ -1146,6 +1142,7 @@ elements.adminComments.addEventListener("click", async (event) => {
     }
   }
 });
+
 /* ============================================================
    Tema claro/escuro + navegacao mobile + PWA
    ============================================================ */
