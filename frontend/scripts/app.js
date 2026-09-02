@@ -1066,7 +1066,12 @@ function renderSession() {
       ? `<img class="session-avatar" src="${state.user.photoUrl}" alt="Foto de perfil de ${state.user.name}" loading="lazy" decoding="async">`
       : `<span class="session-avatar initials">${getTeamInitials(state.user.name)}</span>`;
 
-    elements.sessionStatus.innerHTML = `${avatar}<span>Conectado como ${state.user.name} (${state.user.role}).</span>`;
+    const canManage = ["administrador", "organizador", "fotografo"].includes(state.user.role);
+    const adminLink = canManage
+      ? `<a class="button secondary compact admin-shortcut" href="admin.html">Abrir painel administrativo</a>`
+      : "";
+
+    elements.sessionStatus.innerHTML = `${avatar}<span>Conectado como ${state.user.name} (${state.user.role}).</span>${adminLink}`;
     fillProfileForm();
     return;
   }

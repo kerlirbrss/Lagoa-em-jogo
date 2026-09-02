@@ -1423,6 +1423,22 @@ textarea {
   font-size: 0.78rem;
 }
 
+.admin-shortcut {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 380px) {
+  #session-status {
+    flex-wrap: wrap;
+  }
+
+  .admin-shortcut {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
 .form-message {
   min-height: 24px;
   margin: 12px 0 0;
