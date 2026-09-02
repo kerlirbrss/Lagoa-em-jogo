@@ -102,7 +102,15 @@ describe("Formulário de times", () => {
 
     selectors.forEach((selector) => query.ensureElement(selector));
 
-    document = { querySelector: query.querySelector, querySelectorAll: () => [] };
+    document = {
+      querySelector: query.querySelector,
+      querySelectorAll: () => [],
+      addEventListener: () => {}
+   
+      querySelector: query.querySelector,
+      querySelectorAll: () => [],
+      addEventListener: () => {}
+    };
     global.document = document;
     global.window = {};
     global.FormData = class {
