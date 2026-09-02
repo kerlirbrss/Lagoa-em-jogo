@@ -207,6 +207,122 @@ function buildSessionCookie(token, { maxAge } = {}) {
   return cookie;
 }
 
+/* ============================================================
+   Seguranca de senha (hash scrypt) e armazenamento de imagens
+   ============================================================ */
+
+const UPLOADS_DIR = path.join(FRONTEND_DIR, "uploads");
+const ALLOWED_IMAGE_MIME = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/gif": "gif",
+  "image/webp": "webp"
+};
+
+function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) {
+  const derived = crypto.scryptSync(String(password), salt, 32).toString("hex");
+  return `scrypt$${salt}$${derived}`;
+}
+
+function verifyPassword(password, stored) {
+  if (typeof stored !== "string" || !stored) {
+    return false;
+  }
+
+  if (stored.startsWith("scrypt$")) {
+    const parts = stored.split("$");
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    const [, salt, expectedHash] = parts;
+    const derived = crypto.scryptSync(String(password), salt, 32).toString("hex");
+
+    if (derived.length !== expectedHash.length) {
+      return false;
+    }
+
+    return crypto.timingSafeEqual(Buffer.from(derived, "hex"), Buffer.from(expectedHash, "hex"));
+  }
+
+  // Senha legada em texto plano (ainda aceita para manter contas antigas).
+  return stored === String(password);
+}
+
+function parseDataUrlImage(dataUrl) {
+  const match = /^data:([a-z0-9./+-]+);base64,(.+)$/i.exec(String(dataUrl || "").trim());
+
+  if (!match) {
+    return null;
+  }
+
+  const mime = match[1].toLowerCase();
+  const extension = ALLOWED_IMAGE_MIME[mime];
+
+  if (!extension) {
+    return null;
+  }
+
+  const content = Buffer.from(match[2], "base64");
+
+  if (!content.length) {
+    return null;
+  }
+
+  // Valida magic bytes de forma segura (JPEG, PNG, GIF, WebP).
+  const signature = content.subarray(0, 12).toString("latin1");
+  const isJpeg = signature.charCodeAt(0) === 0xff && signature.charCodeAt(1) === 0xd8 && signature.charCodeAt(2) === 0xff;
+  const isPng = content.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  const isGif = content.subarray(0, 6).toString("latin1") === "GIF89a" || content.subarray(0, 6).toString("latin1") === "GIF87a";
+  const isWebp = signature.startsWith("RIFF") && signature.substring(8, 12) === "WEBP";
+
+  const validSignature = isJpeg || isPng || isGif || isWebp;
+  const maxBytes = 5 * 1024 * 1024;
+
+  if (!validSignature || content.length > maxBytes) {
+    return null;
+  }
+
+  return { mime, extension, content };
+}
+
+function saveDataUrlImage(prefix, dataUrl) {
+  const parsed = parseDataUrlImage(dataUrl);
+
+  if (!parsed) {
+    return null;
+  }
+
+  const directory = path.join(UPLOADS_DIR, prefix);
+
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+
+  const fileName = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}.${parsed.extension}`;
+  const filePath = path.join(directory, fileName);
+
+  fs.writeFileSync(filePath, parsed.content);
+
+  return `/uploads/${prefix}/${fileName}`;
+}
+
+function deleteStoredImage(publicUrl) {
+  if (!publicUrl || !publicUrl.startsWith("/uploads/")) {
+    return;
+  }
+
+  try {
+    const filePath = path.normalize(path.join(FRONTEND_DIR, publicUrl));
+
+    if (filePath.startsWith(FRONTEND_DIR) && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    // Nao interrompe a operacao se o arquivo ja nao existir.
+  }
+}
+
 function getHealthDetails(database) {
   return {
     status: "ok",
@@ -861,8 +977,10 @@ function getPublicNewsArticle(article, database, options = {}) {
       return {
         id: comment.id,
         authorName: comment.authorName,
+        userId: comment.userId || null,
         content: comment.content,
-        createdAt: comment.createdAt || null
+        createdAt: comment.createdAt || null,
+        updatedAt: comment.updatedAt || null
       };
     });
 
@@ -1146,6 +1264,8 @@ function buildDashboard(database) {
       matches: database.matches.length,
       news: database.news.length,
       galleries: database.galleries.length,
+      images: database.images.length,
+      auditLogs: database.auditLogs.length,
       pendingComments
     },
     roleSummary: database.roles.map((role) => {
@@ -1452,8 +1572,13 @@ function validateImagePayload(body, currentImage = {}) {
     return { error: "Informe a categoria da imagem." };
   }
 
-  if (!isValidImageUrl(image.url)) {
-    return { error: "Informe uma URL valida para a imagem." };
+  const hasValidUrl = isValidImageUrl(image.url);
+  const hasValidDataUrl = Boolean(parseDataUrlImage(body.dataUrl));
+
+  if (!hasValidUrl && !hasValidDataUrl) {
+    return image.url
+      ? { error: "Informe uma URL valida para a imagem." }
+      : { error: "Envie um arquivo de imagem (JPG, PNG, GIF ou WebP ate 5 MB) ou uma URL valida." };
   }
 
   return { image };
@@ -1834,11 +1959,13 @@ async function handleApi(request, response) {
         return;
       }
 
+      const sessionUserForComment = getSessionUser(request);
       const comment = {
         id: database.comments.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
         authorName,
         context: `Noticia: ${article.title}`,
         newsId: article.id,
+        userId: sessionUserForComment ? sessionUserForComment.id : null,
         content,
         status: "pendente",
         createdAt: new Date().toISOString()
@@ -1853,6 +1980,55 @@ async function handleApi(request, response) {
       });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel comentar na noticia." });
+    }
+
+    return;
+  }
+
+  if (request.method === "PATCH" && url.pathname.startsWith("/api/news/") && url.pathname.includes("/comments/")) {
+    const sessionUser = getSessionUser(request);
+
+    if (!sessionUser) {
+      sendJson(response, 401, { message: "Entre na sua conta para editar o comentario." });
+      return;
+    }
+
+    try {
+      const segments = url.pathname.split("/").filter(Boolean);
+      const newsId = Number(segments[2]);
+      const commentId = Number(segments[4]);
+      const article = findNewsById(database, newsId);
+      const comment = database.comments.find((item) => Number(item.id) === commentId && Number(item.newsId) === newsId);
+      const body = await parseBody(request);
+      const content = normalizeText(body.content);
+
+      if (!article || !comment) {
+        sendJson(response, 404, { message: "Comentario nao encontrado." });
+        return;
+      }
+
+      if (comment.status !== "aprovado") {
+        sendJson(response, 403, { message: "So e possivel editar comentarios ja aprovados." });
+        return;
+      }
+
+      if (Number(comment.userId) !== Number(sessionUser.id)) {
+        sendJson(response, 403, { message: "Voce so pode editar seu proprio comentario." });
+        return;
+      }
+
+      if (content.length < 5) {
+        sendJson(response, 400, { message: "Escreva um comentario com pelo menos 5 caracteres." });
+        return;
+      }
+
+      comment.content = content;
+      comment.updatedAt = new Date().toISOString();
+      writeDatabase(database);
+
+      sendJson(response, 200, { message: "Comentario atualizado.", comment });
+    } catch (error) {
+      sendJson(response, 400, { message: "Nao foi possivel atualizar o comentario." });
     }
 
     return;
@@ -2037,7 +2213,7 @@ async function handleApi(request, response) {
         id: database.users.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
         name,
         email,
-        password,
+        password: hashPassword(password),
         role,
         status: "ativo",
         phone: normalizeText(body.phone),
@@ -2069,10 +2245,10 @@ async function handleApi(request, response) {
       const body = await parseBody(request);
       const email = normalizeEmail(body.email);
       const user = database.users.find((item) => {
-        return item.email === email && item.password === body.password;
+        return item.email === email;
       });
 
-      if (!user) {
+      if (!user || !verifyPassword(body.password, user.password)) {
         sendJson(response, 401, { message: "Email ou senha invalidos." });
         return;
       }
@@ -2118,6 +2294,7 @@ async function handleApi(request, response) {
       const email = normalizeEmail(body.email);
       const password = String(body.password || "");
       const photoUrl = normalizeText(body.photoUrl);
+      const photoDataUrl = normalizeText(body.photoDataUrl);
 
       if (name.length < 3) {
         sendJson(response, 400, { message: "Informe um nome com pelo menos 3 caracteres." });
@@ -2145,10 +2322,26 @@ async function handleApi(request, response) {
       user.email = email;
       user.phone = normalizeText(body.phone);
       user.community = normalizeText(body.community);
-      user.photoUrl = photoUrl;
+
+      if (photoDataUrl) {
+        if (user.photoUrl) {
+          deleteStoredImage(user.photoUrl);
+        }
+
+        const storedPhoto = saveDataUrlImage("profile", photoDataUrl);
+
+        if (!storedPhoto) {
+          sendJson(response, 400, { message: "Imagem de perfil invalida. Use JPG, PNG, GIF ou WebP (ate 5 MB)." });
+          return;
+        }
+
+        user.photoUrl = storedPhoto;
+      } else {
+        user.photoUrl = photoUrl;
+      }
 
       if (password) {
-        user.password = password;
+        user.password = hashPassword(password);
       }
 
       writeDatabase(database);
@@ -2347,6 +2540,12 @@ async function handleApi(request, response) {
       database.teams.push(team);
       writeDatabase(database);
 
+      recordAuditLog(database, "team_created", "team", {
+        entityId: team.id,
+        teamName: team.name,
+        championshipId: team.championshipId
+      }, getSessionUser(request));
+
       sendJson(response, 201, { team: getPublicTeam(team, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel criar o time." });
@@ -2378,6 +2577,10 @@ async function handleApi(request, response) {
 
       database.teams = database.teams.filter((item) => item.id !== teamId);
       writeDatabase(database);
+      recordAuditLog(database, "team_deleted", "team", {
+        entityId: teamId,
+        teamName: team.name
+      }, getSessionUser(request));
       sendJson(response, 200, { message: "Time excluido." });
       return;
     }
@@ -2396,6 +2599,10 @@ async function handleApi(request, response) {
       });
 
       writeDatabase(database);
+      recordAuditLog(database, "team_updated", "team", {
+        entityId: team.id,
+        teamName: team.name
+      }, getSessionUser(request));
       sendJson(response, 200, { team: getPublicTeam(team, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar o time." });
@@ -2440,6 +2647,12 @@ async function handleApi(request, response) {
       database.athletes.push(athlete);
       writeDatabase(database);
 
+      recordAuditLog(database, "athlete_created", "athlete", {
+        entityId: athlete.id,
+        athleteName: athlete.fullName,
+        teamId: athlete.teamId
+      }, getSessionUser(request));
+
       sendJson(response, 201, { athlete: getPublicAthlete(athlete, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel criar o atleta." });
@@ -2464,6 +2677,10 @@ async function handleApi(request, response) {
     if (request.method === "DELETE") {
       database.athletes = database.athletes.filter((item) => item.id !== athleteId);
       writeDatabase(database);
+      recordAuditLog(database, "athlete_deleted", "athlete", {
+        entityId: athleteId,
+        athleteName: athlete.fullName
+      }, getSessionUser(request));
       sendJson(response, 200, { message: "Atleta excluido." });
       return;
     }
@@ -2482,6 +2699,10 @@ async function handleApi(request, response) {
       });
 
       writeDatabase(database);
+      recordAuditLog(database, "athlete_updated", "athlete", {
+        entityId: athlete.id,
+        athleteName: athlete.fullName
+      }, getSessionUser(request));
       sendJson(response, 200, { athlete: getPublicAthlete(athlete, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar o atleta." });
@@ -2530,6 +2751,13 @@ async function handleApi(request, response) {
       notifyMatchEvents(database, match, null);
       writeDatabase(database);
 
+      recordAuditLog(database, "match_created", "match", {
+        entityId: match.id,
+        stage: match.stage,
+        round: match.round,
+        score: getDefaultMatchScore(match.score)
+      }, getSessionUser(request));
+
       sendJson(response, 201, { match: getPublicMatch(match, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel criar a partida." });
@@ -2554,6 +2782,11 @@ async function handleApi(request, response) {
     if (request.method === "DELETE") {
       database.matches = database.matches.filter((item) => item.id !== matchId);
       writeDatabase(database);
+      recordAuditLog(database, "match_deleted", "match", {
+        entityId: matchId,
+        stage: match.stage,
+        round: match.round
+      }, getSessionUser(request));
       sendJson(response, 200, { message: "Partida excluida." });
       return;
     }
@@ -2576,6 +2809,13 @@ async function handleApi(request, response) {
 
       notifyMatchEvents(database, match, previousMatchStatus);
       writeDatabase(database);
+      recordAuditLog(database, "match_updated", "match", {
+        entityId: match.id,
+        stage: match.stage,
+        round: match.round,
+        status: match.status,
+        score: getDefaultMatchScore(match.score)
+      }, getSessionUser(request));
       sendJson(response, 200, { match: getPublicMatch(match, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar a partida." });
@@ -2632,6 +2872,12 @@ async function handleApi(request, response) {
       }
       writeDatabase(database);
 
+      recordAuditLog(database, "news_created", "news", {
+        entityId: article.id,
+        title: article.title,
+        status: article.status
+      }, getSessionUser(request));
+
       sendJson(response, 201, { article: getPublicNewsArticle(article, database, { includeContent: true }) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel criar a noticia." });
@@ -2657,6 +2903,10 @@ async function handleApi(request, response) {
       database.news = database.news.filter((item) => item.id !== newsId);
       database.comments = database.comments.filter((comment) => Number(comment.newsId) !== newsId);
       writeDatabase(database);
+      recordAuditLog(database, "news_deleted", "news", {
+        entityId: newsId,
+        title: article.title
+      }, getSessionUser(request));
       sendJson(response, 200, { message: "Noticia excluida." });
       return;
     }
@@ -2684,6 +2934,11 @@ async function handleApi(request, response) {
       }
 
       writeDatabase(database);
+      recordAuditLog(database, "news_updated", "news", {
+        entityId: article.id,
+        title: article.title,
+        status: article.status
+      }, getSessionUser(request));
       sendJson(response, 200, { article: getPublicNewsArticle(article, database, { includeContent: true }) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar a noticia." });
@@ -2721,15 +2976,29 @@ async function handleApi(request, response) {
       }
 
       const now = new Date().toISOString();
+      const storedUrl = body.dataUrl ? saveDataUrlImage("images", body.dataUrl) : null;
+
+      if (body.dataUrl && !storedUrl) {
+        sendJson(response, 400, { message: "Arquivo de imagem invalido ou corrompido." });
+        return;
+      }
+
       const image = {
         id: database.images.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
         ...validation.image,
+        url: storedUrl || validation.image.url,
         createdAt: now,
         updatedAt: now
       };
 
       database.images.push(image);
       writeDatabase(database);
+
+      recordAuditLog(database, "image_created", "image", {
+        entityId: image.id,
+        title: image.title,
+        category: image.category
+      }, getSessionUser(request));
 
       sendJson(response, 201, { image: getPublicImage(image) });
     } catch (error) {
@@ -2753,8 +3022,16 @@ async function handleApi(request, response) {
         return;
       }
 
+      const removedImage = database.images[imageIndex];
+      deleteStoredImage(removedImage.url);
       database.images.splice(imageIndex, 1);
       writeDatabase(database);
+
+      recordAuditLog(database, "image_deleted", "image", {
+        entityId: imageId,
+        title: removedImage.title || "Imagem"
+      }, getSessionUser(request));
+
       sendJson(response, 200, { deleted: true, imageId });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel excluir a imagem." });
@@ -2811,6 +3088,13 @@ async function handleApi(request, response) {
       database.galleries.push(gallery);
       writeDatabase(database);
 
+      recordAuditLog(database, "gallery_created", "gallery", {
+        entityId: gallery.id,
+        title: gallery.title,
+        type: gallery.type,
+        status: gallery.status
+      }, getSessionUser(request));
+
       sendJson(response, 201, { gallery: getPublicGallery(gallery, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel criar a galeria." });
@@ -2835,6 +3119,10 @@ async function handleApi(request, response) {
     if (request.method === "DELETE") {
       database.galleries = database.galleries.filter((item) => item.id !== galleryId);
       writeDatabase(database);
+      recordAuditLog(database, "gallery_deleted", "gallery", {
+        entityId: galleryId,
+        title: gallery.title
+      }, getSessionUser(request));
       sendJson(response, 200, { message: "Galeria excluida." });
       return;
     }
@@ -2861,6 +3149,11 @@ async function handleApi(request, response) {
       }
 
       writeDatabase(database);
+      recordAuditLog(database, "gallery_updated", "gallery", {
+        entityId: gallery.id,
+        title: gallery.title,
+        status: gallery.status
+      }, getSessionUser(request));
       sendJson(response, 200, { gallery: getPublicGallery(gallery, database) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar a galeria." });
@@ -2926,6 +3219,13 @@ async function handleApi(request, response) {
       writeDatabase(database);
       updateSessionUser(user);
 
+      recordAuditLog(database, "user_updated", "user", {
+        entityId: user.id,
+        userEmail: user.email,
+        role,
+        status
+      }, getSessionUser(request));
+
       sendJson(response, 200, { user: getAdminUser(user) });
     } catch (error) {
       sendJson(response, 400, { message: "Nao foi possivel atualizar o usuario." });
@@ -2939,7 +3239,10 @@ async function handleApi(request, response) {
       return;
     }
 
-    sendJson(response, 200, { comments: database.comments });
+    sendJson(response, 200, {
+      comments: database.comments,
+      predictionComments: database.predictionComments.map((comment) => getPublicPredictionComment(comment, database))
+    });
     return;
   }
 
@@ -3332,6 +3635,11 @@ module.exports.__testing = {
   validateMatchPayload,
   validateNewsPayload,
   validateGalleryPayload,
+  hashPassword,
+  verifyPassword,
+  parseDataUrlImage,
+  saveDataUrlImage,
+  deleteStoredImage,
   USER_ROLES,
   COMMENT_STATUSES,
   CHAMPIONSHIP_STATUSES,
