@@ -218,8 +218,12 @@
                 <input name="community" type="text" required>
               </label>
               <label>
-                Escudo URL
-                <input name="crestUrl" type="url">
+                Escudo URL ou upload
+                <input name="crestUrl" id="team-crest" type="url">
+              </label>
+              <label class="photo-upload-field">
+                Enviar escudo do dispositivo
+                <input class="file-image-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-fill-target="#team-crest">
               </label>
               <label>
                 Fundacao
@@ -285,8 +289,12 @@
                 <input name="age" type="number" min="10" max="80" inputmode="numeric">
               </label>
               <label class="wide-field">
-                Foto URL
-                <input name="photoUrl" type="url">
+                Foto URL ou upload
+                <input name="photoUrl" id="athlete-photo" type="url">
+              </label>
+              <label class="wide-field photo-upload-field">
+                Enviar foto do dispositivo
+                <input class="file-image-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-fill-target="#athlete-photo">
               </label>
               <label>
                 Jogos
@@ -411,8 +419,12 @@
                 </select>
               </label>
               <label class="wide-field">
-                Imagem principal URL
-                <input name="coverImageUrl" type="url">
+                Imagem principal URL ou upload
+                <input name="coverImageUrl" id="news-cover" type="url">
+              </label>
+              <label class="wide-field photo-upload-field">
+                Enviar imagem do dispositivo
+                <input class="file-image-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-fill-target="#news-cover">
               </label>
               <label class="wide-field">
                 Resumo
@@ -424,7 +436,11 @@
               </label>
               <label class="wide-field">
                 Galeria de imagens
-                <textarea name="galleryImages" rows="3" placeholder="Uma URL por linha"></textarea>
+                <textarea name="galleryImages" id="news-gallery-images" rows="3" placeholder="Uma URL por linha"></textarea>
+              </label>
+              <label class="wide-field photo-upload-field">
+                Adicionar imagem da galeria (upload)
+                <input class="file-image-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-append-target="#news-gallery-images">
               </label>
               <div class="form-actions wide-field">
                 <button class="button primary" type="submit">Salvar noticia</button>
@@ -434,6 +450,64 @@
 
             <div class="news-admin-list" id="admin-news"></div>
           </section>
+<section class="admin-card image-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Imagens</p>
+                <h3>Gerenciamento de imagens</h3>
+              </div>
+            </div>
+            <form class="image-form" id="image-form">
+              <input type="hidden" name="id">
+              <label>
+                Titulo
+                <input name="title" type="text" required>
+              </label>
+              <label>
+                Categoria
+                <input name="category" type="text" placeholder="marca, jogo, noticia, perfil" required>
+              </label>
+              <label>
+                URL da imagem
+                <input name="url" type="url" placeholder="https://... ou faca upload abaixo">
+              </label>
+              <label class="photo-upload-field">
+                Enviar imagem do dispositivo
+                <input class="file-image-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-fill-target="#image-data-url">
+                <input type="hidden" name="dataUrl" id="image-data-url">
+              </label>
+              <label class="wide-field">
+                Texto alternativo
+                <input name="altText" type="text" placeholder="Descricao curta da imagem">
+              </label>
+              <label class="photo-upload-field">
+                Imagem publica
+                <input name="isPublic" type="checkbox" checked>
+              </label>
+              <div class="form-actions wide-field">
+                <button class="button primary" type="submit">Salvar imagem</button>
+                <button class="button secondary" id="clear-image-form" type="button">Limpar</button>
+              </div>
+            </form>
+            <div class="image-admin-list" id="admin-images"></div>
+          </section>
+
+          <section class="admin-card audit-manager">
+            <div class="admin-card-heading">
+              <div>
+                <p class="eyebrow">Auditoria</p>
+                <h3>Historico de acoes administrativas</h3>
+              </div>
+              <label class="audit-filter" for="admin-log-filter">
+                Filtrar
+                <input id="admin-log-filter" type="search" placeholder="Buscar nos logs...">
+              </label>
+            </div>
+            <p class="admin-note">Registros de criacao e edicao de campeonatos, jogos, times, atletas, noticias, galerias, imagens, usuarios e comentarios.</p>
+            <div class="log-list" id="admin-logs"></div>
+          </section>
+
+          <section class="admin-card gallery-manager">
 <section class="admin-card gallery-manager">
             <div class="admin-card-heading">
               <div>
@@ -481,7 +555,11 @@
               </label>
               <label class="wide-field">
                 Imagens da galeria
-                <textarea name="images" rows="4" placeholder="Uma URL por linha" required></textarea>
+                <textarea name="images" id="gallery-images" rows="4" placeholder="Uma URL por linha" required></textarea>
+              </label>
+              <label class="wide-field photo-upload-field">
+                Adicionar imagem da galeria (upload)
+                <input class="file-image-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-append-target="#gallery-images">
               </label>
               <label class="wide-field">
                 Link de venda das fotos

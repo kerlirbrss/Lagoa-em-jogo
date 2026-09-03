@@ -122,7 +122,7 @@ describe("Formulário de times", () => {
       addEventListener: () => {}
     };
     global.document = document;
-    global.window = {};
+    global.window = { addEventListener: () => {} };
     global.FormData = class {
       constructor(form) {
         this.form = form;
@@ -136,6 +136,7 @@ describe("Formulário de times", () => {
     fetchCalls = [];
     global.fetch = async (url, options = {}) => {
       fetchCalls.push({ url, options });
+
       if (url === "/api/login") {
         return {
           ok: true,
@@ -143,6 +144,13 @@ describe("Formulário de times", () => {
           json: async () => {
             throw new SyntaxError("Unexpected end of JSON input");
           }
+        };
+      }
+
+      if (url === "/api/me") {
+        return {
+          ok: true,
+          json: async () => ({ user: null, favorites: [] })
         };
       }
 
@@ -158,6 +166,8 @@ describe("Formulário de times", () => {
       console,
       document,
       window: global.window,
+      navigator: { serviceWorker: {} },
+      location: { protocol: "http:" },
       FormData: global.FormData,
       fetch: global.fetch,
       URL,
@@ -170,10 +180,10 @@ describe("Formulário de times", () => {
     const event = { preventDefault() {} };
     await teamForm.submitHandler(event);
 
-    assert.equal(fetchCalls.length > 0, true, "o formulário deve enviar a requisição ao backend");
-    assert.equal(fetchCalls[0].url, "/api/admin/teams");
-    assert.equal(fetchCalls[0].options.method, "POST");
-    assert.equal(JSON.parse(fetchCalls[0].options.body).name, "Flamengo");
+    const teamCall = fetchCalls.find((call) => call.url === "/api/admin/teams");
+    assert.ok(teamCall, "o formulário deve enviar a requisição ao backend");
+    assert.equal(teamCall.options.method, "POST");
+    assert.equal(JSON.parse(teamCall.options.body).name, "Flamengo");
   });
 
   test("mostra mensagem amigável quando a API responde com JSON vazio no login", async () => {

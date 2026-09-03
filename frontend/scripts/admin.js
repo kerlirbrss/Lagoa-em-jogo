@@ -14,6 +14,8 @@ const state = {
     matches: [],
     news: [],
     galleries: [],
+    images: [],
+    logs: [],
     dashboard: null
   }
 };
@@ -55,6 +57,11 @@ const elements = {
   galleryMatch: document.querySelector("#gallery-match"),
   adminGalleries: document.querySelector("#admin-galleries"),
   clearGalleryForm: document.querySelector("#clear-gallery-form"),
+  imageForm: document.querySelector("#image-form"),
+  adminImages: document.querySelector("#admin-images"),
+  clearImageForm: document.querySelector("#clear-image-form"),
+  adminLogs: document.querySelector("#admin-logs"),
+  adminLogFilter: document.querySelector("#admin-log-filter"),
   loginForm: document.querySelector("#login-form"),
   logoutButton: document.querySelector("#logout-button"),
   logoutNav: document.querySelector("#logout-nav"),
@@ -570,6 +577,156 @@ function renderAdminGalleries() {
     .join("");
 }
 
+/* ------------------- Imagens (Fase 21) ----------------------- */
+
+function fillImageForm(image) {
+  elements.imageForm.elements.id.value = image ? image.id : "";
+  elements.imageForm.elements.title.value = image ? image.title : "";
+  elements.imageForm.elements.category.value = image ? image.category : "";
+  elements.imageForm.elements.url.value = image ? image.url : "";
+  elements.imageForm.elements.altText.value = image ? image.altText : "";
+  elements.imageForm.elements.isPublic.checked = image ? Boolean(image.isPublic) : true;
+
+  const dataUrlInput = document.querySelector("#image-data-url");
+
+  if (dataUrlInput) {
+    dataUrlInput.value = "";
+  }
+}
+
+function renderAdminImages() {
+  elements.adminImages.innerHTML = state.admin.images.length
+    ? state.admin.images.map((image) => `
+        <article class="admin-image-item">
+          <div class="admin-image-thumb">
+            ${image.url ? `<img src="${image.url}" alt="${image.altText || image.title}" loading="lazy">` : ""}
+          </div>
+          <div>
+            <span>${image.category}${image.isPublic ? " - publica" : " - interna"}</span>
+            <strong>${image.title}</strong>
+            <small>${image.altText || ""}</small>
+          </div>
+          <div class="comment-actions">
+            <button class="button compact danger" type="button" data-delete-image="${image.id}">Excluir</button>
+          </div>
+        </article>
+      `).join("")
+    : '<p class="search-empty">Nenhuma imagem cadastrada ainda.</p>';
+}
+
+/* ------------------- Auditoria (Fase 22) ---------------------- */
+
+function formatAuditAction(action) {
+  const labels = {
+    championship_created: "Campeonato criado",
+    championship_updated: "Campeonato editado",
+    championship_deleted: "Campeonato excluido",
+    team_created: "Time criado",
+    team_updated: "Time editado",
+    team_deleted: "Time excluido",
+    athlete_created: "Atleta criado",
+    athlete_updated: "Atleta editado",
+    athlete_deleted: "Atleta excluido",
+    match_created: "Jogo criado",
+    match_updated: "Jogo editado",
+    match_deleted: "Jogo excluido",
+    news_created: "Noticia criada",
+    news_updated: "Noticia editada",
+    news_deleted: "Noticia excluida",
+    gallery_created: "Galeria criada",
+    gallery_updated: "Galeria editada",
+    gallery_deleted: "Galeria excluida",
+    image_created: "Imagem cadastrada",
+    image_deleted: "Imagem excluida",
+    user_updated: "Usuario alterado",
+    comment_status_changed: "Comentario moderado",
+    comment_deleted: "Comentario excluido"
+  };
+
+  return labels[action] || action;
+}
+
+function formatAuditDetails(entry) {
+  const details = entry.details || {};
+  const meaningful = ["championshipName", "teamName", "athleteName", "title", "status", "role", "userEmail", "authorName", "context"];
+
+  return meaningful
+    .filter((key) => details[key])
+    .map((key) => `${key}: ${details[key]}`)
+    .join(" · ") || "Sem detalhes adicionais";
+}
+
+function renderAdminLogs() {
+  const filter = elements.adminLogFilter ? elements.adminLogFilter.value.trim().toLowerCase() : "";
+  const logs = state.admin.logs.filter((entry) => {
+    if (!filter) {
+      return true;
+    }
+
+    const haystack = [
+      entry.action,
+      entry.entityType,
+      entry.userName,
+      JSON.stringify(entry.details || {})
+    ].join(" ").toLowerCase();
+
+    return haystack.includes(filter);
+  });
+
+  elements.adminLogs.innerHTML = logs.length
+    ? logs.map((entry) => `
+        <article class="log-item">
+          <div class="log-actions">
+            <strong>${formatAuditAction(entry.action)}</strong>
+            <span>${entry.entityType}${entry.entityId ? ` #${entry.entityId}` : ""}</span>
+            <small>${entry.userName || "Sistema"}</small>
+            <time datetime="${entry.createdAt || ""}">${entry.createdAt ? new Date(entry.createdAt).toLocaleString("pt-BR") : ""}</time>
+          </div>
+          <p>${formatAuditDetails(entry)}</p>
+        </article>
+      `).join("")
+    : '<p class="search-empty">Nenhum registro de auditoria encontrado.</p>';
+}
+
+/* ------------------- Upload de imagens nos formularios -------- */
+
+function bindImageFileInputs() {
+  document.querySelectorAll(".file-image-input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const file = input.files && input.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const dataUrl = String(reader.result);
+        const fillTarget = document.querySelector(input.dataset.fillTarget || "");
+        const appendTarget = document.querySelector(input.dataset.appendTarget || "");
+
+        if (fillTarget) {
+          fillTarget.value = dataUrl;
+        }
+
+        if (appendTarget)) {
+          const current = String(appendTarget.value || "").trim();
+          appendTarget.value = current ? `${current}\n${dataUrl}` : dataUrl;
+        }
+
+        input.value = "";
+      };
+
+      reader.onerror = () => {
+        input.value = "";
+      };
+
+      reader.readAsDataURL(file);
+    });
+  });
+}
+
 /* ------------------- Carregamento do painel ----------------- */
 
 async function refreshAdminPanel() {
@@ -605,7 +762,7 @@ async function refreshAdminPanel() {
       return;
     }
 
-    const [dashboard, usersData, commentsData, championshipsData, teamsData, athletesData, matchesData, newsData, galleriesData] = await Promise.all([
+    const [dashboard, usersData, commentsData, championshipsData, teamsData, athletesData, matchesData, newsData, galleriesData, imagesData, logsData] = await Promise.all([
       api("/api/admin/dashboard"),
       api("/api/admin/users"),
       api("/api/admin/comments"),
@@ -614,7 +771,9 @@ async function refreshAdminPanel() {
       api("/api/admin/athletes"),
       api("/api/admin/matches"),
       api("/api/admin/news"),
-      api("/api/admin/galleries")
+      api("/api/admin/galleries"),
+      api("/api/admin/images"),
+      api("/api/admin/logs")
     ]);
 
     state.admin.dashboard = dashboard;
@@ -627,6 +786,8 @@ async function refreshAdminPanel() {
     state.admin.matches = matchesData.matches;
     state.admin.news = newsData.news;
     state.admin.galleries = galleriesData.galleries;
+    state.admin.images = imagesData.images;
+    state.admin.logs = logsData.logs;
 
     showAdminPanel();
     elements.adminStatus.textContent = "Painel carregado para administradores.";
@@ -646,6 +807,9 @@ async function refreshAdminPanel() {
     renderAdminNews();
     fillGalleryForm(null);
     renderAdminGalleries();
+    fillImageForm(null);
+    renderAdminImages();
+    renderAdminLogs();
   } catch (error) {
     elements.adminStatus.textContent = error.message;
     elements.adminPanel.hidden = true;

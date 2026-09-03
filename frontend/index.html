@@ -295,8 +295,11 @@
           <aside class="contact-info" aria-label="Contatos oficiais">
             <h3>Canal oficial</h3>
             <a href="mailto:contato@lagoaemjogo.local">contato@lagoaemjogo.local</a>
+            <h3>Redes oficiais</h3>
             <a href="https://www.instagram.com/lagoaemjogo" target="_blank" rel="noopener noreferrer">Instagram: @lagoaemjogo</a>
-            <a href="https://wa.me/5588999999999?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20o%20Lagoa%20em%20Jogo" target="_blank" rel="noopener noreferrer">WhatsApp exclusivo</a>
+            <a href="https://wa.me/5588999999999?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20o%20Lagoa%20em%20Jogo" target="_blank" rel="noopener noreferrer">WhatsApp exclusivo para colaboradores</a>
+            <h3>Desenvolvedores</h3>
+            <a href="https://www.instagram.com/lagoaemjogo" target="_blank" rel="noopener noreferrer">Instagram dos desenvolvedores (Kerli R. e Pedro H.)</a>
           </aside>
         </div>
 
@@ -380,8 +383,14 @@
               <input name="phone" type="tel" autocomplete="tel">
             </label>
             <label>
-              Foto de perfil (URL)
+              Foto de perfil (URL ou upload abaixo)
               <input name="photoUrl" type="url" autocomplete="off" placeholder="https://...">
+            </label>
+            <label class="photo-upload-field">
+              Enviar foto do dispositivo
+              <input id="register-photo-file" class="file-image-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp">
+              <input type="hidden" name="photoDataUrl" id="register-photo-data">
+              <img id="register-photo-preview" class="photo-preview" alt="Previa da foto do cadastro" hidden>
             </label>
             <button class="button primary" type="submit">Criar conta</button>
           </form>
@@ -408,8 +417,14 @@
               <input name="phone" type="tel" autocomplete="tel">
             </label>
             <label>
-              Foto de perfil (URL)
+              Foto de perfil (URL ou upload abaixo)
               <input name="photoUrl" type="url" autocomplete="off" placeholder="https://...">
+            </label>
+            <label class="photo-upload-field">
+              Enviar foto do dispositivo
+              <input id="profile-photo-file" class="file-image-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp">
+              <input type="hidden" name="photoDataUrl" id="profile-photo-data">
+              <img id="profile-photo-preview" class="photo-preview" alt="Previa da foto do perfil" hidden>
             </label>
             <button class="button primary" type="submit">Salvar perfil</button>
           </form>

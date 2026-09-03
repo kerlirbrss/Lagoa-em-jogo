@@ -2209,6 +2209,21 @@ async function handleApi(request, response) {
         return;
       }
 
+      let photoUrl = normalizeText(body.photoUrl);
+      const photoDataUrl = normalizeText(body.photoDataUrl || "");
+
+      if (photoDataUrl)) {
+        const storedPhoto = saveDataUrlImage("profile", photoDataUrl);
+
+        if (!storedPhoto)) {
+          sendJson(response, 400, { message: "Imagem de perfil invalida. Use JPG, PNG, GIF ou WebP (ate 5 MB." });
+          return;
+        }
+
+        photoUrl = storedPhoto;
+
+      }
+
       const user = {
         id: database.users.reduce((highest, item) => Math.max(highest, item.id), 0) + 1,
         name,
@@ -2218,7 +2233,7 @@ async function handleApi(request, response) {
         status: "ativo",
         phone: normalizeText(body.phone),
         community: normalizeText(body.community),
-        photoUrl: normalizeText(body.photoUrl),
+        photoUrl,
         createdAt: new Date().toISOString()
       };
 
@@ -3495,7 +3510,12 @@ function getContentType(filePath) {
     ".png": "image/png",
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
-    ".svg": "image/svg+xml"
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".svg": "image/svg+xml",
+    ".txt": "text/plain; charset=utf-8",
+    ".xml": "application/xml; charset=utf-8",
+    ".ico": "image/x-icon"
   };
 
   return types[extension] || "application/octet-stream";
@@ -3578,7 +3598,11 @@ const server = http.createServer((request, response) => {
   }
 
   if (request.url.startsWith("/api/")) {
-    handleApi(request, response);
+    try {
+      handleApi(request, response);
+    } catch (error) {
+      sendJson(response, 500, { message: "Ocorreu um erro interno ao processar a solicitacao. Tente novamente em alguns instants." });
+    }
     return;
   }
 

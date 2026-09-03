@@ -92,6 +92,59 @@ async function api(path, options = {}) {
   return payload;
 }
 
+/* ============================================================
+   Conta do Usuario (Fase 18): upload de foto de perfil
+   ============================================================ */
+function bindPhotoFileInput(fileInput, { preview = null, dataUrlTarget = null } = {}) {
+  if (!fileInput) {
+    return;
+  }
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files && fileInput.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const dataUrl = String(reader.result);
+
+      if (preview) {
+        preview.src = dataUrl;
+
+        preview.hidden = false;
+      }
+
+      if (dataUrlTarget)) {
+        dataUrlTarget.value = dataUrl;
+
+      }
+    };
+
+    reader.onerror = () => {
+      fileInput.value = "";
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+const registerPhotoFile = document.querySelector("#register-photo-file");
+const profilePhotoFile = document.querySelector("#profile-photo-file");
+
+bindPhotoFileInput(registerPhotoFile, {
+  preview: document.querySelector("#register-photo-preview"),
+  dataUrlTarget: document.querySelector("#register-photo-data")
+});
+
+bindPhotoFileInput(profilePhotoFile, {
+  preview: document.querySelector("#profile-photo-preview"),
+  dataUrlTarget: document.querySelector("#profile-photo-data")
+});
+
 function renderChampionships(championships) {
   elements.championships.innerHTML = championships
     .map((championship) => {
@@ -735,7 +788,14 @@ function renderPredictions(predictions) {
       const drawPercent = summary.percentages.empate;
       const awayPercent = summary.percentages.fora;
       const commentsHtml = comments.length
-        ? comments.map((comment) => `<li><strong>${comment.authorName}:</strong> ${comment.content}</li>`).join("")
+        ? comments.map((comment) => {
+          const canEdit = state.user && Number(comment.userId) === Number(state.user.id);
+          const editButton = canEdit
+            ? `<button class="comment-edit-toggle button compact" type="button" data-edit-prediction-comment="${comment.id}" data-prediction-id="${comment.predictionId}" aria-label="Editar meu comentario">Editar</button>`
+            : "";
+
+          return `<li><strong>${comment.authorName}:</strong> <span class="comment-content">${comment.content}</span> ${editButton}</li>`;
+        }).join("")
         : "<li>Nenhum comentario ainda. Seja o primeiro a participar.</li>";
       const predictionForm = state.user
         ? `<form class="prediction-form" data-prediction-match="${match.id}">
@@ -799,7 +859,14 @@ function renderNews(news) {
         ? `<div class="news-gallery">${article.galleryImages.slice(0, 3).map((imageUrl) => `<img src="${imageUrl}" alt="Imagem complementar de ${article.title}" loading="lazy" decoding="async">`).join("")}</div>`
         : "";
       const comments = article.comments.length
-        ? article.comments.map((comment) => `<li><strong>${comment.authorName}:</strong> ${comment.content}</li>`).join("")
+        ? article.comments.map((comment) => {
+          const canEdit = state.user && Number(comment.userId) === Number(state.user.id);
+          const editButton = canEdit
+            ? `<button class="comment-edit-toggle button compact" type="button" data-edit-news-comment="${comment.id}" data-news-id="${article.id}" aria-label="Editar meu comentario">Editar</button>`
+            : "";
+
+          return `<li><strong>${comment.authorName}:</strong> <span class="comment-content">${comment.content}</span> ${editButton}</li>`;
+        }).join("")
         : "<li>Nenhum comentario aprovado ainda.</li>";
 
       return `
@@ -823,6 +890,15 @@ function renderNews(news) {
       `;
     }).join("")
     : "<p>Nenhuma noticia publicada ainda.</p>";
+}
+
+async function loadNews() {
+  try {
+    const data = await api("/api/news");
+    renderNews(data.news || []);
+  } catch (error) {
+    setMessage(error.message);
+  }
 }
 
 function renderGalleries(galleries) {
@@ -1069,6 +1145,18 @@ function fillProfileForm() {
   elements.profileForm.elements.phone.value = state.user.phone || "";
   elements.profileForm.elements.photoUrl.value = state.user.photoUrl || "";
   elements.profileForm.elements.password.value = "";
+const profilePhotoData = document.querySelector("#profile-photo-data");
+  const profilePhotoPreview = document.querySelector("#profile-photo-preview");
+
+  if (profilePhotoData)) {
+    profilePhotoData.value = "";
+  }
+
+  if (profilePhotoPreview)) {
+    profilePhotoPreview.src = state.user.photoUrl || "";
+    profilePhotoPreview.hidden = !state.user.photoUrl;
+
+  }
 }
 
 function renderSession() {
@@ -1161,6 +1249,124 @@ elements.newsList.addEventListener("submit", async (event) => {
 
   try {
     const data = await api(`/api/news/${form.dataset.newsComment}/comments`, {
+/* Edicao de comentarios em noticias (Fase 19) */
+elements.newsList.addEventListener("click", async (event) => {
+  const editButton = event.target.closest("[data-edit-news-comment]");
+  const cancelButton = event.target.closest("[data-cancel-comment-edit]");
+
+  if (cancelButton) {
+    loadNews();
+    return;
+  }
+
+  if (!editButton) {
+    return;
+  }
+
+  const commentLi = editButton.closest("li");
+  const contentSpan = commentLi && commentLi.querySelector(".comment-content");
+  const currentText = contentSpan ? contentSpan.textContent : "";
+
+  commentLi.innerHTML = `
+    <form class="comment-edit-form" data-save-news-comment="${editButton.dataset.editNewsComment}" data-news-id="${editButton.dataset.newsId}">
+      <textarea name="content" rows="3" maxlength="500" required>${currentText.trim()}</textarea>
+      <div class="form-actions">
+        <button class="button secondary compact" type="submit">Salvar</button>
+        <button class="button compact" type="button" data-cancel-comment-edit>Cancelar</button>
+      </div>
+    </form>
+  `;
+});
+
+elements.newsList.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-save-news-comment]");
+
+  if (!form) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const submitButton = form.querySelector('button[type="submit"]');
+
+/* Edicao de comentarios em palpites (Fase 19) */
+elements.predictionsList.addEventListener("click", async (event) => {
+  const editButton = event.target.closest("[data-edit-prediction-comment]");
+  const cancelButton = event.target.closest("[data-cancel-comment-edit]");
+
+  if (cancelButton) {
+    loadPredictions();
+    return;
+  }
+
+  if (!editButton) {
+    return;
+  }
+
+  const commentLi = editButton.closest("li");
+  const contentSpan = commentLi && commentLi.querySelector(".comment-content");
+  const currentText = contentSpan ? contentSpan.textContent : "";
+
+  commentLi.innerHTML = `
+    <form class="comment-edit-form" data-save-prediction-comment="${editButton.dataset.editPredictionComment}" data-prediction-id="${editButton.dataset.predictionId}">
+      <textarea name="content" rows="3" maxlength="500" required>${currentText.trim()}</textarea>
+      <div class="form-actions">
+        <button class="button secondary compact" type="submit">Salvar</button>
+        <button class="button compact" type="button" data-cancel-comment-edit>Cancelar</button>
+      </div>
+    </form>
+  `;
+});
+
+elements.predictionsList.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-save-prediction-comment]");
+
+  if (!form) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const submitButton = form.querySelector('button[type="submit"]');
+
+  if (submitButton)) {
+    submitButton.disabled = true;
+  }
+
+  try {
+    await api(`/api/predictions/${form.dataset.predictionId}/comments/${form.dataset.savePredictionComment}`, {
+      method: "PATCH",
+      body: JSON.stringify({ content: new FormData(form).get("content") })
+    });
+    await loadPredictions();
+    elements.predictionsStatus.textContent = "Comentario atualizado com sucesso.";
+  } catch (error) {
+    elements.predictionsStatus.textContent = error.message;
+
+    if (submitButton)) {
+      submitButton.disabled = false;
+    }
+  }
+});
+  if (submitButton)) {
+    submitButton.disabled = true;
+  }
+
+  try {
+    await api(`/api/news/${form.dataset.newsId}/comments/${form.dataset.saveNewsComment}`, {
+      method: "PATCH",
+      body: JSON.stringify({ content: new FormData(form).get("content") })
+    });
+    await loadNews();
+    setMessage("Comentario atualizado com sucesso.");
+  } catch (error) {
+    setMessage(error.message);
+
+    if (submitButton)) {
+      submitButton.disabled = false;
+    }
+  }
+});
       method: "POST",
       body: JSON.stringify({
         authorName: formData.get("authorName"),
@@ -1318,7 +1524,8 @@ elements.registerForm.addEventListener("submit", async (event) => {
         role: formData.get("role"),
         community: formData.get("community"),
         phone: formData.get("phone"),
-        photoUrl: formData.get("photoUrl")
+        photoUrl: formData.get("photoUrl"),
+        photoDataUrl: formData.get("photoDataUrl")
       })
     });
 
@@ -1350,7 +1557,8 @@ elements.profileForm.addEventListener("submit", async (event) => {
         password: formData.get("password"),
         community: formData.get("community"),
         phone: formData.get("phone"),
-        photoUrl: formData.get("photoUrl")
+        photoUrl: formData.get("photoUrl"),
+        photoDataUrl: formData.get("photoDataUrl")
       })
     });
 
