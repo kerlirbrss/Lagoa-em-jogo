@@ -2212,10 +2212,10 @@ async function handleApi(request, response) {
       let photoUrl = normalizeText(body.photoUrl);
       const photoDataUrl = normalizeText(body.photoDataUrl || "");
 
-      if (photoDataUrl)) {
+      if (photoDataUrl) {
         const storedPhoto = saveDataUrlImage("profile", photoDataUrl);
 
-        if (!storedPhoto)) {
+        if (!storedPhoto) {
           sendJson(response, 400, { message: "Imagem de perfil invalida. Use JPG, PNG, GIF ou WebP (ate 5 MB." });
           return;
         }

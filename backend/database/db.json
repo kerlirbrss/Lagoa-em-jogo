@@ -1058,5 +1058,8 @@
       "key": "proximos_jogos",
       "enabled": true
     }
-  ]
+  ],
+  "contacts": [],
+  "images": [],
+  "auditLogs": []
 }

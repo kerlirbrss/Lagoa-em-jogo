@@ -69,13 +69,23 @@ const elements = {
 };
 
 async function api(path, options = {}) {
-  const response = await fetch(path, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    },
-    ...options
-  });
+  if (location.protocol !== "http:" && location.protocol !== "https:") {
+    throw new Error("Esta pagina foi aberta como arquivo local (file://). Abra o projeto pelo servidor: executa 'npm start' e visita http://localhost:3000.");
+  }
+
+  let response;
+
+  try {
+    response = await fetch(path, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      },
+      ...options
+    });
+  } catch (error) {
+    throw new Error("Nao foi possible conectar com o backend. Verifica que 'npm start' esta rodando e que a pagina esta aberta em http://localhost:3000.");
+  }
 
   let payload = null;
   const text = await response.text();
@@ -87,7 +97,7 @@ async function api(path, options = {}) {
       payload = { message: "Resposta invalida do servidor." };
     }
   } else {
-    payload = { message: "Resposta vazia do servidor. Verifique se o backend esta rodando em http://localhost:3000." };
+    payload = { message: "Resposta vazia do servidor. Verifica que o backend esta rodando em http://localhost:3000." };
   }
 
   if (!response.ok) {
@@ -710,7 +720,7 @@ function bindImageFileInputs() {
           fillTarget.value = dataUrl;
         }
 
-        if (appendTarget)) {
+        if (appendTarget) {
           const current = String(appendTarget.value || "").trim();
           appendTarget.value = current ? `${current}\n${dataUrl}` : dataUrl;
         }
@@ -851,6 +861,11 @@ elements.loginForm.addEventListener("submit", async (event) => {
         password: formData.get("password")
       })
     });
+
+    if (!data || !data.user) {
+      setMessage("Resposta vazia ou invalida da API.");
+      return;
+    }
 
     state.user = data.user;
     elements.adminSession.textContent = `Conectado como ${state.user.name} (${state.user.role}).`;

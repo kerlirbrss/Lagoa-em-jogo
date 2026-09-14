@@ -64,13 +64,23 @@ const elements = {
 };
 
 async function api(path, options = {}) {
-  const response = await fetch(path, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    },
-    ...options
-  });
+  if (location.protocol !== "http:" && location.protocol !== "https:") {
+    throw new Error("Esta pagina foi aberta como arquivo local (file://). Abra o projeto pelo servidor: executa 'npm start' e visita http://localhost:3000.");
+  }
+
+  let response;
+
+  try {
+    response = await fetch(path, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      },
+      ...options
+    });
+  } catch (error) {
+    throw new Error("Nao foi possible conectar com o backend. Verifica que 'npm start' esta rodando e que a pagina esta aberta em http://localhost:3000.");
+  }
 
   let payload = null;
   const text = await response.text();
@@ -82,7 +92,7 @@ async function api(path, options = {}) {
       payload = { message: "Resposta invalida do servidor." };
     }
   } else {
-    payload = { message: "Resposta vazia do servidor. Verifique se o backend esta rodando em http://localhost:3000." };
+    payload = { message: "Resposta vazia do servidor. Verifica que o backend esta rodando em http://localhost:3000." };
   }
 
   if (!response.ok) {
@@ -118,7 +128,7 @@ function bindPhotoFileInput(fileInput, { preview = null, dataUrlTarget = null } 
         preview.hidden = false;
       }
 
-      if (dataUrlTarget)) {
+      if (dataUrlTarget) {
         dataUrlTarget.value = dataUrl;
 
       }
@@ -1148,11 +1158,11 @@ function fillProfileForm() {
 const profilePhotoData = document.querySelector("#profile-photo-data");
   const profilePhotoPreview = document.querySelector("#profile-photo-preview");
 
-  if (profilePhotoData)) {
+  if (profilePhotoData) {
     profilePhotoData.value = "";
   }
 
-  if (profilePhotoPreview)) {
+  if (profilePhotoPreview) {
     profilePhotoPreview.src = state.user.photoUrl || "";
     profilePhotoPreview.hidden = !state.user.photoUrl;
 
@@ -1249,6 +1259,19 @@ elements.newsList.addEventListener("submit", async (event) => {
 
   try {
     const data = await api(`/api/news/${form.dataset.newsComment}/comments`, {
+      method: "POST",
+      body: JSON.stringify({
+        authorName: formData.get("authorName"),
+        content: formData.get("content")
+      })
+    });
+    form.reset();
+    setMessage(data.message);
+  } catch (error) {
+    setMessage(error.message);
+  }
+});
+
 /* Edicao de comentarios em noticias (Fase 19) */
 elements.newsList.addEventListener("click", async (event) => {
   const editButton = event.target.closest("[data-edit-news-comment]");
@@ -1288,6 +1311,26 @@ elements.newsList.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const submitButton = form.querySelector('button[type="submit"]');
+
+  if (submitButton) {
+    submitButton.disabled = true;
+  }
+
+  try {
+    await api(`/api/news/${form.dataset.newsId}/comments/${form.dataset.saveNewsComment}`, {
+      method: "PATCH",
+      body: JSON.stringify({ content: new FormData(form).get("content") })
+    });
+    await loadNews();
+    setMessage("Comentario atualizado com sucesso.");
+  } catch (error) {
+    setMessage(error.message);
+
+    if (submitButton) {
+      submitButton.disabled = false;
+    }
+  }
+});
 
 /* Edicao de comentarios em palpites (Fase 19) */
 elements.predictionsList.addEventListener("click", async (event) => {
@@ -1329,7 +1372,7 @@ elements.predictionsList.addEventListener("submit", async (event) => {
 
   const submitButton = form.querySelector('button[type="submit"]');
 
-  if (submitButton)) {
+  if (submitButton) {
     submitButton.disabled = true;
   }
 
@@ -1343,40 +1386,9 @@ elements.predictionsList.addEventListener("submit", async (event) => {
   } catch (error) {
     elements.predictionsStatus.textContent = error.message;
 
-    if (submitButton)) {
+    if (submitButton) {
       submitButton.disabled = false;
     }
-  }
-});
-  if (submitButton)) {
-    submitButton.disabled = true;
-  }
-
-  try {
-    await api(`/api/news/${form.dataset.newsId}/comments/${form.dataset.saveNewsComment}`, {
-      method: "PATCH",
-      body: JSON.stringify({ content: new FormData(form).get("content") })
-    });
-    await loadNews();
-    setMessage("Comentario atualizado com sucesso.");
-  } catch (error) {
-    setMessage(error.message);
-
-    if (submitButton)) {
-      submitButton.disabled = false;
-    }
-  }
-});
-      method: "POST",
-      body: JSON.stringify({
-        authorName: formData.get("authorName"),
-        content: formData.get("content")
-      })
-    });
-    form.reset();
-    setMessage(data.message);
-  } catch (error) {
-    setMessage(error.message);
   }
 });
 
@@ -1495,6 +1507,11 @@ elements.loginForm.addEventListener("submit", async (event) => {
         password: formData.get("password")
       })
     });
+
+    if (!data || !data.user) {
+      setMessage("Resposta vazia ou invalida da API.");
+      return;
+    }
 
     state.user = data.user;
     await loadFavorites();
