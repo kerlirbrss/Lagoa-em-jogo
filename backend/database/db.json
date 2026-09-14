@@ -1039,6 +1039,22 @@
       },
       "createdAt": "2026-08-20T10:00:00.000Z",
       "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 45,
+      "fullName": "Pedro Henrique Nascimento Barros",
+      "photoUrl": "",
+      "teamId": 7,
+      "position": "Meia Direita",
+      "age": "17",
+      "stats": {
+        "matches": 27,
+        "goals": 20,
+        "yellowCards": 4,
+        "redCards": 1
+      },
+      "createdAt": "2026-09-14T15:50:17.792Z",
+      "updatedAt": "2026-09-14T15:50:17.792Z"
     }
   ],
   "matches": [
@@ -1460,8 +1476,9 @@
       "context": "Noticia",
       "newsId": 1,
       "content": "Vai ser uma grande temporada para o futebol local.",
-      "status": "pendente",
-      "createdAt": "2026-07-02T08:00:00.000Z"
+      "status": "aprovado",
+      "createdAt": "2026-07-02T08:00:00.000Z",
+      "moderatedAt": "2026-09-14T15:48:21.965Z"
     },
     {
       "id": 2,
@@ -1469,7 +1486,8 @@
       "context": "Palpite",
       "content": "A final promete campo cheio e jogo disputado.",
       "status": "aprovado",
-      "createdAt": "2026-07-02T09:00:00.000Z"
+      "createdAt": "2026-07-02T09:00:00.000Z",
+      "moderatedAt": "2026-09-14T15:48:22.812Z"
     },
     {
       "id": 3,
@@ -1477,8 +1495,9 @@
       "context": "Noticia",
       "newsId": 2,
       "content": "Que show do Estrela do Sertao! O Francisco das Chagas esta em grande fase.",
-      "status": "pendente",
-      "createdAt": "2026-07-08T10:00:00.000Z"
+      "status": "aprovado",
+      "createdAt": "2026-07-08T10:00:00.000Z",
+      "moderatedAt": "2026-09-14T15:48:23.859Z"
     },
     {
       "id": 4,
@@ -1486,8 +1505,9 @@
       "context": "Noticia",
       "newsId": 3,
       "content": "A lideranca foi merecida, mas o Time da Lagoa ainda briga pelo titulo.",
-      "status": "rejeitado",
-      "createdAt": "2026-07-14T11:00:00.000Z"
+      "status": "aprovado",
+      "createdAt": "2026-07-14T11:00:00.000Z",
+      "moderatedAt": "2026-09-14T15:48:25.028Z"
     },
     {
       "id": 5,
@@ -1496,7 +1516,8 @@
       "newsId": 4,
       "content": "As equipes que quiserem participar podem procurar a organizacao ate o inicio de setembro.",
       "status": "aprovado",
-      "createdAt": "2026-07-15T16:00:00.000Z"
+      "createdAt": "2026-07-15T16:00:00.000Z",
+      "moderatedAt": "2026-09-14T15:48:30.212Z"
     }
   ],
   "favorites": [
@@ -1620,7 +1641,7 @@
       "homeScore": 1,
       "awayScore": 1,
       "createdAt": "2026-08-11T14:30:00.000Z",
-      "updatedAt": "2026-08-11T14:30:00.000Z"
+      "updatedAt": "2026-09-14T15:51:20.265Z"
     },
     {
       "id": 3,
@@ -1647,7 +1668,8 @@
       "matchId": 12,
       "userId": 1,
       "content": "ansiosa para esse jogo",
-      "createdAt": "2026-09-14T15:31:23.429Z"
+      "createdAt": "2026-09-14T15:31:23.429Z",
+      "updatedAt": "2026-09-14T15:36:41.373Z"
     }
   ],
   "notificationPreferences": [
@@ -1702,5 +1724,140 @@
   ],
   "contacts": [],
   "images": [],
-  "auditLogs": []
+  "auditLogs": [
+    {
+      "id": 1,
+      "action": "comment_status_changed",
+      "entityType": "comment",
+      "entityId": 1,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 1,
+        "status": "aprovado",
+        "context": "Noticia",
+        "authorName": "Torcedor da Lagoa"
+      },
+      "createdAt": "2026-09-14T15:48:19.777Z"
+    },
+    {
+      "id": 2,
+      "action": "comment_status_changed",
+      "entityType": "comment",
+      "entityId": 1,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 1,
+        "status": "aprovado",
+        "context": "Noticia",
+        "authorName": "Torcedor da Lagoa"
+      },
+      "createdAt": "2026-09-14T15:48:21.269Z"
+    },
+    {
+      "id": 3,
+      "action": "comment_status_changed",
+      "entityType": "comment",
+      "entityId": 1,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 1,
+        "status": "aprovado",
+        "context": "Noticia",
+        "authorName": "Torcedor da Lagoa"
+      },
+      "createdAt": "2026-09-14T15:48:21.773Z"
+    },
+    {
+      "id": 4,
+      "action": "comment_status_changed",
+      "entityType": "comment",
+      "entityId": 1,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 1,
+        "status": "aprovado",
+        "context": "Noticia",
+        "authorName": "Torcedor da Lagoa"
+      },
+      "createdAt": "2026-09-14T15:48:21.966Z"
+    },
+    {
+      "id": 5,
+      "action": "comment_status_changed",
+      "entityType": "comment",
+      "entityId": 2,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 2,
+        "status": "aprovado",
+        "context": "Palpite",
+        "authorName": "Atleta Comunitario"
+      },
+      "createdAt": "2026-09-14T15:48:22.813Z"
+    },
+    {
+      "id": 6,
+      "action": "comment_status_changed",
+      "entityType": "comment",
+      "entityId": 3,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 3,
+        "status": "aprovado",
+        "context": "Noticia",
+        "authorName": "Torcedor do Sertao"
+      },
+      "createdAt": "2026-09-14T15:48:23.860Z"
+    },
+    {
+      "id": 7,
+      "action": "comment_status_changed",
+      "entityType": "comment",
+      "entityId": 4,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 4,
+        "status": "aprovado",
+        "context": "Noticia",
+        "authorName": "Zeca da Vila"
+      },
+      "createdAt": "2026-09-14T15:48:25.029Z"
+    },
+    {
+      "id": 8,
+      "action": "comment_status_changed",
+      "entityType": "comment",
+      "entityId": 5,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 5,
+        "status": "aprovado",
+        "context": "Noticia",
+        "authorName": "Maria Oliveira"
+      },
+      "createdAt": "2026-09-14T15:48:30.213Z"
+    },
+    {
+      "id": 9,
+      "action": "athlete_created",
+      "entityType": "athlete",
+      "entityId": 45,
+      "userId": 1,
+      "userName": "Administrador",
+      "details": {
+        "entityId": 45,
+        "athleteName": "Pedro Henrique Nascimento Barros",
+        "teamId": 7
+      },
+      "createdAt": "2026-09-14T15:50:17.794Z"
+    }
+  ]
 }
