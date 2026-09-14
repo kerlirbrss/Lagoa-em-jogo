@@ -51,10 +51,10 @@ describe("Testes unitarios - placares e vencedores", () => {
 describe("Testes unitarios - estatisticas automaticas", () => {
   test("getAutomaticTeamStats soma pontos do campeonato", () => {
     const stats = t.getAutomaticTeamStats(db, 3);
-    assert.equal(stats.matches, 2);
-    assert.equal(stats.wins, 2);
-    assert.equal(stats.points, 6);
-    assert.ok(stats.goalsFor >= 6);
+    assert.equal(stats.matches, 3);
+    assert.equal(stats.wins, 3);
+    assert.equal(stats.points, 9);
+    assert.ok(stats.goalsFor >= 9);
   });
 
   test("getChampionshipStatistics ordena classificacao e artilharia", () => {

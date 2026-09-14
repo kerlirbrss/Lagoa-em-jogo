@@ -119,14 +119,14 @@ describe("Testes de permissoes", () => {
 
   test("palpites exigem autenticacao (401)", async () => {
     const client = createClient(server.baseUrl);
-    const res = await client.req("POST", "/api/predictions", { matchId: 7, homeScore: 1, awayScore: 0 });
+    const res = await client.req("POST", "/api/predictions", { matchId: 9, homeScore: 1, awayScore: 0 });
     assert.equal(res.status, 401);
   });
 
   test("usuario autenticado registra palpite em jogo agendado", async () => {
     const client = createClient(server.baseUrl);
     await loginAs(client, "pedro@lagoaemjogo.local", "pedro123");
-    const res = await client.req("POST", "/api/predictions", { matchId: 7, homeScore: 2, awayScore: 1 });
+    const res = await client.req("POST", "/api/predictions", { matchId: 9, homeScore: 2, awayScore: 1 });
     assert.ok([200, 201].includes(res.status));
   });
 

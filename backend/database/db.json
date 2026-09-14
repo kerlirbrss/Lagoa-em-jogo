@@ -136,15 +136,15 @@
     {
       "id": 2,
       "name": "Copa Lagoa",
-      "status": "inscricoes",
+      "status": "em_andamento",
       "season": "2026",
-      "startDate": "2026-09-19",
-      "endDate": "2026-11-01",
+      "startDate": "2026-08-30",
+      "endDate": "2026-10-05",
       "description": "Copa aberta para times locais de Lagoa de Sao Francisco.",
-      "regulation": "Inscricoes abertas para equipes e atletas da regiao.",
+      "regulation": "Quatro equipos en turno unico. Los dos mejores pasan a la final; el vencedor define el campeon y recibe la premiacion oficial.",
       "awards": "Premiacao para o campeao, com trofeu e medalhas.",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-10T12:00:00.000Z"
+      "updatedAt": "2026-09-01T10:00:00.000Z"
     },
     {
       "id": 3,
@@ -183,12 +183,12 @@
       "foundedYear": "2018",
       "coach": "Marcos Aurelio",
       "colors": "Azul e branco",
-      "squad": "Joao Victor Sousa, Pedro Henrique Souza, Antonio Carlos",
-      "upcomingMatches": "Rodada 3 x Vila Nova FC",
-      "recentResults": "V 2x1 Unidos do Campo | D 2x3 Estrela do Sertao",
+      "squad": "Joao Victor Sousa, Pedro Henrique Souza, Antonio Carlos, Roberto Fernandes Gomes, Diego Tavares",
+      "upcomingMatches": "",
+      "recentResults": "V 2x1 Vila Nova FC | D 2x3 Estrela do Sertao | V 2x1 Unidos do Campo",
       "gallery": "",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 2,
@@ -199,12 +199,12 @@
       "foundedYear": "2015",
       "coach": "Raimundo Nonato",
       "colors": "Verde e amarelo",
-      "squad": "Carlos Henrique Lima, Rafael Alves, Josue Pereira",
+      "squad": "Carlos Henrique Lima, Rafael Alves, Josue Pereira, Nilo Brandao, Oscar Taranto",
       "upcomingMatches": "Rodada 3 x Saudade FC",
       "recentResults": "D 1x2 Time da Lagoa | V 2x0 Boa Esperanca EC",
       "gallery": "",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 3,
@@ -215,12 +215,12 @@
       "foundedYear": "2019",
       "coach": "Francisco das Chagas",
       "colors": "Amarelo e preto",
-      "squad": "Lucas Gabriel Moura, Igor Ferreira, Caio Vinicius",
-      "upcomingMatches": "Rodada 3 x Boa Esperanca EC",
-      "recentResults": "V 3x0 Vila Nova FC | V 3x2 Time da Lagoa",
+      "squad": "Lucas Gabriel Moura, Igor Ferreira, Caio Vinicius, Jorge Andres Pena, Samuel Cortes",
+      "upcomingMatches": "",
+      "recentResults": "V 3x1 Boa Esperanca EC | V 3x2 Time da Lagoa | V 3x0 Vila Nova FC",
       "gallery": "",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 4,
@@ -231,12 +231,12 @@
       "foundedYear": "2016",
       "coach": "Sebastiao Alves",
       "colors": "Vermelho e branco",
-      "squad": "Antonio Marcos Silva, Bruno Cesar Melo, Davi Henrique",
-      "upcomingMatches": "Rodada 3 x Time da Lagoa",
-      "recentResults": "D 0x3 Estrela do Sertao | D 1x2 Saudade FC",
+      "squad": "Antonio Marcos Silva, Bruno Cesar Melo, Davi Henrique, Ricardo Montoya, Esteban Salazar",
+      "upcomingMatches": "",
+      "recentResults": "D 1x2 Time da Lagoa | D 1x2 Saudade FC | D 0x3 Estrela do Sertao",
       "gallery": "",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 5,
@@ -247,12 +247,12 @@
       "foundedYear": "2014",
       "coach": "Jose Carlos Rodrigues",
       "colors": "Azul celeste",
-      "squad": "Daniel Rodrigues, Eduardo Lima Neto, Felipe Souza",
-      "upcomingMatches": "Rodada 3 x Estrela do Sertao",
-      "recentResults": "E 1x1 Saudade FC | D 0x2 Unidos do Campo",
+      "squad": "Daniel Rodrigues, Eduardo Lima Neto, Felipe Souza, Andres Felipe Rojas, Mauricio Lozano",
+      "upcomingMatches": "",
+      "recentResults": "D 1x3 Estrela do Sertao | D 0x2 Unidos do Campo | E 1x1 Saudade FC",
       "gallery": "",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 6,
@@ -263,12 +263,12 @@
       "foundedYear": "2017",
       "coach": "Antonio Neto",
       "colors": "Preto e branco",
-      "squad": "Gabriel Soares, Mateus Oliveira, Renan Castro",
+      "squad": "Gabriel Soares, Mateus Oliveira, Renan Castro, Cristian Zapata, Ivan Dario Munoz",
       "upcomingMatches": "Rodada 3 x Unidos do Campo",
       "recentResults": "E 1x1 Boa Esperanca EC | V 2x1 Vila Nova FC",
       "gallery": "",
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 7,
@@ -279,12 +279,12 @@
       "foundedYear": "2013",
       "coach": "Raimundo Sousa",
       "colors": "Branco e verde",
-      "squad": "Igor Ferreira, Natan Lima, Weverton Silva",
-      "upcomingMatches": "",
-      "recentResults": "",
+      "squad": "Igor Ferreira, Natan Lima, Weverton Silva, Dario Quintero, Juan Carlos Moreno",
+      "upcomingMatches": "Rodada 2 x Deportivo Municipal",
+      "recentResults": "V 2x1 Juventude do Riacho",
       "gallery": "",
       "createdAt": "2026-07-05T00:00:00.000Z",
-      "updatedAt": "2026-07-05T00:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 8,
@@ -295,12 +295,44 @@
       "foundedYear": "2015",
       "coach": "Paulo Sergio Araujo",
       "colors": "Amarelo e azul",
-      "squad": "Otavio Reis, Paulo Sergio Nunes, Lindomar Costa",
-      "upcomingMatches": "",
-      "recentResults": "",
+      "squad": "Otavio Reis, Paulo Sergio Nunes, Lindomar Costa, Camilo Perez, Esteban Vargas",
+      "upcomingMatches": "Rodada 2 x Atletico Boqueirao",
+      "recentResults": "D 1x2 Atletico Cabeceiras",
       "gallery": "",
       "createdAt": "2026-07-05T00:00:00.000Z",
-      "updatedAt": "2026-07-05T00:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "name": "Deportivo Municipal",
+      "championshipId": 2,
+      "community": "Centro",
+      "crestUrl": "",
+      "foundedYear": "2012",
+      "coach": "Hilario Campos",
+      "colors": "Verde y blanco",
+      "squad": "Marco Rios, Henry Sandoval, Edison Prieto, Jhonatan Caceres, Fredy Duarte",
+      "upcomingMatches": "Rodada 2 x Atletico Cabeceiras",
+      "recentResults": "E 1x1 Atletico Boqueirao",
+      "gallery": "",
+      "createdAt": "2026-08-10T10:00:00.000Z",
+      "updatedAt": "2026-09-01T10:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "name": "Atletico Boqueirao",
+      "championshipId": 2,
+      "community": "Boqueirao",
+      "crestUrl": "",
+      "foundedYear": "2011",
+      "coach": "Victor Manuel Roca",
+      "colors": "Rojo y negro",
+      "squad": "Wilmer Bernal, Nestor Sanabria, Alvaro Castaneda, Jhimy Ortiz, Carlos Villamil",
+      "upcomingMatches": "Rodada 2 x Juventude do Riacho",
+      "recentResults": "E 1x1 Deportivo Municipal",
+      "gallery": "",
+      "createdAt": "2026-08-10T10:00:00.000Z",
+      "updatedAt": "2026-09-01T10:00:00.000Z"
     }
   ],
   "athletes": [
@@ -312,13 +344,13 @@
       "position": "Atacante",
       "age": "24",
       "stats": {
-        "matches": 2,
+        "matches": 3,
         "goals": 3,
         "yellowCards": 0,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 2,
@@ -328,13 +360,13 @@
       "position": "Meia",
       "age": "26",
       "stats": {
-        "matches": 2,
+        "matches": 3,
         "goals": 1,
         "yellowCards": 1,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 3,
@@ -376,13 +408,13 @@
       "position": "Atacante",
       "age": "31",
       "stats": {
-        "matches": 2,
+        "matches": 3,
         "goals": 5,
         "yellowCards": 0,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 6,
@@ -392,13 +424,13 @@
       "position": "Meia",
       "age": "22",
       "stats": {
-        "matches": 2,
+        "matches": 3,
         "goals": 3,
         "yellowCards": 1,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 7,
@@ -408,13 +440,13 @@
       "position": "Goleiro",
       "age": "23",
       "stats": {
-        "matches": 2,
+        "matches": 3,
         "goals": 0,
         "yellowCards": 0,
         "redCards": 1
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 8,
@@ -424,13 +456,13 @@
       "position": "Lateral",
       "age": "25",
       "stats": {
-        "matches": 2,
+        "matches": 3,
         "goals": 1,
         "yellowCards": 2,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 9,
@@ -440,13 +472,13 @@
       "position": "Atacante",
       "age": "28",
       "stats": {
-        "matches": 2,
+        "matches": 3,
         "goals": 4,
         "yellowCards": 1,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 10,
@@ -456,13 +488,13 @@
       "position": "Volante",
       "age": "24",
       "stats": {
-        "matches": 2,
+        "matches": 3,
         "goals": 0,
         "yellowCards": 1,
         "redCards": 0
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
-      "updatedAt": "2026-07-13T21:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     },
     {
       "id": 11,
@@ -495,6 +527,518 @@
       },
       "createdAt": "2026-07-01T00:00:00.000Z",
       "updatedAt": "2026-07-13T21:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "fullName": "Roberto Fernandes Gomes",
+      "photoUrl": "",
+      "teamId": 1,
+      "position": "Goleiro",
+      "age": "25",
+      "stats": {
+        "matches": 3,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "fullName": "Diego Tavares",
+      "photoUrl": "",
+      "teamId": 1,
+      "position": "Lateral",
+      "age": "22",
+      "stats": {
+        "matches": 3,
+        "goals": 2,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 15,
+      "fullName": "Nilo Brandao",
+      "photoUrl": "",
+      "teamId": 2,
+      "position": "Lateral",
+      "age": "28",
+      "stats": {
+        "matches": 2,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 16,
+      "fullName": "Oscar Taranto",
+      "photoUrl": "",
+      "teamId": 2,
+      "position": "Goleiro",
+      "age": "24",
+      "stats": {
+        "matches": 2,
+        "goals": 1,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 17,
+      "fullName": "Jorge Andres Pena",
+      "photoUrl": "",
+      "teamId": 3,
+      "position": "Zagueiro",
+      "age": "27",
+      "stats": {
+        "matches": 3,
+        "goals": 1,
+        "yellowCards": 0,
+        "redCards": 1
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 18,
+      "fullName": "Samuel Cortes",
+      "photoUrl": "",
+      "teamId": 3,
+      "position": "Lateral",
+      "age": "23",
+      "stats": {
+        "matches": 3,
+        "goals": 0,
+        "yellowCards": 2,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 19,
+      "fullName": "Ricardo Montoya",
+      "photoUrl": "",
+      "teamId": 4,
+      "position": "Volante",
+      "age": "26",
+      "stats": {
+        "matches": 3,
+        "goals": 1,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 20,
+      "fullName": "Esteban Salazar",
+      "photoUrl": "",
+      "teamId": 4,
+      "position": "Meia",
+      "age": "24",
+      "stats": {
+        "matches": 3,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 21,
+      "fullName": "Andres Felipe Rojas",
+      "photoUrl": "",
+      "teamId": 5,
+      "position": "Goleiro",
+      "age": "29",
+      "stats": {
+        "matches": 3,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 22,
+      "fullName": "Mauricio Lozano",
+      "photoUrl": "",
+      "teamId": 5,
+      "position": "Zagueiro",
+      "age": "27",
+      "stats": {
+        "matches": 3,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 1
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 23,
+      "fullName": "Cristian Zapata",
+      "photoUrl": "",
+      "teamId": 6,
+      "position": "Atacante",
+      "age": "22",
+      "stats": {
+        "matches": 2,
+        "goals": 2,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 24,
+      "fullName": "Ivan Dario Munoz",
+      "photoUrl": "",
+      "teamId": 6,
+      "position": "Lateral",
+      "age": "25",
+      "stats": {
+        "matches": 2,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 25,
+      "fullName": "Igor Ferreira",
+      "photoUrl": "",
+      "teamId": 7,
+      "position": "Atacante",
+      "age": "26",
+      "stats": {
+        "matches": 1,
+        "goals": 2,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 26,
+      "fullName": "Natan Lima",
+      "photoUrl": "",
+      "teamId": 7,
+      "position": "Meia",
+      "age": "24",
+      "stats": {
+        "matches": 1,
+        "goals": 1,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 27,
+      "fullName": "Weverton Silva",
+      "photoUrl": "",
+      "teamId": 7,
+      "position": "Goleiro",
+      "age": "28",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 28,
+      "fullName": "Dario Quintero",
+      "photoUrl": "",
+      "teamId": 7,
+      "position": "Zagueiro",
+      "age": "27",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 29,
+      "fullName": "Juan Carlos Moreno",
+      "photoUrl": "",
+      "teamId": 7,
+      "position": "Lateral",
+      "age": "23",
+      "stats": {
+        "matches": 1,
+        "goals": 1,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 30,
+      "fullName": "Otavio Reis",
+      "photoUrl": "",
+      "teamId": 8,
+      "position": "Atacante",
+      "age": "25",
+      "stats": {
+        "matches": 1,
+        "goals": 1,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 31,
+      "fullName": "Paulo Sergio Nunes",
+      "photoUrl": "",
+      "teamId": 8,
+      "position": "Goleiro",
+      "age": "30",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 32,
+      "fullName": "Lindomar Costa",
+      "photoUrl": "",
+      "teamId": 8,
+      "position": "Volante",
+      "age": "27",
+      "stats": {
+        "matches": 1,
+        "goals": 1,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 33,
+      "fullName": "Camilo Perez",
+      "photoUrl": "",
+      "teamId": 8,
+      "position": "Zagueiro",
+      "age": "24",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 34,
+      "fullName": "Esteban Vargas",
+      "photoUrl": "",
+      "teamId": 8,
+      "position": "Meia",
+      "age": "22",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 35,
+      "fullName": "Marco Rios",
+      "photoUrl": "",
+      "teamId": 9,
+      "position": "Goleiro",
+      "age": "31",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 36,
+      "fullName": "Henry Sandoval",
+      "photoUrl": "",
+      "teamId": 9,
+      "position": "Atacante",
+      "age": "26",
+      "stats": {
+        "matches": 1,
+        "goals": 1,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 37,
+      "fullName": "Edison Prieto",
+      "photoUrl": "",
+      "teamId": 9,
+      "position": "Lateral",
+      "age": "24",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 38,
+      "fullName": "Jhonatan Caceres",
+      "photoUrl": "",
+      "teamId": 9,
+      "position": "Meia",
+      "age": "28",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 39,
+      "fullName": "Fredy Duarte",
+      "photoUrl": "",
+      "teamId": 9,
+      "position": "Zagueiro",
+      "age": "29",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 1
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 40,
+      "fullName": "Wilmer Bernal",
+      "photoUrl": "",
+      "teamId": 10,
+      "position": "Atacante",
+      "age": "27",
+      "stats": {
+        "matches": 1,
+        "goals": 2,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 41,
+      "fullName": "Nestor Sanabria",
+      "photoUrl": "",
+      "teamId": 10,
+      "position": "Goleiro",
+      "age": "33",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 42,
+      "fullName": "Alvaro Castaneda",
+      "photoUrl": "",
+      "teamId": 10,
+      "position": "Volante",
+      "age": "25",
+      "stats": {
+        "matches": 1,
+        "goals": 1,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 43,
+      "fullName": "Jhimy Ortiz",
+      "photoUrl": "",
+      "teamId": 10,
+      "position": "Zagueiro",
+      "age": "26",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 1,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
+    },
+    {
+      "id": 44,
+      "fullName": "Carlos Villamil",
+      "photoUrl": "",
+      "teamId": 10,
+      "position": "Lateral",
+      "age": "23",
+      "stats": {
+        "matches": 1,
+        "goals": 0,
+        "yellowCards": 0,
+        "redCards": 0
+      },
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-13T20:00:00.000Z"
     }
   ],
   "matches": [
@@ -625,18 +1169,18 @@
       "round": "Rodada 3",
       "homeTeamId": 1,
       "awayTeamId": 4,
-      "date": "2026-08-16",
+      "date": "2026-09-12",
       "time": "16:00",
       "field": "Campo municipal",
       "location": "Centro, Lagoa de Sao Francisco - PI",
       "score": {
-        "home": "",
-        "away": ""
+        "home": 2,
+        "away": 1
       },
-      "status": "agendado",
-      "closedAt": null,
+      "status": "encerrado",
+      "closedAt": "2026-09-12T17:45:00.000Z",
       "createdAt": "2026-07-14T00:00:00.000Z",
-      "updatedAt": "2026-07-14T00:00:00.000Z"
+      "updatedAt": "2026-09-12T17:45:00.000Z"
     },
     {
       "id": 8,
@@ -645,18 +1189,18 @@
       "round": "Rodada 3",
       "homeTeamId": 3,
       "awayTeamId": 5,
-      "date": "2026-08-17",
+      "date": "2026-09-13",
       "time": "16:00",
       "field": "Campo municipal",
       "location": "Centro, Lagoa de Sao Francisco - PI",
       "score": {
-        "home": "",
-        "away": ""
+        "home": 3,
+        "away": 1
       },
-      "status": "agendado",
-      "closedAt": null,
+      "status": "encerrado",
+      "closedAt": "2026-09-13T17:45:00.000Z",
       "createdAt": "2026-07-14T00:00:00.000Z",
-      "updatedAt": "2026-07-14T00:00:00.000Z"
+      "updatedAt": "2026-09-13T17:45:00.000Z"
     },
     {
       "id": 9,
@@ -665,7 +1209,7 @@
       "round": "Rodada 3",
       "homeTeamId": 6,
       "awayTeamId": 2,
-      "date": "2026-08-17",
+      "date": "2026-09-19",
       "time": "17:30",
       "field": "Campo municipal",
       "location": "Centro, Lagoa de Sao Francisco - PI",
@@ -676,15 +1220,95 @@
       "status": "agendado",
       "closedAt": null,
       "createdAt": "2026-07-14T00:00:00.000Z",
-      "updatedAt": "2026-07-14T00:00:00.000Z"
+      "updatedAt": "2026-09-14T10:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "championshipId": 2,
+      "stage": "Primeira fase",
+      "round": "Rodada 1",
+      "homeTeamId": 7,
+      "awayTeamId": 8,
+      "date": "2026-09-05",
+      "time": "16:00",
+      "field": "Campo municipal",
+      "location": "Centro, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": 2,
+        "away": 1
+      },
+      "status": "encerrado",
+      "closedAt": "2026-09-05T17:45:00.000Z",
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-05T17:45:00.000Z"
+    },
+    {
+      "id": 11,
+      "championshipId": 2,
+      "stage": "Primeira fase",
+      "round": "Rodada 1",
+      "homeTeamId": 9,
+      "awayTeamId": 10,
+      "date": "2026-09-06",
+      "time": "15:00",
+      "field": "Campo do Boqueirao",
+      "location": "Boqueirao, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": 1,
+        "away": 1
+      },
+      "status": "encerrado",
+      "closedAt": "2026-09-06T16:45:00.000Z",
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-06T16:45:00.000Z"
+    },
+    {
+      "id": 12,
+      "championshipId": 2,
+      "stage": "Primeira fase",
+      "round": "Rodada 2",
+      "homeTeamId": 7,
+      "awayTeamId": 9,
+      "date": "2026-09-19",
+      "time": "16:00",
+      "field": "Campo municipal",
+      "location": "Centro, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": "",
+        "away": ""
+      },
+      "status": "agendado",
+      "closedAt": null,
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-14T10:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "championshipId": 2,
+      "stage": "Primeira fase",
+      "round": "Rodada 2",
+      "homeTeamId": 8,
+      "awayTeamId": 10,
+      "date": "2026-09-20",
+      "time": "15:00",
+      "field": "Campo del Riacho",
+      "location": "Riacho Grande, Lagoa de Sao Francisco - PI",
+      "score": {
+        "home": "",
+        "away": ""
+      },
+      "status": "agendado",
+      "closedAt": null,
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "updatedAt": "2026-09-14T10:00:00.000Z"
     }
   ],
   "featuredMatches": [
     {
       "id": 1,
-      "homeTeam": "Time da Lagoa",
-      "awayTeam": "Vila Nova FC",
-      "date": "2026-08-16",
+      "homeTeam": "Saudade FC",
+      "awayTeam": "Unidos do Campo",
+      "date": "2026-09-19",
       "field": "Campo municipal"
     }
   ],
@@ -884,13 +1508,6 @@
       "createdAt": "2026-07-02T10:00:00.000Z"
     },
     {
-      "id": 2,
-      "userId": 1,
-      "type": "campeonato",
-      "itemId": 1,
-      "createdAt": "2026-07-02T10:05:00.000Z"
-    },
-    {
       "id": 3,
       "userId": 4,
       "type": "time",
@@ -903,6 +1520,13 @@
       "type": "campeonato",
       "itemId": 2,
       "createdAt": "2026-07-04T11:10:00.000Z"
+    },
+    {
+      "id": 5,
+      "userId": 1,
+      "type": "campeonato",
+      "itemId": 1,
+      "createdAt": "2026-09-14T15:33:47.459Z"
     }
   ],
   "notifications": [
@@ -922,13 +1546,13 @@
       "id": 2,
       "userId": 4,
       "type": "proximo_jogo",
-      "title": "Proximo jogo: Estrela do Sertao x Boa Esperanca EC",
-      "message": "Estrela do Sertao x Boa Esperanca EC (Primeira fase - Rodada 3) em 2026-08-17 as 16:00 no Campo municipal.",
+      "title": "Proximo jogo: Saudade FC x Unidos do Campo",
+      "message": "Saudade FC x Unidos do Campo (Primeira fase - Rodada 3) em 2026-09-19 as 17:30 no Campo municipal.",
       "contextType": "jogo",
-      "contextId": 8,
-      "contextLabel": "Estrela do Sertao x Boa Esperanca EC",
+      "contextId": 9,
+      "contextLabel": "Saudade FC x Unidos do Campo",
       "isRead": false,
-      "createdAt": "2026-07-14T19:00:00.000Z"
+      "createdAt": "2026-09-13T18:00:00.000Z"
     },
     {
       "id": 3,
@@ -958,13 +1582,13 @@
       "id": 5,
       "userId": 1,
       "type": "proximo_jogo",
-      "title": "Proximo jogo: Time da Lagoa x Vila Nova FC",
-      "message": "Time da Lagoa x Vila Nova FC (Primeira fase - Rodada 3) em 2026-08-16 as 16:00 no Campo municipal.",
+      "title": "Proximo jogo: Atletico Cabeceiras x Deportivo Municipal",
+      "message": "Atletico Cabeceiras x Deportivo Municipal (Primeira fase - Rodada 2) em 2026-09-19 as 16:00 no Campo municipal.",
       "contextType": "jogo",
-      "contextId": 7,
-      "contextLabel": "Time da Lagoa x Vila Nova FC",
+      "contextId": 12,
+      "contextLabel": "Atletico Cabeceiras x Deportivo Municipal",
       "isRead": true,
-      "createdAt": "2026-07-14T18:00:00.000Z"
+      "createdAt": "2026-09-13T18:30:00.000Z"
     },
     {
       "id": 6,
@@ -983,7 +1607,7 @@
     {
       "id": 1,
       "userId": 4,
-      "matchId": 7,
+      "matchId": 9,
       "homeScore": 2,
       "awayScore": 1,
       "createdAt": "2026-08-10T12:00:00.000Z",
@@ -992,21 +1616,38 @@
     {
       "id": 2,
       "userId": 1,
-      "matchId": 7,
+      "matchId": 9,
       "homeScore": 1,
       "awayScore": 1,
       "createdAt": "2026-08-11T14:30:00.000Z",
       "updatedAt": "2026-08-11T14:30:00.000Z"
+    },
+    {
+      "id": 3,
+      "userId": 1,
+      "matchId": 12,
+      "homeScore": 4,
+      "awayScore": 1,
+      "createdAt": "2026-09-14T15:30:56.548Z",
+      "updatedAt": "2026-09-14T15:30:56.548Z"
     }
   ],
   "predictionComments": [
     {
       "id": 1,
       "predictionId": 1,
-      "matchId": 7,
+      "matchId": 9,
       "userId": 4,
       "content": "Acredito em uma partida equilibrada, mas a Lagoa joga forte em casa.",
       "createdAt": "2026-08-10T12:02:00.000Z"
+    },
+    {
+      "id": 2,
+      "predictionId": 3,
+      "matchId": 12,
+      "userId": 1,
+      "content": "ansiosa para esse jogo",
+      "createdAt": "2026-09-14T15:31:23.429Z"
     }
   ],
   "notificationPreferences": [
