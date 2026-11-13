@@ -333,6 +333,20 @@
       "gallery": "",
       "createdAt": "2026-08-10T10:00:00.000Z",
       "updatedAt": "2026-09-01T10:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "name": "Cipó",
+      "championshipId": 1,
+      "community": "",
+      "crestUrl": "",
+      "foundedYear": "",
+      "coach": "",
+      "colors": "",
+      "squad": "",
+      "upcomingMatches": "",
+      "recentResults": "",
+      "gallery": ""
     }
   ],
   "athletes": [
@@ -1055,6 +1069,118 @@
       },
       "createdAt": "2026-09-14T15:50:17.792Z",
       "updatedAt": "2026-09-14T15:50:17.792Z"
+    },
+    {
+      "id": 46,
+      "fullName": "Pedro Henrique",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "MC"
+    },
+    {
+      "id": 47,
+      "fullName": "Luiz Fernando",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "ATA"
+    },
+    {
+      "id": 48,
+      "fullName": "Samuel",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "LD"
+    },
+    {
+      "id": 49,
+      "fullName": "Ivanildo",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "ATA"
+    },
+    {
+      "id": 50,
+      "fullName": "Mael",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "ZAG"
+    },
+    {
+      "id": 51,
+      "fullName": "Valdenir",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "VOL"
+    },
+    {
+      "id": 52,
+      "fullName": "Arimatéia",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "MC"
+    },
+    {
+      "id": 53,
+      "fullName": "Toim Chico",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "ZAG"
+    },
+    {
+      "id": 54,
+      "fullName": "Babao",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "VOL"
+    },
+    {
+      "id": 55,
+      "fullName": "Douglas",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "LD"
+    },
+    {
+      "id": 56,
+      "fullName": "Eric",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "LD"
+    },
+    {
+      "id": 57,
+      "fullName": "Carlos Eduardo",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "GOL"
+    },
+    {
+      "id": 58,
+      "fullName": "Ayrton?",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "MC"
+    },
+    {
+      "id": 59,
+      "fullName": "Zeca",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "ZAG"
+    },
+    {
+      "id": 60,
+      "fullName": "Jailson",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "ATA"
+    },
+    {
+      "id": 61,
+      "fullName": "Guilherme",
+      "photoUrl": "",
+      "teamId": 11,
+      "position": "MC"
     }
   ],
   "matches": [
