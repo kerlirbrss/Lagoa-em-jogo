@@ -347,7 +347,8 @@
       "upcomingMatches": "",
       "recentResults": "",
       "gallery": ""
-    }
+    },
+    {"id":12,"name":"Cabeceiras","championshipId":null,"community":"Cabeceiras","crestUrl":"","foundedYear":"","coach":"","colors":"","squad":"Dêdê, Vieira, Erasmo, Kaynan, Antônio Pinto, Cosme, Vinicius, Yllan, Baloteli, Jailson, João Paulo, Mairan, Washington, Samuel","upcomingMatches":"","recentResults":"","gallery":"","createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"}
   ],
   "athletes": [
     {
@@ -1181,7 +1182,21 @@
       "photoUrl": "",
       "teamId": 11,
       "position": "MC"
-    }
+    },
+    {"id":62,"fullName":"Dêdê","photoUrl":"","teamId":12,"position":"GOL","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":63,"fullName":"Vieira","photoUrl":"","teamId":12,"position":"ZAG","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":64,"fullName":"Erasmo","photoUrl":"","teamId":12,"position":"ZAG","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":65,"fullName":"Kaynan","photoUrl":"","teamId":12,"position":"LD","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":66,"fullName":"Antônio Pinto","photoUrl":"","teamId":12,"position":"LE","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":67,"fullName":"Cosme","photoUrl":"","teamId":12,"position":"VOL","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":68,"fullName":"Vinicius","photoUrl":"","teamId":12,"position":"VOL","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":69,"fullName":"Yllan","photoUrl":"","teamId":12,"position":"MC","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":70,"fullName":"Baloteli","photoUrl":"","teamId":12,"position":"MC","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":71,"fullName":"Jailson","photoUrl":"","teamId":12,"position":"MC","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":72,"fullName":"João Paulo","photoUrl":"","teamId":12,"position":"MC","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":73,"fullName":"Mairan","photoUrl":"","teamId":12,"position":"ATA","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":74,"fullName":"Washington","photoUrl":"","teamId":12,"position":"ATA","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"},
+    {"id":75,"fullName":"Samuel","photoUrl":"","teamId":12,"position":"ATA","age":"","stats":{"matches":0,"goals":0,"yellowCards":0,"redCards":0},"createdAt":"2026-11-14T15:04:57.751Z","updatedAt":"2026-11-14T15:04:57.751Z"}
   ],
   "matches": [
     {

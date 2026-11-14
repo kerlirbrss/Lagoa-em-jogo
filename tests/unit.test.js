@@ -120,6 +120,12 @@ describe("Testes unitarios - validacao de payloads", () => {
     assert.ok(result.error);
   });
 
+  test("validateTeamPayload permite time sem campeonato definido", () => {
+    const result = t.validateTeamPayload(db, { name: "Cabeceiras", championshipId: null, community: "Cabeceiras" });
+    assert.equal(result.error, undefined);
+    assert.equal(result.team.championshipId, null);
+  });
+
   test("validateMatchPayload rejeita jogo encerrado sem placar", () => {
     const result = t.validateMatchPayload(db, {
       championshipId: 1,

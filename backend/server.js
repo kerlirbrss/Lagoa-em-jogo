@@ -69,6 +69,16 @@ function ensureDatabaseFile() {
     fs.mkdirSync(directory, { recursive: true });
   }
 
+  // Em deploys, LEJ_DB_PATH pode apontar para um volume vazio. Inicialize
+  // esse volume com o banco versionado (incluindo os dados cadastrados), em
+  // vez de criar um banco vazio. Bancos que ja existem nunca sao substituidos.
+  const bundledDatabasePath = path.join(__dirname, "database", "db.json");
+  if (path.resolve(DB_PATH) !== path.resolve(bundledDatabasePath) && fs.existsSync(bundledDatabasePath)) {
+    fs.copyFileSync(bundledDatabasePath, DB_PATH);
+    console.log(`[${NODE_ENV}] Banco inicial copiado para ${DB_PATH}.`);
+    return;
+  }
+
   const baseDatabase = {
     settings: {
       appName: "Lagoa em Jogo",
@@ -761,13 +771,16 @@ function getDefaultTeamStats(stats = {}) {
 }
 
 function getPublicTeam(team, database) {
-  const championship = findChampionshipById(database, Number(team.championshipId));
+  const championshipId = team.championshipId === null || team.championshipId === ""
+    ? null
+    : Number(team.championshipId);
+  const championship = championshipId === null ? null : findChampionshipById(database, championshipId);
 
   return {
     id: team.id,
     name: team.name,
-    championshipId: Number(team.championshipId),
-    championshipName: championship ? championship.name : "Campeonato nao encontrado",
+    championshipId,
+    championshipName: championship ? championship.name : "Sem campeonato definido",
     community: team.community,
     crestUrl: team.crestUrl || "",
     foundedYear: team.foundedYear || "",
@@ -1338,7 +1351,10 @@ function validateChampionshipPayload(body, currentChampionship = {}) {
 }
 
 function validateTeamPayload(database, body, currentTeam = {}) {
-  const championshipId = Number(body.championshipId ?? currentTeam.championshipId);
+  const rawChampionshipId = body.championshipId !== undefined ? body.championshipId : currentTeam.championshipId;
+  const championshipId = rawChampionshipId === null || rawChampionshipId === ""
+    ? null
+    : Number(rawChampionshipId);
   const team = {
     name: normalizeText(body.name ?? currentTeam.name),
     championshipId,
@@ -1362,7 +1378,7 @@ function validateTeamPayload(database, body, currentTeam = {}) {
     return { error: "Informe a comunidade do time." };
   }
 
-  if (!findChampionshipById(database, team.championshipId)) {
+  if (team.championshipId !== null && !findChampionshipById(database, team.championshipId)) {
     return { error: "Campeonato do time nao encontrado." };
   }
 
