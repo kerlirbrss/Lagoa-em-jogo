@@ -1793,6 +1793,7 @@ textarea {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   gap: 3px;
   min-height: 56px;
   padding: 6px 4px;
@@ -1802,11 +1803,16 @@ textarea {
   cursor: pointer;
   font-size: 0.68rem;
   font-weight: 800;
+  line-height: 1.1;
+  touch-action: manipulation;
 }
 
-.bottom-nav a svg {
+.bottom-nav svg {
+  display: block;
+  flex: 0 0 22px;
   width: 22px;
   height: 22px;
+  stroke-width: 1.8;
 }
 
 .bottom-nav a:hover,
