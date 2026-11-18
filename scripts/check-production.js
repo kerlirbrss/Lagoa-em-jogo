@@ -33,6 +33,10 @@ const REQUIRED_COLLECTIONS = [
   "featuredMatches"
 ];
 
+// Colecoes publicas que precisam vir com dados de demonstracao no primeiro
+// deploy. Volumes persistentes ja existentes nao sao sobrescritos pelo servidor.
+const SEEDED_COLLECTIONS = ["championships", "teams", "athletes", "matches", "news", "galleries"];
+
 const REQUIRED_FILES = [
   "backend/server.js",
   "frontend/index.html",
@@ -95,6 +99,17 @@ async function runProductionChecks({ dbPath, checkUrl } = {}) {
         "banco_colecoes",
         collectionsOk,
         collectionsOk ? "Colecoes principais presentes" : `Colecoes ausentes: ${problems.join(", ")}`
+      );
+
+      const emptySeedCollections = SEEDED_COLLECTIONS.filter(
+        (collection) => !Array.isArray(database[collection]) || database[collection].length === 0
+      );
+      record(
+        "banco_dados_demo",
+        emptySeedCollections.length === 0,
+        emptySeedCollections.length === 0
+          ? `Dados de demonstracao presentes: ${SEEDED_COLLECTIONS.map((collection) => `${collection}=${database[collection].length}`).join(", ")}`
+          : `Colecoes sem dados de demonstracao: ${emptySeedCollections.join(", ")}`
       );
     } catch (error) {
       record("banco_colecoes", false, `JSON invalido: ${error.message}`);
