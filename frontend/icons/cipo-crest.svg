@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Escudo do Cipó Futebol Clube">
+  <defs>
+    <radialGradient id="disc" cx="45%" cy="38%" r="70%"><stop stop-color="#343a3c"/><stop offset=".7" stop-color="#171b1d"/><stop offset="1" stop-color="#080b0c"/></radialGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#fff080"/><stop offset=".45" stop-color="#e8a900"/><stop offset="1" stop-color="#9b5800"/></linearGradient>
+    <linearGradient id="red" x2="0" y2="1"><stop stop-color="#ff4432"/><stop offset="1" stop-color="#c90000"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000" flood-opacity=".8"/></filter>
+  </defs>
+  <circle cx="300" cy="300" r="286" fill="#080a0b" stroke="#555b5c" stroke-width="8"/>
+  <circle cx="300" cy="300" r="265" fill="url(#disc)" stroke="#101416" stroke-width="8"/>
+  <g fill="url(#gold)" stroke="#6e4500" stroke-width="2" filter="url(#shadow)">
+    <path d="M300 46 352 208 523 208 385 308 438 474 300 373 162 474 215 308 77 208 248 208Z"/>
+    <path d="m177 119 8 22 24 1-19 14 7 23-20-14-19 14 7-23-19-14 24-1zM245 82l8 20 22 1-18 13 7 21-19-13-19 13 7-21-18-13 22-1zM355 82l8 20 22 1-18 13 7 21-19-13-19 13 7-21-18-13 22-1zM423 119l8 22 24 1-19 14 7 23-20-14-19 14 7-23-19-14 24-1z"/>
+  </g>
+  <path d="M300 57 345 216 511 216 377 312 428 462 300 368 172 462 223 312 89 216 255 216Z" fill="url(#red)" stroke="#ffcf38" stroke-width="7" stroke-linejoin="round" filter="url(#shadow)"/>
+  <g fill="#14191b" stroke="#07090a" stroke-width="2" font-family="Arial, sans-serif" font-weight="900" text-anchor="middle" filter="url(#shadow)">
+    <text x="300" y="178" font-size="74">F</text><text x="175" y="294" font-size="68">C</text><text x="425" y="294" font-size="68">C</text><text x="300" y="357" font-size="172">C</text>
+  </g>
+  <g fill="none" stroke="url(#gold)" stroke-width="8" stroke-linecap="round">
+    <path d="M258 504C199 495 151 450 132 384M342 504c59-9 107-54 126-120"/>
+  </g>
+  <g fill="url(#gold)" stroke="#714800" stroke-width="1">
+    <path d="m154 450-27-14 23 27zM140 425l-25-18 19 30zM132 397l-20-23 13 34zM172 470l-30-8 27 19zM199 485l-29-2 28 13zM446 450l27-14-23 27zM460 425l25-18-19 30zM468 397l20-23-13 34zM428 470l30-8-27 19zM401 485l29-2-28 13z"/>
+  </g>
+  <g fill="url(#gold)" stroke="#684300" stroke-width="4" filter="url(#shadow)">
+    <path d="M264 424h72v14h-72zM276 438h48l-5 45q-19 20-38 0zM257 441h14q0 26 24 31v9q-38-7-38-40zM329 441h14q0 33-38 40v-9q24-5 24-31zM286 484h28l4 18h-36zM276 502h48v13h-48z"/>
+  </g>
+</svg>
