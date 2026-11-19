@@ -217,6 +217,79 @@ describe("Testes de integracao - Fase 16", () => {
     });
   });
 
+  describe("Gestao de tecnicos e jogadores", () => {
+    let adminClient;
+
+    before(async () => {
+      adminClient = createClient(baseUrl);
+      const login = await adminClient.req("POST", "/api/login", {
+        email: "admin@lagoaemjogo.local",
+        password: "admin123"
+      });
+      adminClient.cookie = login.cookie;
+    });
+
+    test("cadastra, atualiza e remove jogador sem afetar os registros existentes", async () => {
+      const before = loadDatabase();
+      const originalAthletes = before.athletes.map((athlete) => ({ ...athlete }));
+      const teamId = before.teams[0].id;
+      const created = await adminClient.req("POST", "/api/admin/athletes", {
+        fullName: "Jogador Integracao Temporario",
+        teamId,
+        position: "Atacante",
+        age: "22",
+        stats: { matches: 0, goals: 0, yellowCards: 0, redCards: 0 }
+      });
+
+      assert.equal(created.status, 201);
+      const athleteId = created.body.athlete.id;
+      const edited = await adminClient.req("PUT", `/api/admin/athletes/${athleteId}`, {
+        fullName: "Jogador Integracao Corrigido",
+        teamId,
+        position: "Meia"
+      });
+      assert.equal(edited.status, 200);
+      assert.equal(edited.body.athlete.fullName, "Jogador Integracao Corrigido");
+      assert.equal(edited.body.athlete.position, "Meia");
+
+      const persisted = loadDatabase().athletes.find((athlete) => athlete.id === athleteId);
+      assert.equal(persisted.fullName, "Jogador Integracao Corrigido");
+      assert.equal(persisted.position, "Meia");
+
+      const removed = await adminClient.req("DELETE", `/api/admin/athletes/${athleteId}`);
+      assert.equal(removed.status, 200);
+      const after = loadDatabase();
+      assert.equal(after.athletes.length, originalAthletes.length);
+      assert.deepEqual(after.athletes, originalAthletes);
+    });
+
+    test("permite cadastrar, substituir e remover o tecnico de uma equipe", async () => {
+      const database = loadDatabase();
+      const team = database.teams.find((item) => item.community);
+      assert.ok(team, "deve existir equipe com comunidade cadastrada para o teste");
+      const originalCoach = team.coach || "";
+
+      const added = await adminClient.req("PUT", `/api/admin/teams/${team.id}`, {
+        coach: "Tecnico Integracao Temporario"
+      });
+      assert.equal(added.status, 200);
+      assert.equal(loadDatabase().teams.find((item) => item.id === team.id).coach, "Tecnico Integracao Temporario");
+
+      const replaced = await adminClient.req("PUT", `/api/admin/teams/${team.id}`, {
+        coach: "Tecnico Integracao Substituto"
+      });
+      assert.equal(replaced.status, 200);
+      assert.equal(replaced.body.team.coach, "Tecnico Integracao Substituto");
+
+      const removed = await adminClient.req("PUT", `/api/admin/teams/${team.id}`, { coach: "" });
+      assert.equal(removed.status, 200);
+      assert.equal(loadDatabase().teams.find((item) => item.id === team.id).coach, "");
+
+      await adminClient.req("PUT", `/api/admin/teams/${team.id}`, { coach: originalCoach });
+      assert.equal(loadDatabase().teams.find((item) => item.id === team.id).coach, originalCoach);
+    });
+  });
+
   describe("CRUD de partidas", () => {
     let adminClient;
     let teamId;

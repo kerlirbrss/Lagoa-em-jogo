@@ -979,6 +979,9 @@ elements.teamForm.addEventListener("submit", async (event) => {
 
   const formData = new FormData(elements.teamForm);
   const teamId = formData.get("id");
+  const currentTeam = teamId
+    ? state.admin.teams.find((team) => team.id === Number(teamId))
+    : null;
   const payload = {
     name: formData.get("name"),
     championshipId: formData.get("championshipId"),
@@ -993,6 +996,12 @@ elements.teamForm.addEventListener("submit", async (event) => {
     gallery: formData.get("gallery")
   };
 
+  if (currentTeam?.coach && !String(payload.coach || "").trim()
+    && !window.confirm(`Remover o técnico ${currentTeam.coach} de ${currentTeam.name}?`)) {
+    elements.adminStatus.textContent = "Remoção do técnico cancelada.";
+    return;
+  }
+
   try {
     await api(teamId ? `/api/admin/teams/${teamId}` : "/api/admin/teams", {
       method: teamId ? "PUT" : "POST",
@@ -1000,6 +1009,11 @@ elements.teamForm.addEventListener("submit", async (event) => {
     });
     fillTeamForm(null);
     await refreshAdminPanel();
+    elements.adminStatus.textContent = currentTeam
+      ? (currentTeam.coach && !String(payload.coach || "").trim()
+        ? `Técnico removido de ${currentTeam.name}.`
+        : `Equipe ${payload.name} atualizada.`)
+      : `Equipe ${payload.name} cadastrada.`;
   } catch (error) {
     elements.adminStatus.textContent = error.message;
   }
@@ -1025,12 +1039,21 @@ elements.adminTeams.addEventListener("click", async (event) => {
     return;
   }
 
+  const team = state.admin.teams.find((item) => {
+    return item.id === Number(deleteButton.dataset.deleteTeam);
+  });
+  if (!window.confirm(`Excluir a equipe ${team?.name || "selecionada"}?`)) {
+    elements.adminStatus.textContent = "Exclusão da equipe cancelada.";
+    return;
+  }
+
   try {
     await api(`/api/admin/teams/${deleteButton.dataset.deleteTeam}`, {
       method: "DELETE"
     });
     fillTeamForm(null);
     await refreshAdminPanel();
+    elements.adminStatus.textContent = `Equipe ${team?.name || "selecionada"} excluída.`;
   } catch (error) {
     elements.adminStatus.textContent = error.message;
   }
@@ -1041,6 +1064,9 @@ elements.athleteForm.addEventListener("submit", async (event) => {
 
   const formData = new FormData(elements.athleteForm);
   const athleteId = formData.get("id");
+  const currentAthlete = athleteId
+    ? state.admin.athletes.find((athlete) => athlete.id === Number(athleteId))
+    : null;
   const payload = {
     fullName: formData.get("fullName"),
     photoUrl: formData.get("photoUrl"),
@@ -1062,6 +1088,9 @@ elements.athleteForm.addEventListener("submit", async (event) => {
     });
     fillAthleteForm(null);
     await refreshAdminPanel();
+    elements.adminStatus.textContent = currentAthlete
+      ? `Jogador ${payload.fullName} atualizado.`
+      : `Jogador ${payload.fullName} cadastrado.`;
   } catch (error) {
     elements.adminStatus.textContent = error.message;
   }
@@ -1087,12 +1116,21 @@ elements.adminAthletes.addEventListener("click", async (event) => {
     return;
   }
 
+  const athlete = state.admin.athletes.find((item) => {
+    return item.id === Number(deleteButton.dataset.deleteAthlete);
+  });
+  if (!window.confirm(`Excluir o jogador ${athlete?.fullName || "selecionado"}?`)) {
+    elements.adminStatus.textContent = "Exclusão do jogador cancelada.";
+    return;
+  }
+
   try {
     await api(`/api/admin/athletes/${deleteButton.dataset.deleteAthlete}`, {
       method: "DELETE"
     });
     fillAthleteForm(null);
     await refreshAdminPanel();
+    elements.adminStatus.textContent = `Jogador ${athlete?.fullName || "selecionado"} excluído.`;
   } catch (error) {
     elements.adminStatus.textContent = error.message;
   }
